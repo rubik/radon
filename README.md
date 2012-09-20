@@ -13,7 +13,7 @@ Quick example:
 
 Actually it's even better: it's got colors!
 
-    $ $ radon cc -h
+    $ radon cc -h
     Usage: /home/miki/exp/bin/radon cc [<min>] [<max>] [<show_complexity>] [<average>] [<paths>...]
 
     Analyze the given Python modules and compute Cyclomatic Complexity (CC).
