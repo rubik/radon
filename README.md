@@ -13,4 +13,25 @@ Quick example:
 
 Actually it's even better: it's got colors!
 
+    $ $ radon cc -h
+    Usage: /home/miki/exp/bin/radon cc [<min>] [<max>] [<show_complexity>] [<average>] [<paths>...]
+
+    Analyze the given Python modules and compute Cyclomatic Complexity (CC).
+
+        The output can be filtered using the *min* and *max* flags. In addition
+        to y default, complexity score is not displayed.
+
+    Options:
+
+       -x --max              The maximum complexity to display (default to F).
+       -a --average          If True, at the end of the analysis display the
+                               average complexity. Default to False.
+       -s --show_complexity  Whether or not to show the actual complexity score
+                               together with the A-F rank. Default to False.
+       -n --min              The minimum complexity to display (default to A).
+
+    Variable arguments:
+
+       *paths The modules or packages to analyze.
+
 TODO
