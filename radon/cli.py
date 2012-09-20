@@ -73,7 +73,7 @@ def cc(min='A', max='F', show_complexity=False, average=False, *paths):
     Complexity (CC).
 
     The output can be filtered using the *min* and *max* flags. In addition
-    to y default, complexity score is not displayed.
+    to that, by default complexity score is not displayed.
 
     :param min: The minimum complexity to display (default to A).
     :param max: The maximum complexity to display (default to F).
