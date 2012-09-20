@@ -16,6 +16,7 @@ BaseClass = collections.namedtuple('Class', ['name', 'lineno', 'col_offset',
 Import = collections.namedtuple('Import', 'name asname')
 ImportFrom = collections.namedtuple('ImportFrom', 'module name asname')
 
+
 class Function(BaseFunc):
 
     @property
@@ -32,6 +33,7 @@ class Function(BaseFunc):
         return '{} {}:{} {} - {}'.format(self.letter, self.lineno,
                                          self.col_offset, self.fullname,
                                          self.complexity)
+
 
 class Class(BaseClass):
 
