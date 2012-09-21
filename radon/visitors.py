@@ -73,12 +73,15 @@ class ComplexityVisitor(CodeVisitor):
     the elements.
     '''
 
-    def __init__(self, to_method=False, classname=None):
-        self.complexity = 0
+    def __init__(self, to_method=False, classname=None, off=True):
+        self.complexity = 1 if off else 0
         self.functions = []
         self.classes = []
         self.to_method = to_method
         self.classname = classname
+
+    def __repr__(self):
+        return 'ComplexityVisitor(complexity={})'.format(self.complexity)
 
     @property
     def functions_complexity(self):
@@ -100,13 +103,11 @@ class ComplexityVisitor(CodeVisitor):
         # plus the `else` block.
         if name == 'TryExcept':
             self.complexity += len(node.handlers) + len(node.orelse)
-        # Bool operators, lambda, with statement and assignment
-        # all count as 1.
-        if name in ('BoolOp', 'Lambda', 'With'):
+        elif name == 'BoolOp':
+            self.complexity += len(node.values) - 1
+        # Lambda functions and with statement count as 1.
+        elif name in ('Lambda', 'With'):
             self.complexity += 1
-        #elif name in ('Assign', 'AugAssign'):
-        #    # Assignments increase complexity but not dramatically
-        #    self.complexity += .25
         # The If, For and While blocks count as 1 plus the `else` block.
         elif name in ('If', 'For', 'While'):
             self.complexity += len(node.orelse) + 1
@@ -114,6 +115,7 @@ class ComplexityVisitor(CodeVisitor):
         # the `if` statement.
         elif name == 'comprehension':
             self.complexity += len(node.ifs) + 1
+
         super(ComplexityVisitor, self).generic_visit(node)
 
     def visit_FunctionDef(self, node):
@@ -124,15 +126,15 @@ class ComplexityVisitor(CodeVisitor):
         clojures = []
         body_complexity = len(node.decorator_list)
         for child in node.body:
-            visitor = ComplexityVisitor()
+            visitor = ComplexityVisitor(off=False)
             visitor.visit(child)
             clojures.extend(visitor.functions)
             # Add general complexity and clojures' complexity
             body_complexity += (visitor.complexity +
                                 visitor.functions_complexity)
 
-        # Number of clojures increases function complexity twice as much
-        body_complexity += 2 * len(clojures)
+        # Follow Cyclomatic Complexity definition
+        body_complexity += 1
         func = Function(node.name, node.lineno, node.col_offset,
                         self.to_method, self.classname, body_complexity)
         self.functions.append(func)
@@ -146,12 +148,15 @@ class ComplexityVisitor(CodeVisitor):
         body_complexity = len(node.decorator_list)
         classname = node.name
         for child in node.body:
-            visitor = ComplexityVisitor(True, classname)
+            visitor = ComplexityVisitor(True, classname, off=False)
             visitor.visit(child)
             methods.extend(visitor.functions)
             body_complexity += (visitor.complexity +
                                 visitor.functions_complexity)
 
+        # According to Cyclomatic Complexity definition it has to start off
+        # from 1.
+        body_complexity += 1
         cls = Class(classname, node.lineno, node.col_offset,
                     methods, body_complexity)
         self.classes.append(cls)
