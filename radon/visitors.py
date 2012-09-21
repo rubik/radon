@@ -105,13 +105,19 @@ class ComplexityVisitor(CodeVisitor):
             self.complexity += len(node.handlers) + len(node.orelse)
         elif name == 'BoolOp':
             self.complexity += len(node.values) - 1
-        # Lambda functions and with statement count as 1.
-        elif name in ('Lambda', 'With'):
+        elif name == 'If':
+            increment = 1
+            if any(child.__class__.__name__ == 'If' for child in node.orelse):
+                increment = 0
+            self.complexity += len(node.orelse) + increment
+        # Try/Finally blocks and lambda functions and with statement
+        # count as 1.
+        elif name in ('TryFinally', 'Lambda', 'With'):
             self.complexity += 1
         # The If, For and While blocks count as 1 plus the `else` block.
-        elif name in ('If', 'For', 'While'):
+        elif name in ('For', 'While'):
             self.complexity += len(node.orelse) + 1
-        # List comprehensions and generator exps count as 1 plus
+        # List, set, dict comprehensions and generator exps count as 1 plus
         # the `if` statement.
         elif name == 'comprehension':
             self.complexity += len(node.ifs) + 1
