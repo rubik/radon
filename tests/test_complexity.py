@@ -247,9 +247,7 @@ FUNCTIONS_CASES = [
 ]
 
 
-@parametrized(*BLOCKS_CASES)
-class TestSimpleBlocks(ParametrizedTestCase):
-    '''Test simple blocks.'''
+class BlocksMixin(object):
 
     def setParameters(self, code, expected_complexity):
         self.code = dedent(code)
@@ -260,11 +258,15 @@ class TestSimpleBlocks(ParametrizedTestCase):
         self.assertEqual(visitor.complexity, self.expected_complexity)
 
 
-@parametrized(*ADDITIONAL_BLOCKS)
-@unittest.skipIf(sys.version_info[:2] < (2, 7),
-                 'not supported in this Python version')
-class TestAdditionalBlocks(TestSimpleBlocks):
-    '''Test set and dict comprehensions.'''
+@parametrized(*BLOCKS_CASES)
+class TestSimpleBlocks(BlocksMixin, ParametrizedTestCase):
+    '''Test simple blocks.'''
+
+
+if sys.version_info[:2] >= (2, 7):
+    @parametrized(*ADDITIONAL_BLOCKS)
+    class TestAdditionalBlocks(BlocksMixin, ParametrizedTestCase):
+        '''Test set and dict comprehensions.'''
 
 
 @parametrized(*SINGLE_FUNCTIONS_CASES)
