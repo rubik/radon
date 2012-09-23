@@ -103,23 +103,21 @@ class ComplexityVisitor(CodeVisitor):
         if name in ('Try', 'TryExcept'):
             self.complexity += len(node.handlers) + len(node.orelse)
             if 'finalbody' in node._fields:
-                self.complexity += len(node.finalbody)
+                self.complexity += len(node.finalbody)  # pragma: no cover
         elif name == 'BoolOp':
             self.complexity += len(node.values) - 1
         # Try/Finally blocks and lambda functions and with statement
         # count as 1.
-        if name in ('TryFinally', 'Lambda', 'With', 'If', 'IfExp'):
+        elif name in ('TryFinally', 'Lambda', 'With', 'If', 'IfExp'):
             self.complexity += 1
         # The If, For and While blocks count as 1 plus the `else` block.
         elif name in ('For', 'While'):
             self.complexity += len(node.orelse) + 1
-
-        super(ComplexityVisitor, self).generic_visit(node)
-
-    def visit_comprehension(self, node):
         # List, set, dict comprehensions and generator exps count as 1 plus
         # the `if` statement.
-        self.complexity += len(node.ifs) + 1
+        elif name == 'comprehension':
+            self.complexity += len(node.ifs) + 1
+
         super(ComplexityVisitor, self).generic_visit(node)
 
     def visit_FunctionDef(self, node):
