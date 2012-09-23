@@ -1,9 +1,34 @@
+import sys
 import textwrap
+import unittest
 from paramunittest import *
-from radon.visitors import ComplexityVisitor
+from radon.visitors import ComplexityVisitor, GET_COMPLEXITY
+
+
+dedent = lambda code: textwrap.dedent(code).strip()
 
 
 BLOCKS_CASES = [
+    ('''
+     if a: pass
+     ''', 2),
+
+    ('''
+     if a: pass
+     else: pass
+     ''', 2),
+
+    ('''
+     if a: pass
+     elif b: pass
+     ''', 3),
+
+    ('''
+     if a: pass
+     elif b: pass
+     else: pass
+     ''', 3),
+
     ('''
     if a and b: pass
     ''', 3),
@@ -11,30 +36,30 @@ BLOCKS_CASES = [
     ('''
     if a and b: pass
     else: pass
-    ''', 4),
+    ''', 3),
 
     ('''
      if a and b: pass
      elif c and d: pass
      else: pass
-     ''', 6),
+     ''', 5),
 
     ('''
-     if (a and b) or (c and d): pass
-     else: pass
-     ''', 6),
-
-    ('''
-     if a and b or c: pass
+     if a and b or c and d: pass
      else: pass
      ''', 5),
 
     ('''
-     for x in range(10): print x
+     if a and b or c: pass
+     else: pass
+     ''', 4),
+
+    ('''
+     for x in range(10): print(x)
      ''', 2),
 
     ('''
-     for x in xrange(10): print x
+     for x in xrange(10): print(x)
      else: pass
      ''', 3),
 
@@ -57,7 +82,7 @@ BLOCKS_CASES = [
      ''', 5),
 
     ('''
-     with open('raw.py') as fobj: print fobj.read()
+     with open('raw.py') as fobj: print(fobj.read())
      ''', 2),
 
     ('''
@@ -77,20 +102,8 @@ BLOCKS_CASES = [
      ''', 3),
 
     ('''
-     {i for i in range(4)}
-     ''', 2),
-
-    ('''
-     {i for i in range(4) if i&1}
-     ''', 3),
-
-    ('''
-     {i:i**4 for i in range(4)}
-     ''', 2),
-
-    ('''
-     {i:i**4 for i in range(4) if i&1}
-     ''', 3),
+     [i for i in range(42) if sum(k ** 2 for k in divisors(i)) & 1]
+     ''', 4),
 
     ('''
      try: raise TypeError
@@ -124,10 +137,38 @@ BLOCKS_CASES = [
     ('''
      k = lambda a, b: k(b, a)
      ''', 2),
+
+    ('''
+     v = a if b else c
+     ''', 2),
+
+    ('''
+     v = a if sum(i for i in xrange(c)) < 10 else c
+     ''', 3),
 ]
 
 
-FUNCTIONS_CASES = [
+# These run only if Python version is >= 2.7
+ADDITIONAL_BLOCKS = [
+    ('''
+     {i for i in range(4)}
+     ''', 2),
+
+    ('''
+     {i for i in range(4) if i&1}
+     ''', 3),
+
+    ('''
+     {i:i**4 for i in range(4)}
+     ''', 2),
+
+    ('''
+     {i:i**4 for i in range(4) if i&1}
+     ''', 3),
+]
+
+
+SINGLE_FUNCTIONS_CASES = [
     ('''
      def f(a, b, c):
         if a and b == 4:
@@ -138,27 +179,80 @@ FUNCTIONS_CASES = [
      ''', (1, 7)),
 
     ('''
-
      if a and not b: pass
      elif b or c: pass
      else: pass
 
      for i in range(4):
-        print i
+        print(i)
 
      def g(a, b):
         while a < b:
             b, a = a **2, b ** 2
         return b
-     ''', (7, 2))
+     ''', (6, 2)),
+
+    ('''
+     def f(a, b):
+        while a**b:
+            a, b = b, a * (b - 1)
+            if a and b:
+                b = 0
+            else:
+                b = 1
+        return sum(i for i in range(b))
+     ''', (1, 5)),
+]
+
+
+FUNCTIONS_CASES = [
+    ('''
+     def f(a, b):
+        return a if b else 2
+
+     def g(a, b, c):
+        if a and b:
+            return a / b + b / a
+        elif b and c:
+            return b / c - c / b
+        return a + b + c
+
+     def h(a, b):
+        return 2 * (a + b)
+     ''', (2, 5, 1)),
+
+    ('''
+     def f(p, q):
+        while p:
+            p, q = q, p - q
+        if q < 1:
+            return 1 / q ** 2
+        elif q > 100:
+            return 1 / q ** .5
+        return 42 if not q else p
+
+     def g(a, b, c):
+        if a and b or a - b:
+            return a / b - c
+        elif b or c:
+            return 1
+        else:
+            k = 0
+            with open('results.txt', 'w') as fobj:
+                for i in range(b ** c):
+                    k += sum(1 / j for j in range(i ** 2) if j > 2)
+                fobj.write(str(k))
+            return k - 1
+     ''', (5, 10)),
 ]
 
 
 @parametrized(*BLOCKS_CASES)
 class TestSimpleBlocks(ParametrizedTestCase):
+    '''Test simple blocks.'''
 
     def setParameters(self, code, expected_complexity):
-        self.code = textwrap.dedent(code).strip()
+        self.code = dedent(code)
         self.expected_complexity = expected_complexity
 
     def testComplexityVisitor(self):
@@ -166,17 +260,38 @@ class TestSimpleBlocks(ParametrizedTestCase):
         self.assertEqual(visitor.complexity, self.expected_complexity)
 
 
-@parametrized(*FUNCTIONS_CASES)
-class TestFunctions(ParametrizedTestCase):
+@parametrized(*ADDITIONAL_BLOCKS)
+@unittest.skipIf(sys.version_info[:2] < (2, 7),
+                 'not supported in this Python version')
+class TestAdditionalBlocks(TestSimpleBlocks):
+    '''Test set and dict comprehensions.'''
+
+
+@parametrized(*SINGLE_FUNCTIONS_CASES)
+class TestSingleFunctions(ParametrizedTestCase):
 
     def setParameters(self, code, expected_complexity):
-        self.code = textwrap.dedent(code).strip()
+        self.code = dedent(code)
         self.expected_complexity = expected_complexity
 
     def testComplexityVisitor(self):
         visitor = ComplexityVisitor.from_code(self.code)
         self.assertEqual(len(visitor.functions), 1)
         self.assertEqual((visitor.complexity, visitor.functions[0].complexity),
+                         self.expected_complexity)
+
+
+@parametrized(*FUNCTIONS_CASES)
+class TestFunctions(ParametrizedTestCase):
+
+    def setParameters(self, code, expected_complexity):
+        self.code = dedent(code)
+        self.expected_complexity = expected_complexity
+
+    def testComplexityVisitor(self):
+        visitor = ComplexityVisitor.from_code(self.code)
+        self.assertEqual(len(visitor.functions), len(self.expected_complexity))
+        self.assertEqual(tuple(map(GET_COMPLEXITY, visitor.functions)),
                          self.expected_complexity)
 
 

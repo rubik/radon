@@ -80,9 +80,6 @@ class ComplexityVisitor(CodeVisitor):
         self.to_method = to_method
         self.classname = classname
 
-    def __repr__(self):
-        return 'ComplexityVisitor(complexity={})'.format(self.complexity)
-
     @property
     def functions_complexity(self):
         return sum(map(GET_COMPLEXITY, self.functions))
@@ -101,27 +98,28 @@ class ComplexityVisitor(CodeVisitor):
         name = node.__class__.__name__
         # The Try/Except block is counted as the number of handlers
         # plus the `else` block.
-        if name == 'TryExcept':
+        # In Python 3.3 the TryExcept and TryFinally nodes have been merged
+        # into a single node: Try
+        if name in ('Try', 'TryExcept'):
             self.complexity += len(node.handlers) + len(node.orelse)
+            if 'finalbody' in node._fields:
+                self.complexity += len(node.finalbody)
         elif name == 'BoolOp':
             self.complexity += len(node.values) - 1
-        elif name == 'If':
-            increment = 1
-            if any(child.__class__.__name__ == 'If' for child in node.orelse):
-                increment = 0
-            self.complexity += len(node.orelse) + increment
         # Try/Finally blocks and lambda functions and with statement
         # count as 1.
-        elif name in ('TryFinally', 'Lambda', 'With'):
+        if name in ('TryFinally', 'Lambda', 'With', 'If', 'IfExp'):
             self.complexity += 1
         # The If, For and While blocks count as 1 plus the `else` block.
         elif name in ('For', 'While'):
             self.complexity += len(node.orelse) + 1
+
+        super(ComplexityVisitor, self).generic_visit(node)
+
+    def visit_comprehension(self, node):
         # List, set, dict comprehensions and generator exps count as 1 plus
         # the `if` statement.
-        elif name == 'comprehension':
-            self.complexity += len(node.ifs) + 1
-
+        self.complexity += len(node.ifs) + 1
         super(ComplexityVisitor, self).generic_visit(node)
 
     def visit_FunctionDef(self, node):
