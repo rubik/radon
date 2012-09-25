@@ -163,6 +163,8 @@ class ComplexityVisitor(CodeVisitor):
         # According to Cyclomatic Complexity definition it has to start off
         # from 1.
         body_complexity += 1
+        # Deduced because the complexity of each procedure is 1 or more
+        body_complexity -= len(methods)
         cls = Class(classname, node.lineno, node.col_offset,
                     methods, body_complexity)
         self.classes.append(cls)

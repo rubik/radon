@@ -22,6 +22,7 @@ except ImportError:
 from radon.complexity import cc_visit, rank
 from radon.utils import iter_filenames
 from radon.raw import analyze
+from radon.metrics import mi_visit
 
 
 RANKS_COLORS = {'A': GREEN, 'B': GREEN,
@@ -50,6 +51,14 @@ def _format_line(line, ranked, show_complexity=False):
 
 
 def _print_cc_results(path, results, min, max, show_complexity):
+    '''Print Cyclomatic Complexity results.
+
+    :param path: the path of the module that has been analyzed
+    :param min: the minimum complexity rank to show
+    :param max: the maximum complexity rank to show
+    :param show_complexity: if True, show the complexity score in addition to
+        the complexity rank
+    '''
     res = []
     average_cc = .0
     for line in results:
@@ -66,30 +75,29 @@ def _print_cc_results(path, results, min, max, show_complexity):
     return average_cc, len(results)
 
 
-def _check_args(func):
-    def aux(*paths, **kwargs):
-        if not paths:
-            raise baker.CommandHelp('radon', BAKER.commands[func.__name__])
-        return func(*paths, **kwargs)
-    return aux
+@BAKER.command(shortopts={'multi': 'm'})
+def mi(multi=True, *paths):
+    '''Analyze the given Python modules and compute the Maintainability Index.
 
+    The maintainability index (MI) is a compound metric, with the primary aim
+    of to determine how easy it will be to maintain a particular body of code.
 
-@_check_args
-@BAKER.command
-def mi(*paths):
+    :param multi: Whether or not to count multiline strings as comments. Most
+        of the time this is safe since multiline strings are used as functions
+        docstrings, but one should be aware that their use is not limited to
+        that and sometimes it would be wrong to count them as comment lines.
+    :param paths: The modules or packages to analyze.
+    '''
     for name in iter_filenames(paths):
         with open(name) as fobj:
             try:
-                ast_node = ast.parse(fobj.read())
+                result = mi_visit(fobj.read(), multi)
             except Exception as e:
                 print '{}ERROR: {}'.format(' ' * 4, str(e))
-        cc, blocks =  _print_cc_results(name, results, min, max,
-                                        show_complexity)
-        average_cc += cc
-        analyzed += blocks
+                continue
+            print '{}\n{}{}'.format(name, ' ' * 4, result)
 
 
-@_check_args
 @BAKER.command(shortopts={'min': 'n', 'max': 'x', 'show_complexity': 's',
                           'average': 'a'})
 def cc(min='A', max='F', show_complexity=False, average=False, *paths):
@@ -130,7 +138,6 @@ def cc(min='A', max='F', show_complexity=False, average=False, *paths):
         print 'Average complexity: {}{} ({}){}'.format(RANKS_COLORS[ranked_cc],
                                                        ranked_cc, cc, RESET)
 
-@_check_args
 @BAKER.command
 def raw(*paths):
     for path in iter_filenames(paths):
