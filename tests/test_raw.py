@@ -46,6 +46,14 @@ class TestFind(ParametrizedTestCase):
 
 LOGICAL_LINES_CASES = [
     ('''
+     # most useless comment
+     ''', 1),
+
+    ('''
+     a * b + c
+     ''', 1),
+
+    ('''
      if a:
      ''', 1),
 

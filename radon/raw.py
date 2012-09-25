@@ -9,14 +9,14 @@ except ImportError:  # pragma: no cover
     import io
 
 # This is madness. Why do they have to change codes across versions??!?
-# And, BTW, there is no mention at all of this in the docs...
+# And, BTW, there is no mention at all in the docs...
 if sys.version_info[:2] < (3, 0):  # pragma: no cover
     COLON_TYPE = 51
     COMMENT_TYPE = 53
 elif sys.version_info[:2] < (3, 2):  # pragma: no cover
     COLON_TYPE = 53
     COMMENT_TYPE = 55
-else:
+else:  # pragma: no cover
     COLON_TYPE = 52
     COMMENT_TYPE = 54
 
