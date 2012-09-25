@@ -1,8 +1,22 @@
+import sys
 import math
-import StringIO
 import tokenize
 import operator
 import collections
+try:
+    import StringIO as io
+except ImportError:  # pragma: no cover
+    import io
+if sys.version_info[:2] >= (3, 0):  # pragma: no cover
+    COLON_TYPE = 52
+    COMMENT_TYPE = 54
+else:
+    COLON_TYPE = 51
+    COMMENT_TYPE = 53
+
+
+__all__ = ['COLON_TYPE', 'COMMENT_TYPE', 'TOKEN_NUMBER', 'Module', '_generate',
+           '_less_tokens', '_find', '_logical', 'analyze']
 
 
 # Helper for map()
@@ -21,25 +35,25 @@ def _generate(code):
     '''Pass the code into `tokenize.generate_tokens` and convert the result
     into a list.
     '''
-    return list(tokenize.generate_tokens(StringIO.StringIO(code).readline))
+    return list(tokenize.generate_tokens(io.StringIO(code).readline))
 
 
 def _less_tokens(tokens, remove):
     '''Process the output of `tokenize.generate_tokens` removing
     the tokens specified in `remove`.
     '''
-    for token_type, value, (sr, sc), (er, ec), line in tokens:
-        if token_type in remove:
+    for values in tokens:
+        if values[0] in remove:
             continue
-        yield token_type, value, (sr, sc), (er, ec), line
+        yield values
 
 
 def _find(tokens, token, value):
-    '''Return the position of the token with the same (token, value) pair
-    supplied. The position is the one of the rightmost term.
+    '''Return the position of the last token with the same (token, value)
+    pair supplied. The position is the one of the rightmost term.
     '''
-    for index, token_values in reversed(tokens):
-        if [token, value] == token_values[:2]:
+    for index, token_values in enumerate(reversed(tokens)):
+        if (token, value) == token_values[:2]:
             return len(tokens) - index - 1
     raise ValueError('(token, value) pair not found')
 
@@ -73,11 +87,11 @@ def _logical(tokens):
         if cond: return 0  # Only a comment  -> 2
     '''
     # Get the tokens and, in the meantime, remove comments
-    processed = list(_less_tokens(tokens, [53]))
+    processed = list(_less_tokens(tokens, [COMMENT_TYPE]))
     try:
         # Verify whether a colon is present among the tokens and that
         # it is the last token.
-        token_pos = _find(processed, 51, ':')
+        token_pos = _find(processed, COLON_TYPE, ':')
         return 2 - (token_pos == len(processed) - 2)
     except ValueError:
         # The colon is not present
