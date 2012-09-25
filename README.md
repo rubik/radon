@@ -13,6 +13,9 @@ Quick example:
 
 Actually it's even better: it's got colors!
 
+![A screen of radon](http://cloud.github.com/downloads/rubik/radon/radon_cc.png 'A screen of radon')
+
+
     $ radon cc -h
     Usage: /home/miki/exp/bin/radon cc [<min>] [<max>] [<show_complexity>] [<average>] [<paths>...]
 
