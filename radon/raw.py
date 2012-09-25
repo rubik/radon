@@ -7,12 +7,18 @@ try:
     import StringIO as io
 except ImportError:  # pragma: no cover
     import io
-if sys.version_info[:2] >= (3, 0):  # pragma: no cover
-    COLON_TYPE = 52
-    COMMENT_TYPE = 54
-else:
+
+# This is madness. Why do they have to change codes across versions??!?
+# And, BTW, there is no mention at all of this in the docs...
+if sys.version_info[:2] < (3, 0):  # pragma: no cover
     COLON_TYPE = 51
     COMMENT_TYPE = 53
+elif sys.version_info[:2] < (3, 2):  # pragma: no cover
+    COLON_TYPE = 53
+    COMMENT_TYPE = 55
+else:
+    COLON_TYPE = 52
+    COMMENT_TYPE = 54
 
 
 __all__ = ['COLON_TYPE', 'COMMENT_TYPE', 'TOKEN_NUMBER', 'Module', '_generate',
