@@ -1,6 +1,5 @@
 import sys
 import textwrap
-import unittest
 from paramunittest import *
 from radon.visitors import ComplexityVisitor, GET_COMPLEXITY
 
@@ -247,6 +246,47 @@ FUNCTIONS_CASES = [
 ]
 
 
+CLASSES_CASES = [
+    ('''
+     class A(object):
+
+         def m(self, a, b):
+             if not a or b:
+                 return b - 1
+             try:
+                 return a / b
+             except ZeroDivisionError:
+                 return a
+        
+         def n(self, k):
+             while self.m(k) < k:
+                 k -= self.m(k ** 2 - min(self.m(j) for j in range(k ** 4)))
+             return k
+     ''', (8, 4, 3)),
+
+    ('''
+     class B(object):
+
+         ATTR = 9 if A().n(9) == 9 else 10
+         import sys
+         if sys.version_info >= (3, 3):
+             import os
+             AT = os.openat('/random/loc')
+         
+         def __iter__(self):
+             return __import__('itertools').tee(B.__dict__)
+
+         def test(self, func):
+             a = func(self.ATTR, self.AT)
+             if a < self.ATTR:
+                 yield self
+             elif a > self.ATTR ** 2:
+                 yield self.__iter__()
+             yield iter(a)
+     ''', (7, 1, 3)),
+]
+
+
 class BlocksMixin(object):
 
     def setParameters(self, code, expected_complexity):
@@ -295,6 +335,24 @@ class TestFunctions(ParametrizedTestCase):
         self.assertEqual(len(visitor.functions), len(self.expected_complexity))
         self.assertEqual(tuple(map(GET_COMPLEXITY, visitor.functions)),
                          self.expected_complexity)
+
+
+@parametrized(*CLASSES_CASES)
+class TestClasses(ParametrizedTestCase):
+
+    def setParameters(self, code, expected_complexity):
+        self.code = dedent(code)
+        self.total_class_complexity = expected_complexity[0]
+        self.methods_complexity = expected_complexity[1:]
+
+    def testComplexityVisitor(self):
+        visitor = ComplexityVisitor.from_code(self.code)
+        self.assertEqual(len(visitor.classes), 1)
+        self.assertEqual(len(visitor.functions), 0)
+        cls = visitor.classes[0]
+        self.assertEqual(cls.real_complexity, self.total_class_complexity)
+        self.assertEqual(tuple(map(GET_COMPLEXITY, cls.methods)),
+                         self.methods_complexity)
 
 
 if __name__ == '__main__':

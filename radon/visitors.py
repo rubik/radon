@@ -57,6 +57,10 @@ class Class(BaseClass):
 
 class CodeVisitor(ast.NodeVisitor):
 
+    @staticmethod
+    def get_name(obj):
+        return obj.__class__.__name__
+
     @classmethod
     def from_code(cls, code):
         return cls.from_ast(ast.parse(code))
@@ -95,7 +99,7 @@ class ComplexityVisitor(CodeVisitor):
 
     def generic_visit(self, node):
         # Get the name of the class
-        name = node.__class__.__name__
+        name = self.get_name(node)
         # The Try/Except block is counted as the number of handlers
         # plus the `else` block.
         # In Python 3.3 the TryExcept and TryFinally nodes have been merged
@@ -126,7 +130,7 @@ class ComplexityVisitor(CodeVisitor):
         # the function's body and the number of clojures (which count
         # double).
         clojures = []
-        body_complexity = len(node.decorator_list)
+        body_complexity = 0
         for child in node.body:
             visitor = ComplexityVisitor(off=False)
             visitor.visit(child)
@@ -147,7 +151,7 @@ class ComplexityVisitor(CodeVisitor):
         # the following factors: number of decorators and the complexity
         # of the class' body (which is the sum of all the complexities).
         methods = []
-        body_complexity = len(node.decorator_list)
+        body_complexity = 0
         classname = node.name
         for child in node.body:
             visitor = ComplexityVisitor(True, classname, off=False)
@@ -164,18 +168,59 @@ class ComplexityVisitor(CodeVisitor):
         self.classes.append(cls)
 
 
-
-class ImportsVisitor(CodeVisitor):
+class HalsteadVisitor(CodeVisitor):
 
     def __init__(self):
-        self.imports = []
-        self.imports_from = []
+        self.operators_seen = set()
+        self.operands_seen = set()
+        self.operators = 0
+        self.operands = 0
 
-    def visit_Import(self, node):
-        imps = map(NAMES_GETTER, node.names)
-        self.imports.extend(Import(*args) for args in imps)
+    @property
+    def distinct_operators(self):
+        return len(self.operators_seen)
 
-    def visit_ImportFrom(self, node):
-        imps = (ImportFrom(node.module, *map(NAMES_GETTER, name))
-                for name in node.names)
-        self.imports_from.extend(imps)
+    @property
+    def distinct_operands(self):
+        return len(self.operands_seen)
+
+    def generic_visit(self, node):
+        name = node.__class__.__name__
+        if name == 'BinOp':
+            self.operators += 1
+            self.operands += 2
+            self.operators_seen.add(self.get_name(node.op))
+            self.operands_seen.update((node.left, node.right))
+        elif name == 'UnaryOp':
+            self.operators += 1
+            self.operands += 1
+            self.operators_seen.add(self.get_name(node.op))
+            self.operands_seen.add(node.operand)
+        elif name == 'BoolOp':
+            self.operators += 1
+            self.operands += len(node.values)
+            self.operators_seen.add(self.get_name(node.op))
+            self.operands_seen.update(node.values)
+        elif name == 'AugAssign':
+            self.operators += 1
+            self.operands += 2
+            self.operators_seen.add(self.get_name(node.op))
+            self.operands_seen.update((node.target, node.value))
+
+        super(HalsteadVisitor, self).generic_visit(node)
+
+
+#class ImportsVisitor(CodeVisitor):
+
+    #def __init__(self):
+        #self.imports = []
+        #self.imports_from = []
+
+    #def visit_Import(self, node):
+        #imps = map(NAMES_GETTER, node.names)
+        #self.imports.extend(Import(*args) for args in imps)
+
+    #def visit_ImportFrom(self, node):
+        #imps = (ImportFrom(node.module, *map(NAMES_GETTER, name))
+                #for name in node.names)
+        #self.imports_from.extend(imps)

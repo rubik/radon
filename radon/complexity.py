@@ -1,6 +1,6 @@
+import ast
 import math
 from radon.visitors import GET_COMPLEXITY, ComplexityVisitor
-from radon.utils import iter_filenames, is_dir
 
 
 def rank(complexity):
@@ -26,6 +26,10 @@ def rank(complexity):
     return chr(min(partial, 5) + 65)
 
 
+def average_complexity(blocks):
+    return sum((GET_COMPLEXITY(block) for block in blocks), .0) / len(blocks)
+
+
 def sorted_results(visitor):
     '''Given a ComplexityVisitor instance, returns a list of sorted blocks
     with respect to complexity. A block is a either `~radon.visitors.Function`
@@ -41,24 +45,12 @@ def sorted_results(visitor):
     return blocks
 
 
-def visit(code):
+def cc_visit(code):
     '''Visit the given code with `~radon.visitors.ComplexityVisitor` and
     then pass the result to the `~radon.complexity.sorted_results` function.
     '''
-    return sorted_results(ComplexityVisitor.from_code(code))
+    return cc_visit_ast(ast.parse(code))
 
 
-def visit_package(path):
-    '''Visit a whole package. For every module, this function calls
-    `~radon.complexity.visit` and yields the result. If the given path points
-    to a file, then only that one is visited.
-    '''
-    def _visit(path):
-        with open(path) as fobj:
-            return visit(fobj.read())
-
-    if not is_dir(path):
-        yield path, _visit(path)
-        return
-    for module in iter_filenames([path]):
-        yield module, _visit(module)
+def cc_visit_ast(ast_node):
+    return sorted_results(ComplexityVisitor.from_ast(ast_node))

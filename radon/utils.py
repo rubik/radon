@@ -1,10 +1,6 @@
 import os
 
 
-def is_dir(path):
-    '''Helper for `os.path.isdir`.'''
-    return os.path.isdir(path)
-
 def iter_filenames(paths):
     '''Recursively iter filenames starting from the given *paths*.
     Filenames are filtered and only Python files (those ending with .py) are

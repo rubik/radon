@@ -1,3 +1,4 @@
+import math
 import StringIO
 import tokenize
 import operator
@@ -103,7 +104,7 @@ def analyze(source):
     Multiline strings are not counted as comments, since, to the Python
     interpreter, they are not comments but strings.
     '''
-    loc = lloc = sloc = comments = multi = blank = 0
+    loc = sloc = lloc = comments = multi = blank = 0
     lines = iter(source.splitlines())
     for line in lines:
         loc += 1

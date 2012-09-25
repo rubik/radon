@@ -19,7 +19,8 @@ except ImportError:
     GREEN = YELLOW = RED = MAGENTA = CYAN = WHITE = BRIGHT = RESET = ''
     colorama_init = colorama_deinit = lambda: True
 
-from radon.complexity import visit_package, rank
+from radon.complexity import cc_visit, rank
+from radon.utils import iter_filenames
 from radon.raw import analyze
 
 
@@ -53,11 +54,11 @@ def _print_cc_results(path, results, min, max, show_complexity):
     average_cc = .0
     for line in results:
         ranked = rank(line.complexity)
+        average_cc += line.complexity
         if not min <= ranked <= max:
             continue
         res.append('{}{}'.format(' ' * 4, _format_line(line, ranked,
                                                        show_complexity)))
-        average_cc += line.complexity
     if res:
         print path
         for r in res:
@@ -65,7 +66,30 @@ def _print_cc_results(path, results, min, max, show_complexity):
     return average_cc, len(results)
 
 
+def _check_args(func):
+    def aux(*paths, **kwargs):
+        if not paths:
+            raise baker.CommandHelp('radon', BAKER.commands[func.__name__])
+        return func(*paths, **kwargs)
+    return aux
 
+
+@_check_args
+@BAKER.command
+def mi(*paths):
+    for name in iter_filenames(paths):
+        with open(name) as fobj:
+            try:
+                ast_node = ast.parse(fobj.read())
+            except Exception as e:
+                print '{}ERROR: {}'.format(' ' * 4, str(e))
+        cc, blocks =  _print_cc_results(name, results, min, max,
+                                        show_complexity)
+        average_cc += cc
+        analyzed += blocks
+
+
+@_check_args
 @BAKER.command(shortopts={'min': 'n', 'max': 'x', 'show_complexity': 's',
                           'average': 'a'})
 def cc(min='A', max='F', show_complexity=False, average=False, *paths):
@@ -83,18 +107,20 @@ def cc(min='A', max='F', show_complexity=False, average=False, *paths):
         complexity. Default to False.
     :param paths: The modules or packages to analyze.
     '''
-    if not paths:
-        raise baker.CommandHelp('radon', BAKER.commands['cc'])
     min = min.upper()
     max = max.upper()
     average_cc = .0
     analyzed = 0
-    for path in paths:
-        for name, results in visit_package(path):
-            cc, blocks =  _print_cc_results(name, results, min, max,
-                                            show_complexity)
-            average_cc += cc
-            analyzed += blocks
+    for name in iter_filenames(paths):
+        with open(name) as fobj:
+            try:
+                results = cc_visit(fobj.read())
+            except Exception as e:
+                print '{}ERROR: {}'.format(' ' * 4, str(e))
+        cc, blocks =  _print_cc_results(name, results, min, max,
+                                        show_complexity)
+        average_cc += cc
+        analyzed += blocks
 
     if average and analyzed:
         cc = average_cc / analyzed
@@ -104,7 +130,7 @@ def cc(min='A', max='F', show_complexity=False, average=False, *paths):
         print 'Average complexity: {}{} ({}){}'.format(RANKS_COLORS[ranked_cc],
                                                        ranked_cc, cc, RESET)
 
-
+@_check_args
 @BAKER.command
 def raw(*paths):
     for path in iter_filenames(paths):
