@@ -33,7 +33,7 @@ LETTERS_COLORS = {'F': MAGENTA,
                   'C': CYAN,
                   'M': WHITE}
 
-TEMPLATE = '{}{} {reset}{}:{} {} - {}{}{reset}'
+TEMPLATE = '{0}{1} {reset}{2}:{3} {4} - {5}{6}{reset}'
 BAKER = baker.Baker()
 
 
@@ -66,8 +66,8 @@ def _print_cc_results(path, results, min, max, show_complexity):
         average_cc += line.complexity
         if not min <= ranked <= max:
             continue
-        res.append('{}{}'.format(' ' * 4, _format_line(line, ranked,
-                                                       show_complexity)))
+        res.append('{0}{1}'.format(' ' * 4, _format_line(line, ranked,
+                                                         show_complexity)))
     if res:
         print path
         for r in res:
@@ -93,9 +93,9 @@ def mi(multi=True, *paths):
             try:
                 result = mi_visit(fobj.read(), multi)
             except Exception as e:
-                print '{}ERROR: {}'.format(' ' * 4, str(e))
+                print '{0}ERROR: {1}'.format(' ' * 4, str(e))
                 continue
-            print '{}\n{}{}'.format(name, ' ' * 4, result)
+            print '{0}\n{1}{2}'.format(name, ' ' * 4, result)
 
 
 @BAKER.command(shortopts={'min': 'n', 'max': 'x', 'show_complexity': 's',
@@ -124,7 +124,7 @@ def cc(min='A', max='F', show_complexity=False, average=False, *paths):
             try:
                 results = cc_visit(fobj.read())
             except Exception as e:
-                print '{}ERROR: {}'.format(' ' * 4, str(e))
+                print '{0}ERROR: {1}'.format(' ' * 4, str(e))
         cc, blocks =  _print_cc_results(name, results, min, max,
                                         show_complexity)
         average_cc += cc
@@ -133,10 +133,10 @@ def cc(min='A', max='F', show_complexity=False, average=False, *paths):
     if average and analyzed:
         cc = average_cc / analyzed
         ranked_cc = rank(cc)
-        print '\n{} blocks (classes, functions, methods) ' \
+        print '\n{0} blocks (classes, functions, methods) ' \
               'analyzed.'.format(analyzed)
-        print 'Average complexity: {}{} ({}){}'.format(RANKS_COLORS[ranked_cc],
-                                                       ranked_cc, cc, RESET)
+        print 'Average complexity: {0}{1} ({2}){3}'.format(RANKS_COLORS[ranked_cc],
+                                                           ranked_cc, cc, RESET)
 
 @BAKER.command
 def raw(*paths):
@@ -146,13 +146,13 @@ def raw(*paths):
             mod = analyze(fobj.read())
             for header, value in zip(['LOC', 'LLOC', 'SLOC', 'Comments',
                                       'Multi', 'Blank'], mod):
-                print '{}{}: {}'.format(' ' * 4, header, value)
+                print '{0}{1}: {2}'.format(' ' * 4, header, value)
             if not mod.loc:
                 continue
             print ' ' * 4 + '- Stats'
             indent = ' ' * 8
             comments = mod.comments
-            print '{}(C % L): {:.0%}'.format(indent, comments / float(mod.loc))
-            print '{}(C % S): {:.0%}'.format(indent, comments / float(mod.sloc))
-            print '{}(C + M % L): {:.0%}'.format(indent, (comments + mod.multi) /
+            print '{0}(C % L): {1:.0%}'.format(indent, comments / float(mod.loc))
+            print '{0}(C % S): {1:.0%}'.format(indent, comments / float(mod.sloc))
+            print '{0}(C + M % L): {1:.0%}'.format(indent, (comments + mod.multi) /
                                                  float(mod.loc))

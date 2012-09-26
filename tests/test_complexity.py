@@ -1,10 +1,11 @@
 import sys
 import textwrap
 from paramunittest import *
-from radon.visitors import ComplexityVisitor, GET_COMPLEXITY
+from radon.visitors import *
 
 
 dedent = lambda code: textwrap.dedent(code).strip()
+version = sys.version_info[:2]
 
 
 BLOCKS_CASES = [
@@ -167,6 +168,20 @@ ADDITIONAL_BLOCKS = [
 ]
 
 
+SIMPLE_BLOCKS = BLOCKS_CASES + (ADDITIONAL_BLOCKS if version >= (2, 7) else [])
+@parametrized(*SIMPLE_BLOCKS)
+class TestSimpleBlocks(ParametrizedTestCase):
+    '''Test simple blocks.'''
+
+    def setParameters(self, code, expected_complexity):
+        self.code = dedent(code)
+        self.expected_complexity = expected_complexity
+
+    def testComplexityVisitor(self):
+        visitor = ComplexityVisitor.from_code(self.code)
+        self.assertEqual(visitor.complexity, self.expected_complexity)
+
+
 SINGLE_FUNCTIONS_CASES = [
     ('''
      def f(a, b, c):
@@ -202,6 +217,20 @@ SINGLE_FUNCTIONS_CASES = [
         return sum(i for i in range(b))
      ''', (1, 5)),
 ]
+
+
+@parametrized(*SINGLE_FUNCTIONS_CASES)
+class TestSingleFunctions(ParametrizedTestCase):
+
+    def setParameters(self, code, expected_complexity):
+        self.code = dedent(code)
+        self.expected_complexity = expected_complexity
+
+    def testComplexityVisitor(self):
+        visitor = ComplexityVisitor.from_code(self.code)
+        self.assertEqual(len(visitor.functions), 1)
+        self.assertEqual((visitor.complexity, visitor.functions[0].complexity),
+                         self.expected_complexity)
 
 
 FUNCTIONS_CASES = [
@@ -246,6 +275,20 @@ FUNCTIONS_CASES = [
 ]
 
 
+@parametrized(*FUNCTIONS_CASES)
+class TestFunctions(ParametrizedTestCase):
+
+    def setParameters(self, code, expected_complexity):
+        self.code = dedent(code)
+        self.expected_complexity = expected_complexity
+
+    def testComplexityVisitor(self):
+        visitor = ComplexityVisitor.from_code(self.code)
+        self.assertEqual(len(visitor.functions), len(self.expected_complexity))
+        self.assertEqual(tuple(map(GET_COMPLEXITY, visitor.functions)),
+                         self.expected_complexity)
+
+
 CLASSES_CASES = [
     ('''
      class A(object):
@@ -287,56 +330,6 @@ CLASSES_CASES = [
 ]
 
 
-class BlocksMixin(object):
-
-    def setParameters(self, code, expected_complexity):
-        self.code = dedent(code)
-        self.expected_complexity = expected_complexity
-
-    def testComplexityVisitor(self):
-        visitor = ComplexityVisitor.from_code(self.code)
-        self.assertEqual(visitor.complexity, self.expected_complexity)
-
-
-@parametrized(*BLOCKS_CASES)
-class TestSimpleBlocks(BlocksMixin, ParametrizedTestCase):
-    '''Test simple blocks.'''
-
-
-if sys.version_info[:2] >= (2, 7):
-    @parametrized(*ADDITIONAL_BLOCKS)
-    class TestAdditionalBlocks(BlocksMixin, ParametrizedTestCase):
-        '''Test set and dict comprehensions.'''
-
-
-@parametrized(*SINGLE_FUNCTIONS_CASES)
-class TestSingleFunctions(ParametrizedTestCase):
-
-    def setParameters(self, code, expected_complexity):
-        self.code = dedent(code)
-        self.expected_complexity = expected_complexity
-
-    def testComplexityVisitor(self):
-        visitor = ComplexityVisitor.from_code(self.code)
-        self.assertEqual(len(visitor.functions), 1)
-        self.assertEqual((visitor.complexity, visitor.functions[0].complexity),
-                         self.expected_complexity)
-
-
-@parametrized(*FUNCTIONS_CASES)
-class TestFunctions(ParametrizedTestCase):
-
-    def setParameters(self, code, expected_complexity):
-        self.code = dedent(code)
-        self.expected_complexity = expected_complexity
-
-    def testComplexityVisitor(self):
-        visitor = ComplexityVisitor.from_code(self.code)
-        self.assertEqual(len(visitor.functions), len(self.expected_complexity))
-        self.assertEqual(tuple(map(GET_COMPLEXITY, visitor.functions)),
-                         self.expected_complexity)
-
-
 @parametrized(*CLASSES_CASES)
 class TestClasses(ParametrizedTestCase):
 
@@ -353,6 +346,38 @@ class TestClasses(ParametrizedTestCase):
         self.assertEqual(cls.real_complexity, self.total_class_complexity)
         self.assertEqual(tuple(map(GET_COMPLEXITY, cls.methods)),
                          self.methods_complexity)
+
+
+CONTAINERS_CASES = [
+    (('func', 12, 0, False, None, 5),
+     ('F', 'func', 'F 12:0 func - 5')),
+
+    (('meth', 12, 0, True, 'cls', 5),
+     ('M', 'cls.meth', 'M 12:0 cls.meth - 5')),
+
+    (('cls', 12, 0, [], 5),
+     ('C', 'cls', 'C 12:0 cls - 5')),
+
+    (('cls', 12, 0, [object, object, object, object], 30),
+     ('C', 'cls', 'C 12:0 cls - 7.5')),
+]
+
+
+@parametrized(*CONTAINERS_CASES)
+class TestContainers(ParametrizedTestCase):
+
+    def setParameters(self, values, expected):
+        self.values = values
+        self.expected_letter = expected[0]
+        self.expected_name = expected[1]
+        self.expected_str = expected[2]
+
+    def testContainers(self):
+        cls = Function if len(self.values) == 6 else Class
+        obj = cls(*self.values)
+        self.assertEqual(obj.letter, self.expected_letter)
+        self.assertEqual(obj.fullname, self.expected_name)
+        self.assertEqual(str(obj), self.expected_str)
 
 
 if __name__ == '__main__':

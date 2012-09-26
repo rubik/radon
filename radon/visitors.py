@@ -13,9 +13,6 @@ BaseFunc = collections.namedtuple('Function', ['name', 'lineno', 'col_offset',
 BaseClass = collections.namedtuple('Class', ['name', 'lineno', 'col_offset',
                                              'methods', 'real_complexity'])
 
-Import = collections.namedtuple('Import', 'name asname')
-ImportFrom = collections.namedtuple('ImportFrom', 'module name asname')
-
 
 class Function(BaseFunc):
 
@@ -27,12 +24,12 @@ class Function(BaseFunc):
     def fullname(self):
         if self.classname is None:
             return self.name
-        return '{}.{}'.format(self.classname, self.name)
+        return '{0}.{1}'.format(self.classname, self.name)
 
     def __str__(self):
-        return '{} {}:{} {} - {}'.format(self.letter, self.lineno,
-                                         self.col_offset, self.fullname,
-                                         self.complexity)
+        return '{0} {1}:{2} {3} - {4}'.format(self.letter, self.lineno,
+                                              self.col_offset, self.fullname,
+                                              self.complexity)
 
 
 class Class(BaseClass):
@@ -47,12 +44,12 @@ class Class(BaseClass):
     def complexity(self):
         if not self.methods:
             return self.real_complexity
-        return self.real_complexity / len(self.methods)
+        return self.real_complexity / float(len(self.methods))
 
     def __str__(self):
-        return '{} {}:{} {} - {}'.format(self.letter, self.lineno,
-                                         self.col_offset, self.name,
-                                         self.complexity)
+        return '{0} {1}:{2} {3} - {4}'.format(self.letter, self.lineno,
+                                              self.col_offset, self.name,
+                                              self.complexity)
 
 
 class CodeVisitor(ast.NodeVisitor):
@@ -210,19 +207,3 @@ class HalsteadVisitor(CodeVisitor):
             self.operands_seen.update((node.target, node.value))
 
         super(HalsteadVisitor, self).generic_visit(node)
-
-
-#class ImportsVisitor(CodeVisitor):
-
-    #def __init__(self):
-        #self.imports = []
-        #self.imports_from = []
-
-    #def visit_Import(self, node):
-        #imps = map(NAMES_GETTER, node.names)
-        #self.imports.extend(Import(*args) for args in imps)
-
-    #def visit_ImportFrom(self, node):
-        #imps = (ImportFrom(node.module, *map(NAMES_GETTER, name))
-                #for name in node.names)
-        #self.imports_from.extend(imps)
