@@ -47,7 +47,7 @@ class TestFind(ParametrizedTestCase):
 LOGICAL_LINES_CASES = [
     ('''
      # most useless comment
-     ''', 1),
+     ''', 0),
 
     ('''
      a * b + c
@@ -100,6 +100,20 @@ LOGICAL_LINES_CASES = [
     ('''
      if a: return  # just a comment
      ''', 2),
+
+    ('''
+     42 # a comment
+     ''', 1),
+
+    ('''
+     """
+     multiple
+     """
+     ''', 1),
+
+    ('''
+     # just a comment
+     ''', 0),
 ]
 
 
@@ -112,6 +126,73 @@ class TestLogicalLines(ParametrizedTestCase):
 
     def testLogical(self):
         self.assertEqual(_logical(self.code), self.expected_number_of_lines)
+
+
+ANALYZE_CASES = [
+    ('''
+     """
+     doc?
+     """
+     ''', (3, 1, 3, 0, 3, 0)),
+
+    ('''
+     # just a comment
+     if a and b:
+         print('woah')
+     else:
+         # you'll never get here
+         print('ven')
+     ''', (6, 4, 6, 2, 0, 0)),
+
+    ('''
+     #
+     #
+     #
+     ''', (3, 0, 3, 3, 0, 0)),
+
+    ('''
+     if a:
+         print
+
+
+     else:
+         print
+     ''', (6, 4, 4, 0, 0, 2)),
+
+    # In this case the docstring is not counted as a multi-line string
+    # because in fact it is on one line!
+    ('''
+     def f(n):
+         """here"""
+         return n * f(n - 1)
+     ''', (3, 3, 3, 0, 0, 0)),
+
+    ('''
+     def hip(a, k):
+         if k == 1: return a
+         # getting high...
+         return a ** hip(a, k - 1)
+
+     def fib(n):
+         """Compute the n-th Fibonacci number.
+
+         Try it with n = 294942: it will take a fairly long time.
+         """
+         if n <= 1: return 1
+         return fib(n - 2) + fib(n - 1)
+     ''', (12, 9, 11, 1, 4, 1)),
+]
+
+
+@parametrized(*ANALYZE_CASES)
+class TestAnalyze(ParametrizedTestCase):
+
+    def setParameters(self, code, expected):
+        self.code = dedent(code)
+        self.expected = expected
+
+    def testAnalyze(self):
+        self.assertEqual(analyze(self.code), self.expected)
 
 
 if __name__ == '__main__':

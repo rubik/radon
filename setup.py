@@ -9,4 +9,5 @@ setup(name='radon',
       license='MIT',
       packages=['radon'],
       tests_require=['tox'],
+      extras_require={'tool': ['baker']},
       entry_points={'console_scripts': ['radon = radon:main']})

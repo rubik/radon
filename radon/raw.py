@@ -13,18 +13,22 @@ except ImportError:  # pragma: no cover
 if sys.version_info[:2] < (3, 0):  # pragma: no cover
     COLON_TYPE = 51
     COMMENT_TYPE = 53
+    NL_TYPE = 54
 elif sys.version_info[:2] < (3, 2):  # pragma: no cover
     COLON_TYPE = 53
     COMMENT_TYPE = 55
+    NL_TYPE = 56
 else:  # pragma: no cover
     COLON_TYPE = 52
     COMMENT_TYPE = 54
+    NL_TYPE = 55
 
 
 __all__ = ['COLON_TYPE', 'COMMENT_TYPE', 'TOKEN_NUMBER', 'Module', '_generate',
            '_less_tokens', '_find', '_logical', 'analyze']
 
 
+EM_TYPE = 0
 # Helper for map()
 TOKEN_NUMBER = operator.itemgetter(0)
 
@@ -101,6 +105,11 @@ def _logical(tokens):
         return 2 - (token_pos == len(processed) - 2)
     except ValueError:
         # The colon is not present
+        # If the line is only composed by comments, newlines and endmarker
+        # then it does not count as a logical line.
+        # Otherwise it count as 1.
+        if not list(_less_tokens(processed, [NL_TYPE, EM_TYPE])):
+            return 0
         return 1
 
 
@@ -143,7 +152,7 @@ def analyze(source):
             while True:
                 loc += 1
                 sloc += 1
-                line = '\n'.join([line, next(lines)]).strip()
+                line = '\n'.join([line, next(lines)])
                 try:
                     tokens = _generate(line)
                 except tokenize.TokenError:
@@ -153,7 +162,7 @@ def analyze(source):
                     multi += line.count('\n') + 1
                 break
         # Add the comments
-        comments += map(TOKEN_NUMBER, tokens).count(53)
+        comments += list(map(TOKEN_NUMBER, tokens)).count(COMMENT_TYPE)
         # Process a logical line
         lloc += _logical(tokens)
     return Module(loc, lloc, sloc, comments, multi, blank)
