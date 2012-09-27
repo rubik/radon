@@ -59,12 +59,12 @@ class CodeVisitor(ast.NodeVisitor):
         return obj.__class__.__name__
 
     @classmethod
-    def from_code(cls, code):
-        return cls.from_ast(ast.parse(code))
+    def from_code(cls, code, **kwargs):
+        return cls.from_ast(ast.parse(code), **kwargs)
 
     @classmethod
-    def from_ast(cls, ast_node):
-        visitor = cls()
+    def from_ast(cls, ast_node, **kwargs):
+        visitor = cls(**kwargs)
         visitor.visit(ast_node)
         return visitor
 
@@ -169,11 +169,16 @@ class ComplexityVisitor(CodeVisitor):
 
 class HalsteadVisitor(CodeVisitor):
 
-    def __init__(self):
+    types = {ast.Num: 'n',
+             ast.Name: 'id',
+    }
+
+    def __init__(self, context=None):
         self.operators_seen = set()
         self.operands_seen = set()
         self.operators = 0
         self.operands = 0
+        self.context = context
 
     @property
     def distinct_operators(self):
@@ -185,25 +190,38 @@ class HalsteadVisitor(CodeVisitor):
 
     def generic_visit(self, node):
         name = node.__class__.__name__
+        operands_seen = []
         if name == 'BinOp':
             self.operators += 1
             self.operands += 2
             self.operators_seen.add(self.get_name(node.op))
-            self.operands_seen.update((node.left, node.right))
+            operands_seen = (node.left, node.right)
         elif name == 'UnaryOp':
             self.operators += 1
             self.operands += 1
             self.operators_seen.add(self.get_name(node.op))
-            self.operands_seen.add(node.operand)
+            operands_seen = [node.operand]
         elif name == 'BoolOp':
             self.operators += 1
             self.operands += len(node.values)
             self.operators_seen.add(self.get_name(node.op))
-            self.operands_seen.update(node.values)
+            operands_seen = node.values
         elif name == 'AugAssign':
             self.operators += 1
             self.operands += 2
             self.operators_seen.add(self.get_name(node.op))
-            self.operands_seen.update((node.target, node.value))
+            operands_seen = (node.target, node.value)
+        for operand in operands_seen:
+            if operand.__class__ in self.types:
+                operand = getattr(operand, self.types[operand.__class__])
+            self.operands_seen.add((self.context, operand))
 
         super(HalsteadVisitor, self).generic_visit(node)
+
+    def visit_FunctionDef(self, node):
+        for child in node.body:
+            visitor = HalsteadVisitor.from_ast(child, context=node.name)
+            self.operators += visitor.operators
+            self.operands += visitor.operands
+            self.operators_seen.update(visitor.operators_seen)
+            self.operands_seen.update(visitor.operands_seen)

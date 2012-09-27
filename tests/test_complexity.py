@@ -348,6 +348,65 @@ class TestClasses(ParametrizedTestCase):
                          self.methods_complexity)
 
 
+GENERAL_CASES = [
+    ('''
+     if a and b:
+         print
+     else:
+         print
+     a = sum(i for i in range(1000) if i % 3 == 0 and i % 5 == 0)
+
+     def f(n):
+         if n == 0:
+             return 1
+         elif n == 1:
+             return n
+         elif n < 5:
+             return (n - 1) ** 2
+         return n * pow(n, f(n - 1), n - 3)
+     ''', (6, 4, 0)),
+
+    ('''
+     try:
+         1 / 0
+     except ZeroDivisonError:
+         print
+     except TypeError:
+         pass
+
+     class J(object):
+
+         def aux(self, w):
+             if w == 0:
+                 return 0
+             return w - 1 + sum(self.aux(w - 3 - i) for i in range(2))
+
+     def f(a, b):
+         if a < b:
+             b, a = a, b
+         return a, b
+     ''', (3, 2, 3)),
+]
+
+
+@parametrized(*GENERAL_CASES)
+class TestModules(ParametrizedTestCase):
+
+    def setParameters(self, code, expected_complexity):
+        self.code = dedent(code)
+        self.module_complexity, self.functions_complexity, \
+                self.classes_complexity = expected_complexity
+        self.total_complexity = sum(expected_complexity)
+
+    def testModule(self):
+        visitor = ComplexityVisitor.from_code(self.code)
+        self.assertEqual(visitor.complexity, self.module_complexity)
+        self.assertEqual(visitor.functions_complexity,
+                         self.functions_complexity)
+        self.assertEqual(visitor.classes_complexity, self.classes_complexity)
+        self.assertEqual(visitor.total_complexity, self.total_complexity)
+
+
 CONTAINERS_CASES = [
     (('func', 12, 0, False, None, 5),
      ('F', 'func', 'F 12:0 func - 5')),
