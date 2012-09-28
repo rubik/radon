@@ -44,7 +44,7 @@ class Class(BaseClass):
     def complexity(self):
         if not self.methods:
             return self.real_complexity
-        return self.real_complexity / float(len(self.methods))
+        return int(self.real_complexity / float(len(self.methods))) + 1
 
     def __str__(self):
         return '{0} {1}:{2} {3} - {4}'.format(self.letter, self.lineno,
@@ -103,15 +103,12 @@ class ComplexityVisitor(CodeVisitor):
         # into a single node: Try
         if name in ('Try', 'TryExcept'):
             self.complexity += len(node.handlers) + len(node.orelse)
-            if 'finalbody' in node._fields:
-                self.complexity += len(node.finalbody)  # pragma: no cover
         elif name == 'BoolOp':
             self.complexity += len(node.values) - 1
-        # Try/Finally blocks and lambda functions and with statement
-        # count as 1.
-        elif name in ('TryFinally', 'Lambda', 'With', 'If', 'IfExp'):
+        # Lambda functions, ifs and with statement count all as 1.
+        elif name in ('Lambda', 'With', 'If', 'IfExp'):
             self.complexity += 1
-        # The If, For and While blocks count as 1 plus the `else` block.
+        # The For and While blocks count as 1 plus the `else` block.
         elif name in ('For', 'While'):
             self.complexity += len(node.orelse) + 1
         # List, set, dict comprehensions and generator exps count as 1 plus
@@ -148,20 +145,17 @@ class ComplexityVisitor(CodeVisitor):
         # the following factors: number of decorators and the complexity
         # of the class' body (which is the sum of all the complexities).
         methods = []
-        body_complexity = 0
+        # According to Cyclomatic Complexity definition it has to start off
+        # from 1.
+        body_complexity = 1
         classname = node.name
         for child in node.body:
             visitor = ComplexityVisitor(True, classname, off=False)
             visitor.visit(child)
             methods.extend(visitor.functions)
-            body_complexity += (visitor.complexity +
-                                visitor.functions_complexity)
+            body_complexity += visitor.complexity
 
-        # According to Cyclomatic Complexity definition it has to start off
-        # from 1.
-        body_complexity += 1
-        # Deduced because the complexity of each procedure is 1 or more
-        body_complexity -= len(methods)
+        body_complexity += sum(map(GET_COMPLEXITY, methods)) - len(methods)
         cls = Class(classname, node.lineno, node.col_offset,
                     methods, body_complexity)
         self.classes.append(cls)

@@ -119,20 +119,20 @@ BLOCKS_CASES = [
     ('''
      try: raise TypeError
      finally: pass
-     ''', 2),
+     ''', 1),
 
     ('''
      try: raise TypeError
      except TypeError: pass
      finally: pass
-     ''', 3),
+     ''', 2),
 
     ('''
      try: raise TypeError
      except TypeError: pass
      else: pass
      finally: pass
-     ''', 4),
+     ''', 3),
 
     ('''
      k = lambda a, b: k(b, a)
@@ -145,6 +145,14 @@ BLOCKS_CASES = [
     ('''
      v = a if sum(i for i in xrange(c)) < 10 else c
      ''', 3),
+
+    ('''
+     sum(i for i in range(12) for z in range(i ** 2) if i * z & 1)
+     ''', 4),
+
+    ('''
+     sum(i for i in range(10) if i >= 2 and val and val2 or val3)
+     ''', 6),
 ]
 
 
@@ -385,7 +393,7 @@ GENERAL_CASES = [
          if a < b:
              b, a = a, b
          return a, b
-     ''', (3, 2, 3)),
+     ''', (3, 2, 4)),
 ]
 
 
@@ -418,7 +426,7 @@ CONTAINERS_CASES = [
      ('C', 'cls', 'C 12:0 cls - 5')),
 
     (('cls', 12, 0, [object, object, object, object], 30),
-     ('C', 'cls', 'C 12:0 cls - 7.5')),
+     ('C', 'cls', 'C 12:0 cls - 8')),
 ]
 
 
