@@ -70,7 +70,7 @@ def mi_parameters(code, count_multi=True):
         * the Halstead Volume
         * the Cyclomatic Complexity
         * the number of LLOC (Logical Lines of Code)
-        * the number of comment lines
+        * the percent of lines of comment
     
     :param multi: If True, then count multiline strings as comment lines as
         well. This is not always safe because Python multiline strings are not
@@ -78,7 +78,8 @@ def mi_parameters(code, count_multi=True):
     '''
     ast_node = ast.parse(code)
     raw = analyze(code)
-    comments = raw.comments + (raw.multi if count_multi else 0)
+    comments_lines = raw.comments + (raw.multi if count_multi else 0)
+    comments = raw.comments / float(raw.sloc) * 100
     return (h_visit_ast(ast_node).volume,
             average_complexity(cc_visit_ast(ast_node)), raw.lloc, comments)
 

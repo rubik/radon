@@ -1,11 +1,14 @@
 import sys
 import textwrap
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 from paramunittest import *
 from radon.visitors import *
 
 
 dedent = lambda code: textwrap.dedent(code).strip()
-version = sys.version_info[:2]
 
 
 BLOCKS_CASES = [
@@ -153,6 +156,14 @@ BLOCKS_CASES = [
     ('''
      sum(i for i in range(10) if i >= 2 and val and val2 or val3)
      ''', 6),
+
+    ('''
+     assert i < 0
+     ''', 2),
+
+    ('''
+     assert i < 0, "Fail"
+     ''', 2),
 ]
 
 
@@ -176,8 +187,7 @@ ADDITIONAL_BLOCKS = [
 ]
 
 
-SIMPLE_BLOCKS = BLOCKS_CASES + (ADDITIONAL_BLOCKS if version >= (2, 7) else [])
-@parametrized(*SIMPLE_BLOCKS)
+@parametrized(*BLOCKS_CASES)
 class TestSimpleBlocks(ParametrizedTestCase):
     '''Test simple blocks.'''
 
@@ -188,6 +198,12 @@ class TestSimpleBlocks(ParametrizedTestCase):
     def testComplexityVisitor(self):
         visitor = ComplexityVisitor.from_code(self.code)
         self.assertEqual(visitor.complexity, self.expected_complexity)
+
+
+@parametrized(*ADDITIONAL_BLOCKS)
+@unittest.skipIf(sys.version_info[:2] < (2, 7), 'Python version too low')
+class TestAdditionalBlocks(get_class('TestSimpleBlocks')):
+    '''Test set and dict comprehension code blocks.'''
 
 
 SINGLE_FUNCTIONS_CASES = [
@@ -448,5 +464,4 @@ class TestContainers(ParametrizedTestCase):
 
 
 if __name__ == '__main__':
-    import unittest
     unittest.main()

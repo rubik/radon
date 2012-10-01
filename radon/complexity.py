@@ -3,47 +3,46 @@ import math
 from radon.visitors import GET_COMPLEXITY, ComplexityVisitor
 
 
-def rank(complexity):
+def rank(cc):
     '''Rank the complexity score from A to F, where A stands for the simplest
-    and best score and F the most complex and worst one.
+    and best score and F the most complex and worst one::
 
-    The score is computed with the following formula:
+        1 - 5        A (low risk - simple block)
+        6 - 10       B (low risk - well structured and stable block)
+        11 - 20      C (moderate risk - slightly complex block)
+        21 - 30      D (more than moderate risk - more complex block)
+        31 - 40      E (high risk - complex block, alarming)
+        41+          F (very high risk - error-prone, unstable block)
 
-        partial = floor(abs((ceil(complexity) - 1) / 10))
-        score = min(partial, 6)
+    Here *block* is used in place of function, method and class.
 
-    An intermediate step is necessary since the score could get greater than
-    6 and 6 is the maximum allowed.
-    The score is then associated to a letter:
+    The formula used to convert the score into an index is the following::
 
-        0 -> A
-        1 -> B
-          ..
-        4 -> E
-        5 -> F
+        rank = ceil(score / 10) - H(5 - score)
+
+    where H(s) stands for the Heaviside Step Function.
+    The rank is then associated to a letter (0 = A, 5 = F).
     '''
-    partial = int(abs((math.ceil(complexity) - 1) / 10.))
-    return chr(min(partial, 5) + 65)
+    # Lame trick to avoid an if/else block
+    # Actually it *is* an if/else block
+    return chr(min(int(math.ceil(cc / 10.)) - (1, 0)[5 - cc < 0], 5) + 65)
 
 
 def average_complexity(blocks):
+    size = len(blocks)
+    if size == 0:
+        return 0
     return sum((GET_COMPLEXITY(block) for block in blocks), .0) / len(blocks)
 
 
-def sorted_results(visitor):
+def sorted_results(blocks):
     '''Given a ComplexityVisitor instance, returns a list of sorted blocks
     with respect to complexity. A block is a either `~radon.visitors.Function`
     object or a `~radon.visitors.Class` object.
     The blocks are sorted in descending order from the block with the highest
     complexity.
     '''
-    blocks = visitor.functions
-    for cls in visitor.classes:
-        blocks.extend(cls.methods)
-        blocks.append(cls)
-    blocks.sort(key=GET_COMPLEXITY, reverse=True)
-    return blocks
-
+    return sorted(blocks, key=GET_COMPLEXITY, reverse=True)
 
 def cc_visit(code):
     '''Visit the given code with `~radon.visitors.ComplexityVisitor` and
@@ -53,4 +52,4 @@ def cc_visit(code):
 
 
 def cc_visit_ast(ast_node):
-    return sorted_results(ComplexityVisitor.from_ast(ast_node))
+    return sorted_results(ComplexityVisitor.from_ast(ast_node).blocks)

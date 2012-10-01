@@ -94,6 +94,14 @@ class ComplexityVisitor(CodeVisitor):
         return (self.complexity + self.functions_complexity +
                 self.classes_complexity)
 
+    @property
+    def blocks(self):
+        blocks = self.functions
+        for cls in self.classes:
+            blocks.append(cls)
+            blocks.extend(cls.methods)
+        return blocks
+
     def generic_visit(self, node):
         # Get the name of the class
         name = self.get_name(node)
@@ -105,8 +113,8 @@ class ComplexityVisitor(CodeVisitor):
             self.complexity += len(node.handlers) + len(node.orelse)
         elif name == 'BoolOp':
             self.complexity += len(node.values) - 1
-        # Lambda functions, ifs and with statement count all as 1.
-        elif name in ('Lambda', 'With', 'If', 'IfExp'):
+        # Lambda functions, ifs, with and assert statements count all as 1.
+        elif name in ('Lambda', 'With', 'If', 'IfExp', 'Assert'):
             self.complexity += 1
         # The For and While blocks count as 1 plus the `else` block.
         elif name in ('For', 'While'):
