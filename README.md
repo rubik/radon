@@ -43,6 +43,6 @@ Actually it's even better: it's got colors!
 ### Other metrics
 radon does not only compute McCabe's complexity, but also:
 
-    * raw metrics (these include SLOC, comment lines, blank lines, &c.)
-    * Halstead metrics (all of them)
-    * Maintainability Index
+* raw metrics (these include SLOC, comment lines, blank lines, &c.)
+* Halstead metrics (all of them)
+* Maintainability Index
