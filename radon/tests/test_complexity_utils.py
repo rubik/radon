@@ -2,6 +2,7 @@ import operator
 from paramunittest import *
 from radon.complexity import *
 from radon.visitors import Class, Function
+from radon.tests.test_complexity_visitor import GENERAL_CASES, dedent
 
 
 get_index = lambda seq: lambda index: seq[index]
@@ -71,3 +72,21 @@ class TestAverageComplexity(ParametrizedTestCase):
     def testAverageComplexity(self):
         self.assertEqual(average_complexity(self.blocks),
                          self.expected_average)
+
+
+CC_VISIT_CASES = [
+    (GENERAL_CASES[0][0], 1),
+    (GENERAL_CASES[1][0], 3),
+]
+
+@parametrized(*CC_VISIT_CASES)
+class TestCCVisit(ParametrizedTestCase):
+
+    def setParameters(self, code, blocks):
+        self.code = dedent(code)
+        self.number_of_blocks = blocks
+
+    def testCCVisit(self):
+        results = cc_visit(self.code)
+        self.assertTrue(isinstance(results, list))
+        self.assertEqual(len(results), self.number_of_blocks)

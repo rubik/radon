@@ -7,7 +7,8 @@ setup(name='radon',
       author='Michele Lacchia',
       author_email='michelelacchia@gmail.com',
       license='MIT',
-      packages=['radon'],
+      packages=['radon', 'radon.tests'],
       tests_require=['tox'],
       extras_require={'tool': ['baker']},
-      entry_points={'console_scripts': ['radon = radon:main']})
+      entry_points={'console_scripts': ['radon = radon:main']}
+)

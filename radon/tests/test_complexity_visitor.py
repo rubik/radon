@@ -187,8 +187,7 @@ ADDITIONAL_BLOCKS = [
 ]
 
 
-@parametrized(*BLOCKS_CASES)
-class TestSimpleBlocks(ParametrizedTestCase):
+class SimpleBlocks(object):
     '''Test simple blocks.'''
 
     def setParameters(self, code, expected_complexity):
@@ -200,9 +199,14 @@ class TestSimpleBlocks(ParametrizedTestCase):
         self.assertEqual(visitor.complexity, self.expected_complexity)
 
 
+@parametrized(*BLOCKS_CASES)
+class TestSimpleBlocks(SimpleBlocks, ParametrizedTestCase):
+    '''Test simple (basic) code blocks).'''
+
+
 @parametrized(*ADDITIONAL_BLOCKS)
 @unittest.skipIf(sys.version_info[:2] < (2, 7), 'Python version too low')
-class TestAdditionalBlocks(get_class('TestSimpleBlocks')):
+class TestAdditionalBlocks(SimpleBlocks, ParametrizedTestCase):
     '''Test set and dict comprehension code blocks.'''
 
 

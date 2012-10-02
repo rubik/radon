@@ -54,7 +54,7 @@ def h_visit_ast(ast_node):
     N1, N2 = visitor.operators, visitor.operands
     h = h1 + h2
     N = N1 + N2
-    volume = math.log(h ** N, 2)
+    volume = N * math.log(h, 2)
     difficulty = (h1 * N2) / float(2 * h2) if h2 != 0 else 0
     effort = difficulty * volume
     return Halstead(
