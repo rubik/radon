@@ -107,7 +107,7 @@ def mi(multi=True, *paths):
             try:
                 result = mi_visit(fobj.read(), multi)
             except Exception as e:
-                print '{0}ERROR: {1}'.format(' ' * 4, str(e))
+                print '{0}\n{1}ERROR: {2}'.format(name, ' ' * 4, str(e))
                 continue
             print '{0}\n{1}{2}'.format(name, ' ' * 4, result)
 

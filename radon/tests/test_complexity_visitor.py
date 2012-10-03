@@ -11,7 +11,7 @@ from radon.visitors import *
 dedent = lambda code: textwrap.dedent(code).strip()
 
 
-BLOCKS_CASES = [
+SIMPLE_BLOCKS = [
     ('''
      if a: pass
      ''', 2),
@@ -187,7 +187,8 @@ ADDITIONAL_BLOCKS = [
 ]
 
 
-class SimpleBlocks(object):
+@parametrized(*SIMPLE_BLOCKS)
+class TestSimpleBlocks(ParametrizedTestCase):
     '''Test simple blocks.'''
 
     def setParameters(self, code, expected_complexity):
@@ -199,15 +200,16 @@ class SimpleBlocks(object):
         self.assertEqual(visitor.complexity, self.expected_complexity)
 
 
-@parametrized(*BLOCKS_CASES)
-class TestSimpleBlocks(SimpleBlocks, ParametrizedTestCase):
-    '''Test simple (basic) code blocks).'''
+if sys.version_info[:2] >= (2, 7):
+    @parametrized(*ADDITIONAL_BLOCKS)
+    class TestAdditionalBlocks(TestSimpleBlocks):
+        def setParameters(self, code, expected_complexity):
+            self.code = dedent(code)
+            self.expected_complexity = expected_complexity
 
-
-@parametrized(*ADDITIONAL_BLOCKS)
-@unittest.skipIf(sys.version_info[:2] < (2, 7), 'Python version too low')
-class TestAdditionalBlocks(SimpleBlocks, ParametrizedTestCase):
-    '''Test set and dict comprehension code blocks.'''
+        def testComplexityVisitor(self):
+            visitor = ComplexityVisitor.from_code(self.code)
+            self.assertEqual(visitor.complexity, self.expected_complexity)
 
 
 SINGLE_FUNCTIONS_CASES = [

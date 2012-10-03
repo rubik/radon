@@ -54,12 +54,16 @@ def h_visit_ast(ast_node):
     N1, N2 = visitor.operators, visitor.operands
     h = h1 + h2
     N = N1 + N2
-    volume = N * math.log(h, 2)
+    if (h1, h2) != (0, 0):
+        length = h1 * math.log(h1, 2) + h2 * math.log(h2, 2)
+    else:
+        length = 0
+    volume = N * math.log(h, 2) if h != 0 else 0
     difficulty = (h1 * N2) / float(2 * h2) if h2 != 0 else 0
     effort = difficulty * volume
     return Halstead(
-        h1, h2, N1, N2, h, N, h1 * math.log(h1, 2) + h2 * math.log(h2, 2),
-        volume, difficulty, effort, effort / 18., volume / 3000.
+        h1, h2, N1, N2, h, N, length, volume, difficulty, effort,
+        effort / 18., volume / 3000.
     )
 
 
@@ -79,7 +83,7 @@ def mi_parameters(code, count_multi=True):
     ast_node = ast.parse(code)
     raw = analyze(code)
     comments_lines = raw.comments + (raw.multi if count_multi else 0)
-    comments = raw.comments / float(raw.sloc) * 100
+    comments = raw.comments / float(raw.sloc) * 100 if raw.sloc != 0 else 0
     return (h_visit_ast(ast_node).volume,
             average_complexity(cc_visit_ast(ast_node)), raw.lloc, comments)
 
