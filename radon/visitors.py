@@ -98,6 +98,12 @@ class CodeVisitor(ast.NodeVisitor):
 class ComplexityVisitor(CodeVisitor):
     '''A visitor that keeps track of the cyclomatic complexity of
     the elements.
+
+    :param to_method: If True, every function is treated as a method. In this
+        case the *classname* parameter is used as class name.
+    :param classname: Name of parent class.
+    :param off: If True, the starting value for the complexity is set to 1,
+        otherwise to 0.
     '''
 
     def __init__(self, to_method=False, classname=None, off=True):
@@ -205,10 +211,12 @@ class ComplexityVisitor(CodeVisitor):
 
 
 class HalsteadVisitor(CodeVisitor):
+    '''Visitor that keeps track of operators and operands, in order to compute
+    Halstead metrics (see :func:`radon.metrics.hh_visit`).
+    '''
 
     types = {ast.Num: 'n',
-             ast.Name: 'id',
-    }
+             ast.Name: 'id'}
 
     def __init__(self, context=None):
         self.operators_seen = set()
@@ -219,13 +227,16 @@ class HalsteadVisitor(CodeVisitor):
 
     @property
     def distinct_operators(self):
+        '''The number of distinct operators.'''
         return len(self.operators_seen)
 
     @property
     def distinct_operands(self):
+        '''The number of distinct operands.'''
         return len(self.operands_seen)
 
     def generic_visit(self, node):
+        '''Main entry point for the visitor.'''
         name = node.__class__.__name__
         operands_seen = []
         if name == 'BinOp':
