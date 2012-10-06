@@ -39,12 +39,15 @@ class TestFind(ParametrizedTestCase):
 
     def testFind(self):
         if self.result is None:
-            self.assertRaises(ValueError, _find, self.code, COLON_TYPE, ':')
+            self.assertRaises(ValueError, _find, self.code, OP_TYPE, ':')
         else:
-            self.assertEqual(_find(self.code, COLON_TYPE, ':'), self.result)
+            self.assertEqual(_find(self.code, OP_TYPE, ':'), self.result)
 
 
 LOGICAL_LINES_CASES = [
+    ('''
+     ''', 0),
+
     ('''
      # most useless comment
      ''', 0),
@@ -114,6 +117,14 @@ LOGICAL_LINES_CASES = [
     ('''
      # just a comment
      ''', 0),
+
+    ('''
+     a = 2; b = 43
+     ''', 2),
+
+    ('''
+     a = 1; b = 2;
+     ''', 2),
 ]
 
 
@@ -129,6 +140,9 @@ class TestLogicalLines(ParametrizedTestCase):
 
 
 ANALYZE_CASES = [
+    ('''
+     ''', (0, 0, 0, 0, 0, 0)),
+
     ('''
      """
      doc?

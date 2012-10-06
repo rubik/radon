@@ -11,20 +11,20 @@ except ImportError:  # pragma: no cover
 # This is madness. Why do they have to change codes across versions??!?
 # And, BTW, there is no mention at all in the docs...
 if sys.version_info[:2] < (3, 0):  # pragma: no cover
-    COLON_TYPE = 51
+    OP_TYPE = 51
     COMMENT_TYPE = 53
     NL_TYPE = 54
 elif sys.version_info[:2] < (3, 2):  # pragma: no cover
-    COLON_TYPE = 53
+    OP_TYPE = 53
     COMMENT_TYPE = 55
     NL_TYPE = 56
 else:  # pragma: no cover
-    COLON_TYPE = 52
+    OP_TYPE = 52
     COMMENT_TYPE = 54
     NL_TYPE = 55
 
 
-__all__ = ['COLON_TYPE', 'COMMENT_TYPE', 'TOKEN_NUMBER', 'Module', '_generate',
+__all__ = ['OP_TYPE', 'COMMENT_TYPE', 'TOKEN_NUMBER', 'Module', '_generate',
            '_less_tokens', '_find', '_logical', 'analyze']
 
 
@@ -68,6 +68,38 @@ def _find(tokens, token, value):
     raise ValueError('(token, value) pair not found')
 
 
+def _split_tokens(tokens, token, value):
+    res = [[]]
+    for token_values in tokens:
+        if (token, value) == token_values[:2]:
+            res.append([])
+            continue
+        res[-1].append(token_values)
+    return res
+        
+
+
+def _get_all_tokens(line, lines):
+    sloc_increment = multi_increment = 0
+    try:
+        tokens = _generate(line)
+    except tokenize.TokenError:
+        # A multi-line string or statement has been encountered:
+        # start adding lines and stop when tokenize stops complaining
+        while True:
+            sloc_increment += 1
+            line = '\n'.join([line, next(lines)])
+            try:
+                tokens = _generate(line)
+            except tokenize.TokenError:
+                continue
+            if tokens[0][0] == 3 and len(tokens) == 2:
+                # Multi-line string detected
+                multi_increment += line.count('\n') + 1
+            break
+    return tokens, sloc_increment, multi_increment
+
+
 def _logical(tokens):
     '''Find how many logical lines are there in the current line.
 
@@ -96,21 +128,23 @@ def _logical(tokens):
 
         if cond: return 0  # Only a comment  -> 2
     '''
-    # Get the tokens and, in the meantime, remove comments
-    processed = list(_less_tokens(tokens, [COMMENT_TYPE]))
-    try:
-        # Verify whether a colon is present among the tokens and that
-        # it is the last token.
-        token_pos = _find(processed, COLON_TYPE, ':')
-        return 2 - (token_pos == len(processed) - 2)
-    except ValueError:
-        # The colon is not present
-        # If the line is only composed by comments, newlines and endmarker
-        # then it does not count as a logical line.
-        # Otherwise it count as 1.
-        if not list(_less_tokens(processed, [NL_TYPE, EM_TYPE])):
-            return 0
-        return 1
+    def aux(sub_tokens):
+        # Get the tokens and, in the meantime, remove comments
+        processed = list(_less_tokens(sub_tokens, [COMMENT_TYPE]))
+        try:
+            # Verify whether a colon is present among the tokens and that
+            # it is the last token.
+            token_pos = _find(processed, OP_TYPE, ':')
+            return 2 - (token_pos == len(processed) - 2)
+        except ValueError:
+            # The colon is not present
+            # If the line is only composed by comments, newlines and endmarker
+            # then it does not count as a logical line.
+            # Otherwise it count as 1.
+            if not list(_less_tokens(processed, [NL_TYPE, EM_TYPE])):
+                return 0
+            return 1
+    return sum(aux(sub) for sub in _split_tokens(tokens, OP_TYPE, ';'))
 
 
 def analyze(source):
@@ -144,25 +178,17 @@ def analyze(source):
         # If this is not a blank line, then it counts as a
         # source line of code
         sloc += 1
-        try:
-            tokens = _generate(line)
-        except tokenize.TokenError:
-            # A multi-line string or statement has been encountered:
-            # start adding lines and stop when tokenize stops complaining
-            while True:
-                loc += 1
-                sloc += 1
-                line = '\n'.join([line, next(lines)])
-                try:
-                    tokens = _generate(line)
-                except tokenize.TokenError:
-                    continue
-                if tokens[0][0] == 3 and len(tokens) == 2:
-                    # Multi-line string detected
-                    multi += line.count('\n') + 1
-                break
+        # Process a logical line that spans on multiple lines
+        tokens, sloc_incr, multi_incr = _get_all_tokens(line, lines)
+        # Update tracked metrics
+        loc += sloc_incr  # LOC and SLOC increments are the same
+        sloc += sloc_incr
+        multi += multi_incr
         # Add the comments
         comments += list(map(TOKEN_NUMBER, tokens)).count(COMMENT_TYPE)
         # Process a logical line
-        lloc += _logical(tokens)
+        # Split it on semicolons because they increase the number of logical
+        # lines
+        for sub_tokens in _split_tokens(tokens, OP_TYPE, ';'):
+            lloc += _logical(sub_tokens)
     return Module(loc, lloc, sloc, comments, multi, blank)
