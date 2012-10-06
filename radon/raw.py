@@ -179,7 +179,7 @@ def analyze(source):
     '''
     loc = sloc = lloc = comments = multi = blank = 0
     lines = iter(source.splitlines())
-    for line in lines:
+    for lineno, line in enumerate(lines, 1):
         loc += 1
         line = line.strip()
         if not line:
@@ -188,8 +188,11 @@ def analyze(source):
         # If this is not a blank line, then it counts as a
         # source line of code
         sloc += 1
-        # Process a logical line that spans on multiple lines
-        tokens, sloc_incr, multi_incr = _get_all_tokens(line, lines)
+        try:
+            # Process a logical line that spans on multiple lines
+            tokens, sloc_incr, multi_incr = _get_all_tokens(line, lines)
+        except StopIteration:
+            raise SyntaxError('SyntaxError at line: {0}'.format(lineno))
         # Update tracked metrics
         loc += sloc_incr  # LOC and SLOC increments are the same
         sloc += sloc_incr

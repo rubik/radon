@@ -157,7 +157,11 @@ def raw(*paths):
     for path in iter_filenames(paths):
         with open(path) as fobj:
             print path
-            mod = analyze(fobj.read())
+            try:
+                mod = analyze(fobj.read())
+            except Exception as e:
+                print '{0}ERROR: {1}'.format(' ' * 4, str(e))
+                continue
             for header, value in zip(['LOC', 'LLOC', 'SLOC', 'Comments',
                                       'Multi', 'Blank'], mod):
                 print '{0}{1}: {2}'.format(' ' * 4, header, value)

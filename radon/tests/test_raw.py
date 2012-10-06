@@ -195,6 +195,10 @@ ANALYZE_CASES = [
          if n <= 1: return 1
          return fib(n - 2) + fib(n - 1)
      ''', (12, 9, 11, 1, 4, 1)),
+
+    ('''
+     a = [1, 2, 3,
+     ''', SyntaxError),
 ]
 
 
@@ -206,7 +210,14 @@ class TestAnalyze(ParametrizedTestCase):
         self.expected = expected
 
     def testAnalyze(self):
-        self.assertEqual(analyze(self.code), self.expected)
+        try:
+            len(self.expected)
+        except:
+            self.assertRaises(self.expected, analyze, self.code)
+        else:
+            result = analyze(self.code)
+            self.assertEqual(result, self.expected)
+            self.assertTrue(result[0] == result[2] + result[5])
 
 
 if __name__ == '__main__':
