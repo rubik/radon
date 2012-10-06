@@ -154,6 +154,26 @@ def cc(min='A', max='F', show_complexity=False, average=False, *paths):
 
 @BAKER.command
 def raw(*paths):
+    '''Analyze the given Python modules and compute raw metrics.
+
+    Raw metrics include:
+
+        * LOC: The number of lines of code (total)
+        * LLOC: The number of logical lines of code
+        * SLOC: The number of source lines of code (not necessarily
+            corresponding to the LLOC)
+        * comments: The number of Python comment lines
+        * multi: The number of lines which represent multi-line strings
+        * blank: The number of blank lines (or whitespace-only ones)
+
+    The equation:
+
+        sloc + blanks = loc
+
+    should always hold.
+
+    :param paths: The modules or packages to analyze.
+    '''
     for path in iter_filenames(paths):
         with open(path) as fobj:
             print path
