@@ -69,6 +69,10 @@ def _find(tokens, token, value):
 
 
 def _split_tokens(tokens, token, value):
+    '''Split a list of tokens on the specified token pair (token, value),
+    where *token* is the token type (i.e. its code) and *value* its actual
+    value in the code.
+    '''
     res = [[]]
     for token_values in tokens:
         if (token, value) == token_values[:2]:
@@ -80,6 +84,11 @@ def _split_tokens(tokens, token, value):
 
 
 def _get_all_tokens(line, lines):
+    '''Starting from *line*, generate the necessary tokens which represent the
+    shortest tokenization possible. This is done by catching
+    :exc:`tokenize.TokenError` when a multi-line string or statement is
+    encountered.
+    '''
     sloc_increment = multi_increment = 0
     try:
         tokens = _generate(line)
@@ -129,6 +138,7 @@ def _logical(tokens):
         if cond: return 0  # Only a comment  -> 2
     '''
     def aux(sub_tokens):
+        '''The actual function which does the job.'''
         # Get the tokens and, in the meantime, remove comments
         processed = list(_less_tokens(sub_tokens, [COMMENT_TYPE]))
         try:
