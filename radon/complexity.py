@@ -29,6 +29,11 @@ def rank(cc):
 
 
 def average_complexity(blocks):
+    '''Compute the average Cyclomatic complexity from the given blocks.
+    Blocks must be either :class:`~radon.visitors.Function` or
+    :class:`~radon.visitors.Class`. If the block list is empty, then 0 is
+    returned.
+    '''
     size = len(blocks)
     if size == 0:
         return 0
@@ -52,4 +57,7 @@ def cc_visit(code):
 
 
 def cc_visit_ast(ast_node):
+    '''Visit the AST node with :class:`~radon.visitors.ComplexityVisitor` and
+    pass the resulting blocks to :func:`~radon.complexity.sorted_results`.
+    '''
     return sorted_results(ComplexityVisitor.from_ast(ast_node).blocks)

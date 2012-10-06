@@ -15,13 +15,23 @@ BaseClass = collections.namedtuple('Class', ['name', 'lineno', 'col_offset',
 
 
 class Function(BaseFunc):
+    '''Base object represeting a function.
+    '''
 
     @property
     def letter(self):
+        '''The letter representing the function. It is `M` if the function is
+        actually a method, `F` otherwise.
+        '''
         return 'M' if self.is_method else 'F'
 
     @property
     def fullname(self):
+        '''The full name of the function. If it is a method, then the full name
+        is:
+                {class name}.{method name}
+        Otherwise it is just the function name.
+        '''
         if self.classname is None:
             return self.name
         return '{0}.{1}'.format(self.classname, self.name)
@@ -38,10 +48,16 @@ class Class(BaseClass):
 
     @property
     def fullname(self):
+        '''The full name of the class. It is just its name. This attribute
+        exists for consistency (see :data:`Function.fullname`).
+        '''
         return self.name
 
     @property
     def complexity(self):
+        '''The average complexity of the class. It corresponds to the average
+        complexity of its methods plus one.
+        '''
         if not self.methods:
             return self.real_complexity
         return int(self.real_complexity / float(len(self.methods))) + 1
@@ -53,17 +69,27 @@ class Class(BaseClass):
 
 
 class CodeVisitor(ast.NodeVisitor):
+    '''Base class for every NodeVisitors in `radon.visitors`. It implements a
+    couple utility class methods and a static method.
+    '''
 
     @staticmethod
     def get_name(obj):
+        '''Shorthand for ``obj.__class__.__name__``.'''
         return obj.__class__.__name__
 
     @classmethod
     def from_code(cls, code, **kwargs):
+        '''Instanciate the class from source code (string object). The
+        `**kwargs` are directly passed to the `ast.NodeVisitor` constructor.
+        '''
         return cls.from_ast(ast.parse(code), **kwargs)
 
     @classmethod
-    def from_ast(cls, ast_node, **kwargs):
+    def from_ast(cls, ast_node, **kwargs):        
+        '''Instanciate the class from an AST node. The `**kwargs` are
+        directly passed to the `ast.NodeVisitor` constructor.
+        '''
         visitor = cls(**kwargs)
         visitor.visit(ast_node)
         return visitor
@@ -83,19 +109,27 @@ class ComplexityVisitor(CodeVisitor):
 
     @property
     def functions_complexity(self):
+        '''The total complexity from all functions.'''
         return sum(map(GET_COMPLEXITY, self.functions))
 
     @property
     def classes_complexity(self):
+        '''The total complexity from all classes.'''
         return sum(map(GET_COMPLEXITY, self.classes))
 
     @property
     def total_complexity(self):
+        '''The total complexity. Computed adding up the class complexity, the
+        functions complexity, and the classes complexity.
+        '''
         return (self.complexity + self.functions_complexity +
                 self.classes_complexity)
 
     @property
     def blocks(self):
+        '''All the blocks visited. These include: all the functions, the
+        classes and their methods. The returned list is not sorted.
+        '''
         blocks = self.functions
         for cls in self.classes:
             blocks.append(cls)
@@ -103,6 +137,7 @@ class ComplexityVisitor(CodeVisitor):
         return blocks
 
     def generic_visit(self, node):
+        '''Main entry point for the visitor.'''
         # Get the name of the class
         name = self.get_name(node)
         # The Try/Except block is counted as the number of handlers
