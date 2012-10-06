@@ -18,11 +18,15 @@ def compute_mi(halstead_volume, complexity, sloc, comments):
     Usually it is not used directly but instead
     :func:`~radon.metrics.mi_visit` is preferred.
     '''
-    sloc_scale = math.log(sloc, 2) if sloc > 0 else 0
-    volume_scale = math.log(halstead_volume, 2) if halstead_volume > 0 else 0
-    comments_scale = math.sqrt(2.46 * comments) if comments != 0 else 0
-    return max(0, (171 - 5.2 * volume_scale - .23 * complexity -
-                   16.2 * sloc_scale + 50 * math.sin(comments)) * 100 / 171.)
+    if any(metric <= 0 for metric in (halstead_volume, sloc)):
+        return 100.
+    sloc_scale = math.log(sloc)
+    volume_scale = math.log(halstead_volume)
+    comments_scale = math.sqrt(2.46 * math.radians(comments))
+    # Non-normalized MI
+    nn_mi = (171 - 5.2 * volume_scale - .23 * complexity - 16.2 * sloc_scale +
+        50 * math.sin(comments_scale))
+    return min(max(0., nn_mi * 100 / 171.), 100.)
 
 
 def h_visit(code):
