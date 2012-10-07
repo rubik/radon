@@ -5,6 +5,7 @@ import collections
 
 # Helper functions to use in combination with map()
 GET_COMPLEXITY = operator.attrgetter('complexity')
+GET_REAL_COMPLEXITY = operator.attrgetter('real_complexity')
 NAMES_GETTER = operator.attrgetter('name', 'asname')
 
 BaseFunc = collections.namedtuple('Function', ['name', 'lineno', 'col_offset',
@@ -121,7 +122,7 @@ class ComplexityVisitor(CodeVisitor):
     @property
     def classes_complexity(self):
         '''The total complexity from all classes.'''
-        return sum(map(GET_COMPLEXITY, self.classes))
+        return sum(map(GET_REAL_COMPLEXITY, self.classes))
 
     @property
     def total_complexity(self):
@@ -129,7 +130,8 @@ class ComplexityVisitor(CodeVisitor):
         functions complexity, and the classes complexity.
         '''
         return (self.complexity + self.functions_complexity +
-                self.classes_complexity)
+                self.classes_complexity - len(self.functions) -
+                len(self.classes))
 
     @property
     def blocks(self):
@@ -216,7 +218,8 @@ class HalsteadVisitor(CodeVisitor):
     '''
 
     types = {ast.Num: 'n',
-             ast.Name: 'id'}
+             ast.Name: 'id',
+             ast.Attribute: 'attr'}
 
     def __init__(self, context=None):
         self.operators_seen = set()
@@ -239,6 +242,7 @@ class HalsteadVisitor(CodeVisitor):
         '''Main entry point for the visitor.'''
         name = node.__class__.__name__
         operands_seen = []
+        # Really ugly - TODO: needs a refactor
         if name == 'BinOp':
             self.operators += 1
             self.operands += 2
@@ -259,6 +263,11 @@ class HalsteadVisitor(CodeVisitor):
             self.operands += 2
             self.operators_seen.add(self.get_name(node.op))
             operands_seen = (node.target, node.value)
+        elif name == 'Compare':
+            self.operators += len(node.ops)
+            self.operands += len(node.comparators) + 1
+            self.operators_seen.update(map(self.get_name, node.ops))
+            operands_seen = node.comparators + [node.left]
         for operand in operands_seen:
             if operand.__class__ in self.types:
                 operand = getattr(operand, self.types[operand.__class__])

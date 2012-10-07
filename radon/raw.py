@@ -79,8 +79,7 @@ def _split_tokens(tokens, token, value):
             res.append([])
             continue
         res[-1].append(token_values)
-    return res
-        
+    return res    
 
 
 def _get_all_tokens(line, lines):

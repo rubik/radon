@@ -1,8 +1,8 @@
 import ast
 import math
 import collections
-from radon.visitors import HalsteadVisitor
-from radon.complexity import cc_visit_ast, average_complexity
+from radon.visitors import HalsteadVisitor, ComplexityVisitor
+#from radon.complexity import cc_visit_ast, average_complexity
 from radon.raw import analyze
 
 
@@ -87,9 +87,10 @@ def mi_parameters(code, count_multi=True):
     ast_node = ast.parse(code)
     raw = analyze(code)
     comments_lines = raw.comments + (raw.multi if count_multi else 0)
-    comments = raw.comments / float(raw.sloc) * 100 if raw.sloc != 0 else 0
+    comments = comments_lines / float(raw.sloc) * 100 if raw.sloc != 0 else 0
     return (h_visit_ast(ast_node).volume,
-            average_complexity(cc_visit_ast(ast_node)), raw.lloc, comments)
+            ComplexityVisitor.from_ast(ast_node).total_complexity, raw.lloc,
+            comments)
 
 
 def mi_visit(code, multi):

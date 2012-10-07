@@ -394,7 +394,7 @@ GENERAL_CASES = [
          elif n < 5:
              return (n - 1) ** 2
          return n * pow(n, f(n - 1), n - 3)
-     ''', (6, 4, 0)),
+     ''', (6, 4, 0, 9)),
 
     ('''
      try:
@@ -415,7 +415,7 @@ GENERAL_CASES = [
          if a < b:
              b, a = a, b
          return a, b
-     ''', (3, 2, 4)),
+     ''', (3, 2, 3, 6)),
 ]
 
 
@@ -425,8 +425,8 @@ class TestModules(ParametrizedTestCase):
     def setParameters(self, code, expected_complexity):
         self.code = dedent(code)
         self.module_complexity, self.functions_complexity, \
-                self.classes_complexity = expected_complexity
-        self.total_complexity = sum(expected_complexity)
+                self.classes_complexity, \
+                self.total_complexity = expected_complexity
 
     def testModule(self):
         visitor = ComplexityVisitor.from_code(self.code)

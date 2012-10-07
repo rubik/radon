@@ -53,6 +53,70 @@ class TestHVisit(ParametrizedTestCase):
         self.assertEqual(h_visit(self.code), self.expected)
 
 
+first_mi = '''
+     def f(a, b, c):
+         return (a ** b) % c
+
+     k = f(1, 2, 3)
+     print(k ** 2 - 1)
+'''
+
+second_mi = '''
+     class A(object):
+
+         def __init__(self, n):
+             # this is awesome
+             self.n = sum(i for i in range(n) if i&1)
+
+         def m(self, j):
+             """Just compute it.
+             Example.
+             """
+             if j > 421:
+                 return (self.n + 2) ** j
+             return (self.n - 2) ** j
+
+     a = A(4)
+     a.m(42)  # i don't know why, but it works
+'''
+
+MI_VISIT_CASES = [
+    ('''
+     ''', 100., True),
+
+    ('''
+     ''', 100., False),
+
+    # V = 41.51317942364757
+    # CC = 1
+    # LLOC = 4
+    # CM % = 0
+    (first_mi, 75.40162245189028, True),
+    (first_mi, 75.40162245189028, False),
+
+    # V = 66.60791492653966
+    # CC = 4
+    # LLOC = 10
+    # CM % = 38.46153846153847
+    (second_mi, 92.93379997479954, True),
+
+    # CM % = 15.384615384615385
+    (second_mi, 86.11274278663237, False),
+]
+
+
+@parametrized(*MI_VISIT_CASES)
+class TestMIVisit(ParametrizedTestCase):
+
+    def setParameters(self, code, expected, count_multi):
+        self.code = dedent(code)
+        self.expected = expected
+        self.count_multi = count_multi
+
+    def testMIParameters(self):
+        self.assertEqual(mi_visit(self.code, self.count_multi), self.expected)
+
+
 if __name__ == '__main__':
     import unittest
     unittest.main()

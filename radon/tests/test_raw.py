@@ -192,9 +192,9 @@ ANALYZE_CASES = [
 
          Try it with n = 294942: it will take a fairly long time.
          """
-         if n <= 1: return 1
+         if n <= 1: return 1  # otherwise it will melt the cpu
          return fib(n - 2) + fib(n - 1)
-     ''', (12, 9, 11, 1, 4, 1)),
+     ''', (12, 9, 11, 2, 4, 1)),
 
     ('''
      a = [1, 2, 3,
@@ -217,6 +217,7 @@ class TestAnalyze(ParametrizedTestCase):
         else:
             result = analyze(self.code)
             self.assertEqual(result, self.expected)
+            # blank + sloc = loc
             self.assertTrue(result[0] == result[2] + result[5])
 
 
