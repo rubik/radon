@@ -49,6 +49,7 @@ def sorted_results(blocks):
     '''
     return sorted(blocks, key=GET_COMPLEXITY, reverse=True)
 
+
 def cc_visit(code):
     '''Visit the given code with `~radon.visitors.ComplexityVisitor` and
     then pass the result to the `~radon.complexity.sorted_results` function.

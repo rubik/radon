@@ -79,6 +79,7 @@ CC_VISIT_CASES = [
     (GENERAL_CASES[1][0], 3),
 ]
 
+
 @parametrized(*CC_VISIT_CASES)
 class TestCCVisit(ParametrizedTestCase):
 

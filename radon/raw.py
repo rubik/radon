@@ -79,7 +79,7 @@ def _split_tokens(tokens, token, value):
             res.append([])
             continue
         res[-1].append(token_values)
-    return res    
+    return res
 
 
 def _get_all_tokens(line, lines):
@@ -159,7 +159,7 @@ def _logical(tokens):
 def analyze(source):
     '''Analyze the source code and return a namedtuple with the following
     fields:
-        
+
         * loc: The number of lines of code (total)
         * lloc: The number of logical lines of code
         * sloc: The number of source lines of code (not necessarily

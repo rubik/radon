@@ -330,7 +330,7 @@ CLASSES_CASES = [
                  return a / b
              except ZeroDivisionError:
                  return a
-        
+
          def n(self, k):
              while self.m(k) < k:
                  k -= self.m(k ** 2 - min(self.m(j) for j in range(k ** 4)))
@@ -345,7 +345,7 @@ CLASSES_CASES = [
          if sys.version_info >= (3, 3):
              import os
              AT = os.openat('/random/loc')
-         
+
          def __iter__(self):
              return __import__('itertools').tee(B.__dict__)
 
@@ -425,8 +425,8 @@ class TestModules(ParametrizedTestCase):
     def setParameters(self, code, expected_complexity):
         self.code = dedent(code)
         self.module_complexity, self.functions_complexity, \
-                self.classes_complexity, \
-                self.total_complexity = expected_complexity
+            self.classes_complexity, \
+            self.total_complexity = expected_complexity
 
     def testModule(self):
         visitor = ComplexityVisitor.from_code(self.code)

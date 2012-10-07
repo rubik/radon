@@ -25,7 +25,7 @@ def compute_mi(halstead_volume, complexity, sloc, comments):
     comments_scale = math.sqrt(2.46 * math.radians(comments))
     # Non-normalized MI
     nn_mi = (171 - 5.2 * volume_scale - .23 * complexity - 16.2 * sloc_scale +
-        50 * math.sin(comments_scale))
+             50 * math.sin(comments_scale))
     return min(max(0., nn_mi * 100 / 171.), 100.)
 
 
@@ -79,7 +79,7 @@ def mi_parameters(code, count_multi=True):
         * the Cyclomatic Complexity
         * the number of LLOC (Logical Lines of Code)
         * the percent of lines of comment
-    
+
     :param multi: If True, then count multiline strings as comment lines as
         well. This is not always safe because Python multiline strings are not
         always docstrings.

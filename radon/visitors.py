@@ -87,7 +87,7 @@ class CodeVisitor(ast.NodeVisitor):
         return cls.from_ast(ast.parse(code), **kwargs)
 
     @classmethod
-    def from_ast(cls, ast_node, **kwargs):        
+    def from_ast(cls, ast_node, **kwargs):
         '''Instanciate the class from an AST node. The `**kwargs` are
         directly passed to the `ast.NodeVisitor` constructor.
         '''
@@ -189,7 +189,6 @@ class ComplexityVisitor(CodeVisitor):
         func = Function(node.name, node.lineno, node.col_offset,
                         self.to_method, self.classname, body_complexity)
         self.functions.append(func)
-
 
     def visit_ClassDef(self, node):
         # The complexity of a class is computed taking into account

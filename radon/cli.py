@@ -139,8 +139,8 @@ def cc(min='A', max='F', show_complexity=False, average=False, *paths):
                 results = cc_visit(fobj.read())
             except Exception as e:
                 print '{0}ERROR: {1}'.format(' ' * 4, str(e))
-        cc, blocks =  _print_cc_results(name, results, min, max,
-                                        show_complexity)
+        cc, blocks = _print_cc_results(name, results, min, max,
+                                       show_complexity)
         average_cc += cc
         analyzed += blocks
 
@@ -149,8 +149,9 @@ def cc(min='A', max='F', show_complexity=False, average=False, *paths):
         ranked_cc = rank(cc)
         print '\n{0} blocks (classes, functions, methods) ' \
               'analyzed.'.format(analyzed)
-        print 'Average complexity: {0}{1} ({2}){3}'.format(RANKS_COLORS[ranked_cc],
-                                                           ranked_cc, cc, RESET)
+        print 'Average complexity: {0}{1} ' \
+              '({2}){3}'.format(RANKS_COLORS[ranked_cc], ranked_cc, cc, RESET)
+
 
 @BAKER.command
 def raw(*paths):
@@ -193,4 +194,4 @@ def raw(*paths):
             print '{0}(C % L): {1:.0%}'.format(indent, comments / float(mod.loc))
             print '{0}(C % S): {1:.0%}'.format(indent, comments / float(mod.sloc))
             print '{0}(C + M % L): {1:.0%}'.format(indent, (comments + mod.multi) /
-                                                 float(mod.loc))
+                                                   float(mod.loc))
