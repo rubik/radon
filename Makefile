@@ -8,3 +8,9 @@ cov:
 
 htmlcov: cov
 	coverage html
+
+pep8:
+	pep8 radon
+
+pylint:
+	pylint --rcfile pylintrc radon

@@ -1,5 +1,4 @@
 import sys
-import math
 import tokenize
 import operator
 import collections
