@@ -237,42 +237,56 @@ class HalsteadVisitor(CodeVisitor):
         '''The number of distinct operands.'''
         return len(self.operands_seen)
 
-    def generic_visit(self, node):
-        '''Main entry point for the visitor.'''
-        name = node.__class__.__name__
-        operands_seen = []
-        # Really ugly - TODO: needs a refactor
-        if name == 'BinOp':
-            self.operators += 1
-            self.operands += 2
-            self.operators_seen.add(self.get_name(node.op))
-            operands_seen = (node.left, node.right)
-        elif name == 'UnaryOp':
-            self.operators += 1
-            self.operands += 1
-            self.operators_seen.add(self.get_name(node.op))
-            operands_seen = [node.operand]
-        elif name == 'BoolOp':
-            self.operators += 1
-            self.operands += len(node.values)
-            self.operators_seen.add(self.get_name(node.op))
-            operands_seen = node.values
-        elif name == 'AugAssign':
-            self.operators += 1
-            self.operands += 2
-            self.operators_seen.add(self.get_name(node.op))
-            operands_seen = (node.target, node.value)
-        elif name == 'Compare':
-            self.operators += len(node.ops)
-            self.operands += len(node.comparators) + 1
-            self.operators_seen.update(map(self.get_name, node.ops))
-            operands_seen = node.comparators + [node.left]
-        for operand in operands_seen:
-            if operand.__class__ in self.types:
-                operand = getattr(operand, self.types[operand.__class__])
-            self.operands_seen.add((self.context, operand))
+    def dispatch(meth):
+        '''Does all the hard work needed for every node.
 
-        super(HalsteadVisitor, self).generic_visit(node)
+        The decorated method must return a tuple of 4 elements:
+
+            * the number of operators
+            * the number of operands
+            * the operators seen (a sequence)
+            * the operands seen (a sequence)
+        '''
+        def aux(self, node):
+            results = meth(self, node)
+            self.operators += results[0]
+            self.operands += results[1]
+            self.operators_seen.update(results[2])
+            for operand in results[3]:
+                new_operand = getattr(operand,
+                                      self.types.get(type(operand), ''),
+                                      operand)
+
+                self.operands_seen.add((self.context, new_operand))
+            # Now dispatch to children
+            super(HalsteadVisitor, self).generic_visit(node)
+        return aux
+
+    @dispatch
+    def visit_BinOp(self, node):
+        '''A binary operator.'''
+        return (1, 2, (self.get_name(node.op),), (node.left, node.right))
+
+    @dispatch
+    def visit_UnaryOp(self, node):
+        '''A unary operator.'''
+        return (1, 1, (self.get_name(node.op),), (node.operand,))
+
+    @dispatch
+    def visit_BoolOp(self, node):
+        '''A boolean operator.'''
+        return (1, len(node.values), (self.get_name(node.op),), node.values)
+
+    @dispatch
+    def visit_AugAssign(self, node):
+        '''An augmented assign (contains an operator).'''
+        return (1, 2, (self.get_name(node.op),), (node.target, node.value))
+
+    @dispatch
+    def visit_Compare(self, node):
+        '''A comparison.'''
+        return (len(node.ops), len(node.comparators) + 1,
+                map(self.get_name, node.ops), node.comparators + [node.left])
 
     def visit_FunctionDef(self, node):
         for child in node.body:

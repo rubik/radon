@@ -33,6 +33,8 @@ LETTERS_COLORS = {'F': MAGENTA,
                   'C': CYAN,
                   'M': WHITE}
 
+MI_RANKS = [('A', GREEN), ('B', YELLOW), ('C', RED)]
+
 TEMPLATE = '{0}{1} {reset}{2}:{3} {4} - {5}{6}{reset}'
 BAKER = baker.Baker()
 
@@ -109,7 +111,17 @@ def mi(multi=True, *paths):
             except Exception as e:
                 print '{0}\n{1}ERROR: {2}'.format(name, ' ' * 4, str(e))
                 continue
-            print '{0}\n{1}{2}'.format(name, ' ' * 4, result)
+            except KeyboardInterrupt:
+                print name
+                return
+            # TODO: refactor here
+            if 20 <= result <= 100:
+                letter, color = MI_RANKS[0]
+            elif 10 <= result < 20:
+                letter, color = MI_RANKS[1]
+            else:
+                letter, color = MI_RANKS[2]
+            print '{0} - {1}{2}{3}'.format(name, color, letter, RESET)
 
 
 @BAKER.command(shortopts={'min': 'n', 'max': 'x', 'show_complexity': 's',
