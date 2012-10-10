@@ -99,5 +99,4 @@ def mi_visit(code, multi):
 
 
 def mi_rank(score):
-    fl = math.floor(score / 10.)
-    return chr(65 + int(2 - fl + [0, 1][fl - 3 >= 0] * (fl - 2)))
+    return chr(65 + (0, 1)[9 - score >= 0] + (0, 1)[19 - score >= 0])
