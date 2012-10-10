@@ -20,6 +20,7 @@ except ImportError:
     colorama_init = colorama_deinit = lambda: True
 
 import os
+import fnmatch
 from radon.complexity import cc_visit, rank
 from radon.raw import analyze
 from radon.metrics import mi_visit
@@ -39,17 +40,25 @@ TEMPLATE = '{0}{1} {reset}{2}:{3} {4} - {5}{6}{reset}'
 BAKER = baker.Baker()
 
 
-def iter_filenames(paths):
+def walk_paths(paths):
     '''Recursively iter filenames starting from the given *paths*.
     Filenames are filtered and only Python files (those ending with .py) are
     yielded.
     '''
     for path in paths:
         if os.path.isdir(path):
-            for root, dirs, files in os.walk(path):
+            for root, _, files in os.walk(path):
                 for filename in (f for f in files if f.endswith('.py')):
                     yield os.path.join(root, filename)
-        else:
+        elif path.endswith('.py'):
+            yield path
+
+
+def iter_filenames(paths, exclude):
+    exclude = filter(None, (exclude or '').split(','))
+    print exclude
+    for path in walk_paths(paths):
+        if all(not fnmatch.fnmatch(path, pattern) for pattern in exclude):
             yield path
 
 
@@ -91,8 +100,8 @@ def _print_cc_results(path, results, min, max, show_complexity):
     return average_cc, len(results)
 
 
-@BAKER.command(shortopts={'multi': 'm'})
-def mi(multi=True, *paths):
+@BAKER.command(shortopts={'multi': 'm', 'exclude': 'e'})
+def mi(multi=True, exclude=None, *paths):
     '''Analyze the given Python modules and compute the Maintainability Index.
 
     The maintainability index (MI) is a compound metric, with the primary aim
@@ -104,7 +113,7 @@ def mi(multi=True, *paths):
         that and sometimes it would be wrong to count them as comment lines.
     :param paths: The modules or packages to analyze.
     '''
-    for name in iter_filenames(paths):
+    for name in iter_filenames(paths, exclude):
         with open(name) as fobj:
             try:
                 result = mi_visit(fobj.read(), multi)
@@ -125,8 +134,9 @@ def mi(multi=True, *paths):
 
 
 @BAKER.command(shortopts={'min': 'n', 'max': 'x', 'show_complexity': 's',
-                          'average': 'a'})
-def cc(min='A', max='F', show_complexity=False, average=False, *paths):
+                          'average': 'a', 'exclude': 'e'})
+def cc(min='A', max='F', show_complexity=False, average=False,
+       exclude=None, *paths):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -145,7 +155,7 @@ def cc(min='A', max='F', show_complexity=False, average=False, *paths):
     max = max.upper()
     average_cc = .0
     analyzed = 0
-    for name in iter_filenames(paths):
+    for name in iter_filenames(paths, exclude or []):
         with open(name) as fobj:
             try:
                 results = cc_visit(fobj.read())
@@ -165,8 +175,8 @@ def cc(min='A', max='F', show_complexity=False, average=False, *paths):
               '({2}){3}'.format(RANKS_COLORS[ranked_cc], ranked_cc, cc, RESET)
 
 
-@BAKER.command
-def raw(*paths):
+@BAKER.command(shortopts={'exclude': 'e'})
+def raw(exclude=None, *paths):
     '''Analyze the given Python modules and compute raw metrics.
 
     Raw metrics include:
@@ -187,7 +197,7 @@ def raw(*paths):
 
     :param paths: The modules or packages to analyze.
     '''
-    for path in iter_filenames(paths):
+    for path in iter_filenames(paths, exclude or []):
         with open(path) as fobj:
             print path
             try:
