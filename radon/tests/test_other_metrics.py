@@ -5,8 +5,19 @@ from radon.metrics import *
 
 dedent = lambda code: textwrap.dedent(code).strip()
 
+def _compute_mi_rank(score):
+    if 0 <= score < 10:
+        res = 'C'
+    elif 10 <= score < 20:
+        res = 'B'
+    elif 20 <= score <= 100:
+        res = 'A'
+    else:
+        raise ValueError(score)
+    return res
 
-COMPUTE_MI_CASES = [
+
+MI_COMPUTE_CASES = [
     ((0, 0, 0, 0), 100.),
     ((0, 1, 2, 0), 100.),
     ((10, 2, 5, .5), 81.75051711476864),
@@ -14,7 +25,7 @@ COMPUTE_MI_CASES = [
 ]
 
 
-@parametrized(*COMPUTE_MI_CASES)
+@parametrized(*MI_COMPUTE_CASES)
 class TestComputeMI(ParametrizedTestCase):
 
     def setParameters(self, values, expected):
@@ -22,7 +33,21 @@ class TestComputeMI(ParametrizedTestCase):
         self.expected = expected
 
     def testComputeMI(self):
-        self.assertAlmostEqual(compute_mi(*self.values), self.expected)
+        self.assertAlmostEqual(mi_compute(*self.values), self.expected)
+
+
+MI_RANK_CASES = [(score, _compute_mi_rank(score)) for score in range(0, 100)]
+
+
+@parametrized(*MI_RANK_CASES)
+class TestMIRank(ParametrizedTestCase):
+
+    def setParameters(self, score, expected_rank):
+        self.score = score
+        self.expected_rank = expected_rank
+
+    def testRank(self):
+        self.assertEqual(mi_rank(self.score), self.expected_rank)
 
 
 H_VISIT_CASES = [

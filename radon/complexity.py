@@ -3,7 +3,7 @@ import math
 from radon.visitors import GET_COMPLEXITY, ComplexityVisitor
 
 
-def rank(cc):
+def cc_rank(cc):
     '''Rank the complexity score from A to F, where A stands for the simplest
     and best score and F the most complex and worst one::
 

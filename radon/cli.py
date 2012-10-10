@@ -21,9 +21,9 @@ except ImportError:
 
 import os
 import fnmatch
-from radon.complexity import cc_visit, rank
+from radon.complexity import cc_visit, cc_rank
 from radon.raw import analyze
-from radon.metrics import mi_visit
+from radon.metrics import mi_visit, mi_rank
 
 
 RANKS_COLORS = {'A': GREEN, 'B': GREEN,
@@ -34,7 +34,7 @@ LETTERS_COLORS = {'F': MAGENTA,
                   'C': CYAN,
                   'M': WHITE}
 
-MI_RANKS = [('A', GREEN), ('B', YELLOW), ('C', RED)]
+MI_RANKS = {'A': GREEN, 'B': YELLOW, 'C': RED}
 
 TEMPLATE = '{0}{1} {reset}{2}:{3} {4} - {5}{6}{reset}'
 BAKER = baker.Baker()
@@ -56,7 +56,6 @@ def walk_paths(paths):
 
 def iter_filenames(paths, exclude):
     exclude = filter(None, (exclude or '').split(','))
-    print exclude
     for path in walk_paths(paths):
         if all(not fnmatch.fnmatch(path, pattern) for pattern in exclude):
             yield path
@@ -87,7 +86,7 @@ def _print_cc_results(path, results, min, max, show_complexity):
     res = []
     average_cc = .0
     for line in results:
-        ranked = rank(line.complexity)
+        ranked = cc_rank(line.complexity)
         average_cc += line.complexity
         if not min <= ranked <= max:
             continue
@@ -123,14 +122,9 @@ def mi(multi=True, exclude=None, *paths):
             except KeyboardInterrupt:
                 print name
                 return
-            # TODO: refactor here
-            if 20 <= result <= 100:
-                letter, color = MI_RANKS[0]
-            elif 10 <= result < 20:
-                letter, color = MI_RANKS[1]
-            else:
-                letter, color = MI_RANKS[2]
-            print '{0} - {1}{2}{3}'.format(name, color, letter, RESET)
+            rank = mi_rank(result)
+            color = MI_RANKS[rank]
+            print '{0} - {1}{2}{3}'.format(name, color, rank, RESET)
 
 
 @BAKER.command(shortopts={'min': 'n', 'max': 'x', 'show_complexity': 's',
@@ -168,7 +162,7 @@ def cc(min='A', max='F', show_complexity=False, average=False,
 
     if average and analyzed:
         cc = average_cc / analyzed
-        ranked_cc = rank(cc)
+        ranked_cc = cc_rank(cc)
         print '\n{0} blocks (classes, functions, methods) ' \
               'analyzed.'.format(analyzed)
         print 'Average complexity: {0}{1} ' \

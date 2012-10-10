@@ -2,7 +2,6 @@ import ast
 import math
 import collections
 from radon.visitors import HalsteadVisitor, ComplexityVisitor
-#from radon.complexity import cc_visit_ast, average_complexity
 from radon.raw import analyze
 
 
@@ -10,23 +9,6 @@ from radon.raw import analyze
 Halstead = collections.namedtuple('Halstead', 'h1 h2 N1 N2 vocabulary length '
                                               'calculated_length volume '
                                               'difficulty effort time bugs')
-
-
-def compute_mi(halstead_volume, complexity, sloc, comments):
-    '''Compute the Maintainability Index (MI) given the Halstead Volume, the
-    Cyclomatic Complexity, the SLOC number and the number of comment lines.
-    Usually it is not used directly but instead
-    :func:`~radon.metrics.mi_visit` is preferred.
-    '''
-    if any(metric <= 0 for metric in (halstead_volume, sloc)):
-        return 100.
-    sloc_scale = math.log(sloc)
-    volume_scale = math.log(halstead_volume)
-    comments_scale = math.sqrt(2.46 * math.radians(comments))
-    # Non-normalized MI
-    nn_mi = (171 - 5.2 * volume_scale - .23 * complexity - 16.2 * sloc_scale +
-             50 * math.sin(comments_scale))
-    return min(max(0., nn_mi * 100 / 171.), 100.)
 
 
 def h_visit(code):
@@ -71,6 +53,23 @@ def h_visit_ast(ast_node):
     )
 
 
+def mi_compute(halstead_volume, complexity, sloc, comments):
+    '''Compute the Maintainability Index (MI) given the Halstead Volume, the
+    Cyclomatic Complexity, the SLOC number and the number of comment lines.
+    Usually it is not used directly but instead
+    :func:`~radon.metrics.mi_visit` is preferred.
+    '''
+    if any(metric <= 0 for metric in (halstead_volume, sloc)):
+        return 100.
+    sloc_scale = math.log(sloc)
+    volume_scale = math.log(halstead_volume)
+    comments_scale = math.sqrt(2.46 * math.radians(comments))
+    # Non-normalized MI
+    nn_mi = (171 - 5.2 * volume_scale - .23 * complexity - 16.2 * sloc_scale +
+             50 * math.sin(comments_scale))
+    return min(max(0., nn_mi * 100 / 171.), 100.)
+
+
 def mi_parameters(code, count_multi=True):
     '''Given a source code snippet, compute the necessary parameters to
     compute the Maintainability Index metric. These include:
@@ -96,4 +95,9 @@ def mi_parameters(code, count_multi=True):
 def mi_visit(code, multi):
     '''Visit the code and compute the Maintainability Index (MI) from it.
     '''
-    return compute_mi(*mi_parameters(code, multi))
+    return mi_compute(*mi_parameters(code, multi))
+
+
+def mi_rank(score):
+    fl = math.floor(score / 10.)
+    return chr(65 + int(2 - fl + [0, 1][fl - 3 >= 0] * (fl - 2)))

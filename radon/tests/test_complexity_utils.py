@@ -8,7 +8,7 @@ from radon.tests.test_complexity_visitor import GENERAL_CASES, dedent
 get_index = lambda seq: lambda index: seq[index]
 
 
-def _compute_rank(score):
+def _compute_cc_rank(score):
     # This is really ugly
     # Luckily the rank function in radon.complexity is not like this!
     if 1 <= score <= 5:
@@ -26,7 +26,7 @@ def _compute_rank(score):
     return rank
 
 
-RANK_CASES = [(score, _compute_rank(score)) for score in range(1, 100)]
+RANK_CASES = [(score, _compute_cc_rank(score)) for score in range(1, 100)]
 
 
 @parametrized(*RANK_CASES)
@@ -37,7 +37,7 @@ class TestRank(ParametrizedTestCase):
         self.expected_rank = expected_rank
 
     def testRank(self):
-        self.assertEqual(rank(self.score), self.expected_rank)
+        self.assertEqual(cc_rank(self.score), self.expected_rank)
 
 
 fun = lambda complexity: Function('randomname', 1, 4, False, None, [], complexity)
