@@ -40,7 +40,7 @@ class TestRank(ParametrizedTestCase):
         self.assertEqual(rank(self.score), self.expected_rank)
 
 
-fun = lambda complexity: Function('randomname', 1, 4, False, None, complexity)
+fun = lambda complexity: Function('randomname', 1, 4, False, None, [], complexity)
 cls = lambda complexity: Class('randomname_', 3, 21, [], complexity)
 
 # This works with both the next two tests

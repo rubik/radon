@@ -10,7 +10,7 @@ NAMES_GETTER = operator.attrgetter('name', 'asname')
 
 BaseFunc = collections.namedtuple('Function', ['name', 'lineno', 'col_offset',
                                                'is_method', 'classname',
-                                               'complexity'])
+                                               'clojures', 'complexity'])
 BaseClass = collections.namedtuple('Class', ['name', 'lineno', 'col_offset',
                                              'methods', 'real_complexity'])
 
@@ -108,6 +108,7 @@ class ComplexityVisitor(CodeVisitor):
     '''
 
     def __init__(self, to_method=False, classname=None, off=True):
+        self.off = off
         self.complexity = 1 if off else 0
         self.functions = []
         self.classes = []
@@ -116,13 +117,17 @@ class ComplexityVisitor(CodeVisitor):
 
     @property
     def functions_complexity(self):
-        '''The total complexity from all functions.'''
-        return sum(map(GET_COMPLEXITY, self.functions))
+        '''The total complexity from all functions (i.e. the total number of
+        decision points + 1).
+        '''
+        return sum(map(GET_COMPLEXITY, self.functions)) - len(self.functions)
 
     @property
     def classes_complexity(self):
-        '''The total complexity from all classes.'''
-        return sum(map(GET_REAL_COMPLEXITY, self.classes))
+        '''The total complexity from all classes (i.e. the total number of
+        decision points + 1).
+        '''
+        return sum(map(GET_REAL_COMPLEXITY, self.classes)) - len(self.classes)
 
     @property
     def total_complexity(self):
@@ -130,8 +135,7 @@ class ComplexityVisitor(CodeVisitor):
         functions complexity, and the classes complexity.
         '''
         return (self.complexity + self.functions_complexity +
-                self.classes_complexity - len(self.functions) -
-                len(self.classes))
+                self.classes_complexity + (not self.off))
 
     @property
     def blocks(self):
@@ -175,7 +179,7 @@ class ComplexityVisitor(CodeVisitor):
         # the function's body and the number of clojures (which count
         # double).
         clojures = []
-        body_complexity = 0
+        body_complexity = 1
         for child in node.body:
             visitor = ComplexityVisitor(off=False)
             visitor.visit(child)
@@ -184,10 +188,9 @@ class ComplexityVisitor(CodeVisitor):
             body_complexity += (visitor.complexity +
                                 visitor.functions_complexity)
 
-        # Follow Cyclomatic Complexity definition
-        body_complexity += 1
         func = Function(node.name, node.lineno, node.col_offset,
-                        self.to_method, self.classname, body_complexity)
+                        self.to_method, self.classname, clojures,
+                        body_complexity)
         self.functions.append(func)
 
     def visit_ClassDef(self, node):
@@ -203,9 +206,9 @@ class ComplexityVisitor(CodeVisitor):
             visitor = ComplexityVisitor(True, classname, off=False)
             visitor.visit(child)
             methods.extend(visitor.functions)
-            body_complexity += visitor.complexity
+            body_complexity += (visitor.complexity +
+                                visitor.functions_complexity)
 
-        body_complexity += sum(map(GET_COMPLEXITY, methods)) - len(methods)
         cls = Class(classname, node.lineno, node.col_offset,
                     methods, body_complexity)
         self.classes.append(cls)

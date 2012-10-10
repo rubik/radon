@@ -394,7 +394,7 @@ GENERAL_CASES = [
          elif n < 5:
              return (n - 1) ** 2
          return n * pow(n, f(n - 1), n - 3)
-     ''', (6, 4, 0, 9)),
+     ''', (6, 3, 0, 9)),
 
     ('''
      try:
@@ -415,7 +415,7 @@ GENERAL_CASES = [
          if a < b:
              b, a = a, b
          return a, b
-     ''', (3, 2, 3, 6)),
+     ''', (3, 1, 2, 6)),
 ]
 
 
@@ -437,11 +437,61 @@ class TestModules(ParametrizedTestCase):
         self.assertEqual(visitor.total_complexity, self.total_complexity)
 
 
+CLOJURES_CASES = [
+    ('''
+     def f(n):
+         def g(l):
+             return l ** 4
+         def h(i):
+             return i ** 5 + 1 if i & 1 else 2
+         return sum(g(u + 4) / float(h(u)) for u in range(2, n))
+     ''', ('g', 'h'), (1, 2, 3)),
+
+    ('''
+     # will it work? :D
+     def memoize(func):
+         cache = {}
+         def aux(*args, **kwargs):
+             key = (args, kwargs)
+             if key in cache:
+                 return cache[key]
+             cache[key] = res = func(*args, **kwargs)
+             return res
+         return aux
+     ''', ('aux',), (2, 2)),
+]
+
+
+@parametrized(*CLOJURES_CASES)
+class TestClojures(ParametrizedTestCase):
+
+    def setParameters(self, code, clojure_names, expected_cc):
+        self.visitor = ComplexityVisitor.from_code(dedent(code))
+        self.func = self.visitor.functions[0]
+        self.clojure_names = clojure_names
+        self.expected_cj_cc = expected_cc[:-1]
+        self.expected_total_cc = expected_cc[-1]
+
+    def testOneFunction(self):
+        self.assertEqual(len(self.visitor.functions), 1)
+
+    def testClojureNames(self):
+        names = tuple(cj.name for cj in self.func.clojures)
+        self.assertEqual(names, self.clojure_names)
+
+    def testClojuresComplexity(self):
+        cj_complexity = tuple(cj.complexity for cj in self.func.clojures)
+        self.assertEqual(cj_complexity, self.expected_cj_cc)
+
+    def testTotalComplexity(self):
+        self.assertEqual(self.func.complexity, self.expected_total_cc)
+
+
 CONTAINERS_CASES = [
-    (('func', 12, 0, False, None, 5),
+    (('func', 12, 0, False, None, [], 5),
      ('F', 'func', 'F 12:0 func - 5')),
 
-    (('meth', 12, 0, True, 'cls', 5),
+    (('meth', 12, 0, True, 'cls', [], 5),
      ('M', 'cls.meth', 'M 12:0 cls.meth - 5')),
 
     (('cls', 12, 0, [], 5),
@@ -462,7 +512,7 @@ class TestContainers(ParametrizedTestCase):
         self.expected_str = expected[2]
 
     def testContainers(self):
-        cls = Function if len(self.values) == 6 else Class
+        cls = Function if len(self.values) == 7 else Class
         obj = cls(*self.values)
         self.assertEqual(obj.letter, self.expected_letter)
         self.assertEqual(obj.fullname, self.expected_name)
