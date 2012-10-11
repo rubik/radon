@@ -5,7 +5,7 @@ Radon does not only compute McCabe's complexity, but also:
 
 * raw metrics (these include SLOC, comment lines, blank lines, &c.)
 * Halstead metrics (all of them)
-* Maintainability Index
+* Maintainability Index (the one used in Visual Studio)
 
 ### Usage
 
