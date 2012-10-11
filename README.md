@@ -1,5 +1,17 @@
 ## Radon
 
+Radon is a tool for Python that computes various metrics from the source code.
+Radon does not only compute McCabe's complexity, but also:
+
+* raw metrics (these include SLOC, comment lines, blank lines, &c.)
+* Halstead metrics (all of them)
+* Maintainability Index
+
+### Usage
+
+Radon can be used either from the command line or programmatically.
+Documentation is WIP.
+
 ### Cyclomatic Complexity
 
 Quick example:
@@ -38,11 +50,3 @@ Actually it's even better: it's got colors!
     Variable arguments:
 
        *paths The modules or packages to analyze.
-
-
-### Other metrics
-radon does not only compute McCabe's complexity, but also:
-
-* raw metrics (these include SLOC, comment lines, blank lines, &c.)
-* Halstead metrics (all of them)
-* Maintainability Index
