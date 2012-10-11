@@ -16,14 +16,16 @@ Documentation is WIP.
 
 Quick example:
 
-    $ radon cc -anc ../autopep8/autopep8.py 
-    ../autopep8/autopep8.py
-        M 1215:4 Wrapper.pep8_expected - F
-        C 1145:0 Wrapper - D
-        M 1023:4 Reindenter.run - C
+    $ radon cc -anc ../baker/baker.py
+    ../baker/baker.py
+        M 581:4 Baker.parse_args - D
+        M 723:4 Baker.parse - D
+        M 223:4 Baker.command - C
+        M 796:4 Baker.apply - C
+        M 857:4 Baker.run - C
 
-    72 blocks (classes, functions, methods) analyzed.
-    Average complexity: A (1.9)
+    32 blocks (classes, functions, methods) analyzed.
+    Average complexity: B (6.15625)
 
 Actually it's even better: it's got colors!
 
