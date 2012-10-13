@@ -9,7 +9,17 @@ except ImportError:  # pragma: no cover
 
 # This is madness. Why do they have to change codes across versions??!?
 # And, BTW, there is no mention at all in the docs...
-if sys.version_info[:2] < (3, 0):  # pragma: no cover
+try:  # pragma: no cover
+    import __pypy__
+except ImportError:
+    pypy = False
+else:  # pragma: no cover
+    pypy = True
+if pypy:  # pragma: no cover
+    OP_TYPE = 51
+    COMMENT_TYPE = 55
+    NL_TYPE = 56
+elif sys.version_info[:2] < (3, 0):  # pragma: no cover
     OP_TYPE = 51
     COMMENT_TYPE = 53
     NL_TYPE = 54
