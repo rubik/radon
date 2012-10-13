@@ -33,8 +33,9 @@ else:  # pragma: no cover
     NL_TYPE = 55
 
 
-__all__ = ['OP_TYPE', 'COMMENT_TYPE', 'TOKEN_NUMBER', 'Module', '_generate',
-           '_less_tokens', '_find', '_logical', 'analyze']
+__all__ = ['OP_TYPE', 'COMMENT_TYPE', 'TOKEN_NUMBER', 'NL_TYPE', 'EM_TYPE',
+           'Module', '_generate', '_less_tokens', '_find', '_logical',
+           'analyze']
 
 
 EM_TYPE = 0
