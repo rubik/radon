@@ -86,6 +86,10 @@ to ``CC=40``).
 The :command:`mi` command
 -------------------------
 
+Analyzes Python source code files and compute the Maintainability Index score.
+Every positional argument is treated as a starting point from which to walk
+looking for Python files (as in the :command:`cc` command). Paths can be
+excluded with the :option:`-e` option.
 The Maintainability Index is always in the range 0-100. MI is ranked as
 follows:
 
@@ -96,3 +100,41 @@ follows:
       19 - 10    B     Medium
        9 - 0     C     Extremely low
     ========== ====== =================
+
+
+.. option:: -e, --exclude
+
+    A comma-separated list of patterns which indicate which paths to exclude
+    from the analysis.
+
+.. option:: -m, --multi
+
+    Whether or not to count multiline strings as comments (default to yes).
+    Most of the time this is safe since multiline strings are used as
+    functions docstrings, but one should be aware that their use is not
+    limited to that and sometimes it would be wrong to count them as comment lines.
+
+
+Examples
+++++++++
+
+::
+
+    $ radon mi path1 path2
+
+Analyze every Python file under *path1* or *path2*. It checks recursively in
+every subdirectory.
+
+
+::
+
+    $ radon mi path1 -e "path1/tests/*'
+
+Like the previous example, but it exclude from the analysis every path that
+matches `path1/tests/*`.
+
+::
+
+    $ radon mi -m path1
+
+Like the previous examples, but does not count multiline strings as comments.
