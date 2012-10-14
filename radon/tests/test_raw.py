@@ -39,9 +39,9 @@ class TestFind(ParametrizedTestCase):
 
     def testFind(self):
         if self.result is None:
-            self.assertRaises(ValueError, _find, self.code, OP_TYPE, ':')
+            self.assertRaises(ValueError, _find, self.code, OP, ':')
         else:
-            self.assertEqual(_find(self.code, OP_TYPE, ':'), self.result)
+            self.assertEqual(_find(self.code, OP, ':'), self.result)
 
 
 LOGICAL_LINES_CASES = [

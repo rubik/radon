@@ -7,38 +7,16 @@ try:
 except ImportError:  # pragma: no cover
     import io
 
-# This is madness. Why do they have to change codes across versions??!?
-# And, BTW, there is no mention at all in the docs...
-try:  # pragma: no cover
-    import __pypy__
-except ImportError:
-    pypy = False
-else:  # pragma: no cover
-    pypy = True
-if pypy:  # pragma: no cover
-    OP_TYPE = 51
-    COMMENT_TYPE = 55
-    NL_TYPE = 56
-elif sys.version_info[:2] < (3, 0):  # pragma: no cover
-    OP_TYPE = 51
-    COMMENT_TYPE = 53
-    NL_TYPE = 54
-elif sys.version_info[:2] < (3, 2):  # pragma: no cover
-    OP_TYPE = 53
-    COMMENT_TYPE = 55
-    NL_TYPE = 56
-else:  # pragma: no cover
-    OP_TYPE = 52
-    COMMENT_TYPE = 54
-    NL_TYPE = 55
 
+__all__ = ['OP', 'COMMENT', 'TOKEN_NUMBER', 'NL', 'EM', 'Module', '_generate',
+           '_less_tokens', '_find', '_logical', 'analyze']
 
-__all__ = ['OP_TYPE', 'COMMENT_TYPE', 'TOKEN_NUMBER', 'NL_TYPE', 'EM_TYPE',
-           'Module', '_generate', '_less_tokens', '_find', '_logical',
-           'analyze']
+COMMENT = tokenize.COMMENT
+OP = tokenize.OP
+NL = tokenize.NL
+EM = tokenize.ENDMARKER
 
-
-EM_TYPE = 0
+#EM_TYPE = 0
 # Helper for map()
 TOKEN_NUMBER = operator.itemgetter(0)
 
@@ -149,21 +127,21 @@ def _logical(tokens):
     def aux(sub_tokens):
         '''The actual function which does the job.'''
         # Get the tokens and, in the meantime, remove comments
-        processed = list(_less_tokens(sub_tokens, [COMMENT_TYPE]))
+        processed = list(_less_tokens(sub_tokens, [COMMENT]))
         try:
             # Verify whether a colon is present among the tokens and that
             # it is the last token.
-            token_pos = _find(processed, OP_TYPE, ':')
+            token_pos = _find(processed, OP, ':')
             return 2 - (token_pos == len(processed) - 2)
         except ValueError:
             # The colon is not present
             # If the line is only composed by comments, newlines and endmarker
             # then it does not count as a logical line.
             # Otherwise it count as 1.
-            if not list(_less_tokens(processed, [NL_TYPE, EM_TYPE])):
+            if not list(_less_tokens(processed, [NL, EM])):
                 return 0
             return 1
-    return sum(aux(sub) for sub in _split_tokens(tokens, OP_TYPE, ';'))
+    return sum(aux(sub) for sub in _split_tokens(tokens, OP, ';'))
 
 
 def analyze(source):
@@ -207,10 +185,10 @@ def analyze(source):
         sloc += sloc_incr
         multi += multi_incr
         # Add the comments
-        comments += list(map(TOKEN_NUMBER, tokens)).count(COMMENT_TYPE)
+        comments += list(map(TOKEN_NUMBER, tokens)).count(COMMENT)
         # Process a logical line
         # Split it on semicolons because they increase the number of logical
         # lines
-        for sub_tokens in _split_tokens(tokens, OP_TYPE, ';'):
+        for sub_tokens in _split_tokens(tokens, OP, ';'):
             lloc += _logical(sub_tokens)
     return Module(loc, lloc, sloc, comments, multi, blank)
