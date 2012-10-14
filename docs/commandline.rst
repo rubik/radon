@@ -86,6 +86,8 @@ to ``CC=40``).
 The :command:`mi` command
 -------------------------
 
+.. program:: mi
+
 Analyzes Python source code files and compute the Maintainability Index score.
 Every positional argument is treated as a starting point from which to walk
 looking for Python files (as in the :command:`cc` command). Paths can be
@@ -128,7 +130,7 @@ every subdirectory.
 
 ::
 
-    $ radon mi path1 -e "path1/tests/*'
+    $ radon mi path1 -e "path1/tests/*"
 
 Like the previous example, but it exclude from the analysis every path that
 matches `path1/tests/*`.
@@ -138,3 +140,10 @@ matches `path1/tests/*`.
     $ radon mi -m path1
 
 Like the previous examples, but does not count multiline strings as comments.
+
+
+The :command:`raw` command
+--------------------------
+
+Examples
+++++++++
