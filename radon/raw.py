@@ -16,7 +16,6 @@ OP = tokenize.OP
 NL = tokenize.NL
 EM = tokenize.ENDMARKER
 
-#EM_TYPE = 0
 # Helper for map()
 TOKEN_NUMBER = operator.itemgetter(0)
 

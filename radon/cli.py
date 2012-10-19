@@ -154,7 +154,8 @@ def cc(min='A', max='F', show_complexity=False, average=False,
             try:
                 results = cc_visit(fobj.read())
             except Exception as e:
-                print '{0}ERROR: {1}'.format(' ' * 4, str(e))
+                print '{0}\n{1}ERROR: {2}'.format(name, ' ' * 4, str(e))
+                continue
         cc, blocks = _print_cc_results(name, results, min, max,
                                        show_complexity)
         average_cc += cc

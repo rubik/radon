@@ -1,4 +1,5 @@
-## Radon
+Radon
+#####
 
 Radon is a tool for Python that computes various metrics from the source code.
 Radon does not only compute McCabe's complexity, but also:
@@ -7,14 +8,16 @@ Radon does not only compute McCabe's complexity, but also:
 * Halstead metrics (all of them)
 * Maintainability Index (the one used in Visual Studio)
 
-### Usage
+Usage
+-----
 
 Radon can be used either from the command line or programmatically.
 Documentation is WIP.
 
-### Cyclomatic Complexity
+Cyclomatic Complexity
+---------------------
 
-Quick example:
+Quick example::
 
     $ radon cc -anc ../baker/baker.py
     ../baker/baker.py
@@ -29,9 +32,11 @@ Quick example:
 
 Actually it's even better: it's got colors!
 
-![A screen of radon](http://cloud.github.com/downloads/rubik/radon/radon_cc.png 'A screen of radon')
+.. image:: http://cloud.github.com/downloads/rubik/radon/radon_cc.png
+    :alt: A screen of Radon's cc command
 
 
+::
     $ radon cc -h
     Usage: /home/miki/exp/bin/radon cc [<min>] [<max>] [<show_complexity>] [<average>] [<paths>...]
 
