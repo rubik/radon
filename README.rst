@@ -36,7 +36,7 @@ Actually it's even better: it's got colors!
     :alt: A screen of Radon's cc command
 
 
-::
+Command's help::
     $ radon cc -h
     Usage: /home/miki/exp/bin/radon cc [<min>] [<max>] [<show_complexity>] [<average>] [<paths>...]
 
