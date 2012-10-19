@@ -30,7 +30,7 @@ Complexity. Statements have the following effects on Cyclomatic Complexity:
  assert             +1             The `assert` statement internally roughly equals a conditional statement.
  Comprehension      +1             A list/set/dict comprehension of generator expression is equivalent to a for loop.
  Lambda             +1             A lambda function is a regular function.
- Boolean Operator   +1             Every boolean operator (and, or) adds a decision points.
+ Boolean Operator   +1             Every boolean operator (and, or) adds a decision point.
 ================== ============== ===========================================================================================
 
 Maintainability Index
