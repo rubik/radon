@@ -103,7 +103,7 @@ def _print_cc_results(path, results, min, max, show_complexity):
         if not min <= ranked <= max:
             continue
         res.append('{0}{1}'.format(' ' * 4, _format_line(line, ranked,
-                                                   show_complexity)))
+                                                         show_complexity)))
     if res:
         log(path)
         log_list(res)

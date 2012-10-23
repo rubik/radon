@@ -1,4 +1,3 @@
-import sys
 import tokenize
 import operator
 import collections

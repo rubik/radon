@@ -10,7 +10,7 @@ htmlcov: cov
 	coverage html
 
 pep8:
-	pep8 radon
+	pep8 radon --exclude "tests"
 
 pylint:
 	pylint --rcfile pylintrc radon
