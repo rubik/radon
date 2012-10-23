@@ -20,6 +20,7 @@ except ImportError:
     colorama_init = colorama_deinit = lambda: True
 
 import os
+import sys
 import fnmatch
 from radon.complexity import cc_visit, cc_rank
 from radon.raw import analyze
@@ -38,6 +39,17 @@ MI_RANKS = {'A': GREEN, 'B': YELLOW, 'C': RED}
 
 TEMPLATE = '{0}{1} {reset}{2}:{3} {4} - {5}{6}{reset}'
 BAKER = baker.Baker()
+
+
+def log(msg, *args, **kwargs):
+    '''Log a message, passing `*args` and `**kwargs` to `.format()`.'''
+    sys.stdout.write(msg.format(*args, **kwargs) + '\n')
+
+
+def log_list(lst):
+    '''Log an entire list, line by line.'''
+    for line in lst:
+        log(line)
 
 
 def walk_paths(paths):
@@ -91,11 +103,10 @@ def _print_cc_results(path, results, min, max, show_complexity):
         if not min <= ranked <= max:
             continue
         res.append('{0}{1}'.format(' ' * 4, _format_line(line, ranked,
-                                                         show_complexity)))
+                                                   show_complexity)))
     if res:
-        print path
-        for r in res:
-            print r
+        log(path)
+        log_list(res)
     return average_cc, len(results)
 
 
@@ -117,14 +128,14 @@ def mi(multi=True, exclude=None, *paths):
             try:
                 result = mi_visit(fobj.read(), multi)
             except Exception as e:
-                print '{0}\n{1}ERROR: {2}'.format(name, ' ' * 4, str(e))
+                log('{0}\n{1}ERROR: {2}', name, ' ' * 4, str(e))
                 continue
             except KeyboardInterrupt:
-                print name
+                log(name)
                 return
             rank = mi_rank(result)
             color = MI_RANKS[rank]
-            print '{0} - {1}{2}{3}'.format(name, color, rank, RESET)
+            log('{0} - {1}{2}{3}', name, color, rank, RESET)
 
 
 @BAKER.command(shortopts={'min': 'n', 'max': 'x', 'show_complexity': 's',
@@ -154,7 +165,7 @@ def cc(min='A', max='F', show_complexity=False, average=False,
             try:
                 results = cc_visit(fobj.read())
             except Exception as e:
-                print '{0}\n{1}ERROR: {2}'.format(name, ' ' * 4, str(e))
+                log('{0}\n{1}ERROR: {2}', name, ' ' * 4, str(e))
                 continue
         cc, blocks = _print_cc_results(name, results, min, max,
                                        show_complexity)
@@ -164,10 +175,9 @@ def cc(min='A', max='F', show_complexity=False, average=False,
     if average and analyzed:
         cc = average_cc / analyzed
         ranked_cc = cc_rank(cc)
-        print '\n{0} blocks (classes, functions, methods) ' \
-              'analyzed.'.format(analyzed)
-        print 'Average complexity: {0}{1} ' \
-              '({2}){3}'.format(RANKS_COLORS[ranked_cc], ranked_cc, cc, RESET)
+        log('\n{0} blocks (classes, functions, methods) analyzed.', analyzed)
+        log('Average complexity: {0}{1} ({2}){3}', RANKS_COLORS[ranked_cc],
+            ranked_cc, cc, RESET)
 
 
 @BAKER.command(shortopts={'exclude': 'e'})
@@ -194,21 +204,21 @@ def raw(exclude=None, *paths):
     '''
     for path in iter_filenames(paths, exclude or []):
         with open(path) as fobj:
-            print path
+            log(path)
             try:
                 mod = analyze(fobj.read())
             except Exception as e:
-                print '{0}ERROR: {1}'.format(' ' * 4, str(e))
+                log('{0}ERROR: {1}', ' ' * 4, str(e))
                 continue
             for header, value in zip(['LOC', 'LLOC', 'SLOC', 'Comments',
                                       'Multi', 'Blank'], mod):
-                print '{0}{1}: {2}'.format(' ' * 4, header, value)
+                log('{0}{1}: {2}', ' ' * 4, header, value)
             if not mod.loc:
                 continue
-            print ' ' * 4 + '- Stats'
+            log(' ' * 4 + '- Comment Stats')
             indent = ' ' * 8
             comments = mod.comments
-            print '{0}(C % L): {1:.0%}'.format(indent, comments / float(mod.loc))
-            print '{0}(C % S): {1:.0%}'.format(indent, comments / float(mod.sloc))
-            print '{0}(C + M % L): {1:.0%}'.format(indent, (comments + mod.multi) /
-                                                   float(mod.loc))
+            log('{0}(C % L): {1:.0%}', indent, comments / float(mod.loc))
+            log('{0}(C % S): {1:.0%}', indent, comments / float(mod.sloc))
+            log('{0}(C + M % L): {1:.0%}', indent,
+                (comments + mod.multi) / float(mod.loc))
