@@ -99,4 +99,4 @@ def mi_visit(code, multi):
 
 
 def mi_rank(score):
-    return chr(65 + (0, 1)[9 - score >= 0] + (0, 1)[19 - score >= 0])
+    return chr(65 + (9 - score >= 0) + (19 - score >= 0))
