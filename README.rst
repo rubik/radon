@@ -12,7 +12,7 @@ Usage
 -----
 
 Radon can be used either from the command line or programmatically.
-Documentation is WIP.
+Documentation is WIP at https://radon.readthedocs.org/.
 
 Cyclomatic Complexity
 ---------------------

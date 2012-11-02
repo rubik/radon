@@ -1,10 +1,10 @@
-.PHONY: tests cov htmlcov
+.PHONY: tests cov htmlcov pep8 pylint docs
 
 tests:
 	python radon/tests/run.py
 
 cov:
-	coverage erase && coverage run --include "radon/*" --omit "radon/__init__.py,radon/cli.py,radon/tests/*" radon/tests/run.py 
+	coverage erase && coverage run --include "radon/*" --omit "radon/__init__.py,radon/cli.py,radon/tests/*" radon/tests/run.py
 
 htmlcov: cov
 	coverage html
@@ -14,3 +14,6 @@ pep8:
 
 pylint:
 	pylint --rcfile pylintrc radon
+
+docs:
+	cd docs && make html

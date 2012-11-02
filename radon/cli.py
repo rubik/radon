@@ -137,8 +137,6 @@ def mi(multi=True, exclude=None, *paths):
             color = MI_RANKS[rank]
             log('{0} - {1}{2}{3}', name, color, rank, RESET)
 
-    return True
-
 
 @BAKER.command(shortopts={'min': 'n', 'max': 'x', 'show_complexity': 's',
                           'average': 'a', 'exclude': 'e'})
@@ -180,8 +178,6 @@ def cc(min='A', max='F', show_complexity=False, average=False,
         log('\n{0} blocks (classes, functions, methods) analyzed.', analyzed)
         log('Average complexity: {0}{1} ({2}){3}', RANKS_COLORS[ranked_cc],
             ranked_cc, cc, RESET)
-
-    return True
 
 
 @BAKER.command(shortopts={'exclude': 'e'})
@@ -226,5 +222,3 @@ def raw(exclude=None, *paths):
             log('{0}(C % S): {1:.0%}', indent, comments / float(mod.sloc))
             log('{0}(C + M % L): {1:.0%}', indent,
                 (comments + mod.multi) / float(mod.loc))
-
-    return True

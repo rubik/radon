@@ -1,3 +1,13 @@
+0.3 (Nov 2, 2012)
+=================
+
+- Code coverage to 100%, runs from Python 2.6 up to 3.3 and on PyPy as well.
+- Created a documentation at https://radon.readthedocs.org\: #5
+- Made the codebase compatible with PyPy: #9
+- Ported cli.py to Python 3: #14
+- More tests: #15
+- Minor fixes: #11, #12, #13, #17
+
 
 0.2 (Oct 11, 2012)
 ==================

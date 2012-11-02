@@ -13,4 +13,4 @@ class TestGeneralCommands(ParametrizedTestCase):
         self.command = command
 
     def testItWorks(self):
-        self.assertTrue(self.command(RADON_DIR))
+        self.assertTrue(self.command(RADON_DIR) is None)
