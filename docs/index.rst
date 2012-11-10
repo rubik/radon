@@ -6,7 +6,7 @@
 Welcome to Radon's documentation!
 =================================
 
-Radon is a Python tool which compute various code metrics. Supported metrics are:
+Radon is a Python tool which computes various code metrics. Supported metrics are:
 
     * raw metrics: SLOC, comment lines, blank lines, &c.
     * Cyclomatic Complexity (i.e. McCabe's Complexity)
