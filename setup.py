@@ -18,7 +18,7 @@ setup(name='radon',
       long_description=readme,
       packages=['radon', 'radon.tests'],
       tests_require=['tox'],
-      extras_require={'tool': ['baker']},
+      install_requires=['baker'],
       entry_points={'console_scripts': ['radon = radon:main']},
       classifiers=[
           'Development Status :: 3 - Alpha',
