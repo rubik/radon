@@ -80,7 +80,7 @@ def _format_line(line, ranked, show_complexity=False):
     '''
     letter_colored = LETTERS_COLORS[line.letter] + line.letter
     rank_colored = RANKS_COLORS[ranked] + ranked
-    compl = ' ({}) '.format(line.complexity) if show_complexity else ''
+    compl = ' ({0}) '.format(line.complexity) if show_complexity else ''
     return TEMPLATE.format(BRIGHT, letter_colored, line.lineno,
                            line.col_offset, line.fullname, rank_colored,
                            compl, reset=RESET)
