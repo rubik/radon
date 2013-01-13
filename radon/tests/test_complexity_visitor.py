@@ -186,10 +186,13 @@ ADDITIONAL_BLOCKS = [
      ''', 3),
 ]
 
+BLOCKS = SIMPLE_BLOCKS[:]
+if sys.version_info[:2] >= (2, 7):
+    BLOCKS.extend(ADDITIONAL_BLOCKS)
 
-@parametrized(*SIMPLE_BLOCKS)
-class TestSimpleBlocks(ParametrizedTestCase):
-    '''Test simple blocks.'''
+@parametrized(*BLOCKS)
+class TestBlocks(ParametrizedTestCase):
+    '''Test blocks.'''
 
     def setParameters(self, code, expected_complexity):
         self.code = dedent(code)
@@ -199,17 +202,6 @@ class TestSimpleBlocks(ParametrizedTestCase):
         visitor = ComplexityVisitor.from_code(self.code)
         self.assertEqual(visitor.complexity, self.expected_complexity)
 
-
-if sys.version_info[:2] >= (2, 7):
-    @parametrized(*ADDITIONAL_BLOCKS)
-    class TestAdditionalBlocks(TestSimpleBlocks):
-        def setParameters(self, code, expected_complexity):
-            self.code = dedent(code)
-            self.expected_complexity = expected_complexity
-
-        def testComplexityVisitor(self):
-            visitor = ComplexityVisitor.from_code(self.code)
-            self.assertEqual(visitor.complexity, self.expected_complexity)
 
 
 SINGLE_FUNCTIONS_CASES = [
