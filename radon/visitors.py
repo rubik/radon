@@ -9,10 +9,12 @@ GET_REAL_COMPLEXITY = operator.attrgetter('real_complexity')
 NAMES_GETTER = operator.attrgetter('name', 'asname')
 
 BaseFunc = collections.namedtuple('Function', ['name', 'lineno', 'col_offset',
-                                               'is_method', 'classname',
-                                               'clojures', 'complexity'])
+                                               'endline', 'is_method',
+                                               'classname', 'clojures',
+                                               'complexity'])
 BaseClass = collections.namedtuple('Class', ['name', 'lineno', 'col_offset',
-                                             'methods', 'real_complexity'])
+                                             'endline', 'methods',
+                                             'real_complexity'])
 
 
 class Function(BaseFunc):
@@ -38,9 +40,11 @@ class Function(BaseFunc):
         return '{0}.{1}'.format(self.classname, self.name)
 
     def __str__(self):
-        return '{0} {1}:{2} {3} - {4}'.format(self.letter, self.lineno,
-                                              self.col_offset, self.fullname,
-                                              self.complexity)
+        return '{0} {1}:{2}->{3} {4} - {5}'.format(self.letter, self.lineno,
+                                                   self.col_offset,
+                                                   self.endline,
+                                                   self.fullname,
+                                                   self.complexity)
 
 
 class Class(BaseClass):
@@ -64,9 +68,10 @@ class Class(BaseClass):
         return int(self.real_complexity / float(len(self.methods))) + 1
 
     def __str__(self):
-        return '{0} {1}:{2} {3} - {4}'.format(self.letter, self.lineno,
-                                              self.col_offset, self.name,
-                                              self.complexity)
+        return '{0} {1}:{2}->{3} {4} - {5}'.format(self.letter, self.lineno,
+                                                   self.col_offset,
+                                                   self.endline, self.name,
+                                                   self.complexity)
 
 
 class CodeVisitor(ast.NodeVisitor):
@@ -114,6 +119,7 @@ class ComplexityVisitor(CodeVisitor):
         self.classes = []
         self.to_method = to_method
         self.classname = classname
+        self._max_line = float('-inf')
 
     @property
     def functions_complexity(self):
@@ -148,10 +154,22 @@ class ComplexityVisitor(CodeVisitor):
             blocks.extend(cls.methods)
         return blocks
 
+    @property
+    def max_line(self):
+        return self._max_line
+
+    @max_line.setter
+    def max_line(self, value):
+        if value > self._max_line:
+            self._max_line = value
+
     def generic_visit(self, node):
         '''Main entry point for the visitor.'''
         # Get the name of the class
         name = self.get_name(node)
+        # Check for a lineno attribute
+        if hasattr(node, 'lineno'):
+            self.max_line = node.lineno
         # The Try/Except block is counted as the number of handlers
         # plus the `else` block.
         # In Python 3.3 the TryExcept and TryFinally nodes have been merged
@@ -189,8 +207,8 @@ class ComplexityVisitor(CodeVisitor):
                                 visitor.functions_complexity)
 
         func = Function(node.name, node.lineno, node.col_offset,
-                        self.to_method, self.classname, clojures,
-                        body_complexity)
+                        visitor.max_line, self.to_method, self.classname,
+                        clojures, body_complexity)
         self.functions.append(func)
 
     def visit_ClassDef(self, node):
@@ -209,8 +227,11 @@ class ComplexityVisitor(CodeVisitor):
             body_complexity += (visitor.complexity +
                                 visitor.functions_complexity)
 
+        last_method = max(map(operator.attrgetter('endline'), methods) or
+                          [float('-inf')])
         cls = Class(classname, node.lineno, node.col_offset,
-                    methods, body_complexity)
+                    max(visitor.max_line, last_method), methods,
+                    body_complexity)
         self.classes.append(cls)
 
 

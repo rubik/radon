@@ -40,8 +40,8 @@ class TestRank(ParametrizedTestCase):
         self.assertEqual(cc_rank(self.score), self.expected_rank)
 
 
-fun = lambda complexity: Function('randomname', 1, 4, False, None, [], complexity)
-cls = lambda complexity: Class('randomname_', 3, 21, [], complexity)
+fun = lambda complexity: Function('randomname', 1, 4, 23, False, None, [], complexity)
+cls = lambda complexity: Class('randomname_', 3, 21, 18, [], complexity)
 
 # This works with both the next two tests
 SIMPLE_BLOCKS = [

@@ -480,17 +480,17 @@ class TestClojures(ParametrizedTestCase):
 
 
 CONTAINERS_CASES = [
-    (('func', 12, 0, False, None, [], 5),
-     ('F', 'func', 'F 12:0 func - 5')),
+    (('func', 12, 0, 18, False, None, [], 5),
+     ('F', 'func', 'F 12:0->18 func - 5')),
 
-    (('meth', 12, 0, True, 'cls', [], 5),
-     ('M', 'cls.meth', 'M 12:0 cls.meth - 5')),
+    (('meth', 12, 0, 21, True, 'cls', [], 5),
+     ('M', 'cls.meth', 'M 12:0->21 cls.meth - 5')),
 
-    (('cls', 12, 0, [], 5),
-     ('C', 'cls', 'C 12:0 cls - 5')),
+    (('cls', 12, 0, 15, [], 5),
+     ('C', 'cls', 'C 12:0->15 cls - 5')),
 
-    (('cls', 12, 0, [object, object, object, object], 30),
-     ('C', 'cls', 'C 12:0 cls - 8')),
+    (('cls', 12, 0, 19, [object, object, object, object], 30),
+     ('C', 'cls', 'C 12:0->19 cls - 8')),
 ]
 
 
@@ -504,7 +504,7 @@ class TestContainers(ParametrizedTestCase):
         self.expected_str = expected[2]
 
     def testContainers(self):
-        cls = Function if len(self.values) == 7 else Class
+        cls = Function if len(self.values) == 8 else Class
         obj = cls(*self.values)
         self.assertEqual(obj.letter, self.expected_letter)
         self.assertEqual(obj.fullname, self.expected_name)

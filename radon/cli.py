@@ -6,18 +6,15 @@ except ImportError:
 
 try:
     import colorama
+    colorama.init()
     GREEN, YELLOW, RED = (colorama.Fore.GREEN, colorama.Fore.YELLOW,
                           colorama.Fore.RED)
     MAGENTA, CYAN, WHITE = (colorama.Fore.MAGENTA, colorama.Fore.CYAN,
                             colorama.Fore.WHITE)
     BRIGHT, RESET = colorama.Style.BRIGHT, colorama.Style.RESET_ALL
-
-    colorama_init = colorama.init
-    colorama_deinit = colorama.deinit
 except ImportError:
     # No colorama, so let's fallback to no-color mode
     GREEN = YELLOW = RED = MAGENTA = CYAN = WHITE = BRIGHT = RESET = ''
-    colorama_init = colorama_deinit = lambda: True
 
 import os
 import sys
