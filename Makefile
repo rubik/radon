@@ -1,4 +1,4 @@
-.PHONY: tests cov htmlcov pep8 pylint docs
+.PHONY: tests cov htmlcov pep8 pylint docs deps
 
 tests:
 	python radon/tests/run.py
@@ -18,3 +18,6 @@ pylint:
 
 docs:
 	cd docs && make html
+
+deps:
+	pip install -r dev_requirements.pip

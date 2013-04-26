@@ -19,7 +19,8 @@ except ImportError:
 import os
 import sys
 import fnmatch
-from radon.complexity import cc_visit, cc_rank
+import radon.complexity as cc_mod
+from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank
 
@@ -107,8 +108,8 @@ def _print_cc_results(path, results, min, max, show_complexity):
     return average_cc, len(results)
 
 
-@BAKER.command(shortopts={'multi': 'm', 'exclude': 'e'})
-def mi(multi=True, exclude=None, *paths):
+@BAKER.command(shortopts={'multi': 'm', 'exclude': 'e', 'show': 's'})
+def mi(multi=True, exclude=None, show=False, *paths):
     '''Analyze the given Python modules and compute the Maintainability Index.
 
     The maintainability index (MI) is a compound metric, with the primary aim
@@ -132,13 +133,16 @@ def mi(multi=True, exclude=None, *paths):
                 return
             rank = mi_rank(result)
             color = MI_RANKS[rank]
-            log('{0} - {1}{2}{3}', name, color, rank, RESET)
+            to_show = ''
+            if show:
+                to_show = ' ({0:.2f})'.format(result)
+            log('{0} - {1}{2}{3}{4}', name, color, rank, to_show, RESET)
 
 
 @BAKER.command(shortopts={'min': 'n', 'max': 'x', 'show_complexity': 's',
-                          'average': 'a', 'exclude': 'e'})
+                          'average': 'a', 'exclude': 'e', 'order': 'o'})
 def cc(min='A', max='F', show_complexity=False, average=False,
-       exclude=None, *paths):
+       exclude=None, order='SCORE', *paths):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -157,10 +161,11 @@ def cc(min='A', max='F', show_complexity=False, average=False,
     max = max.upper()
     average_cc = .0
     analyzed = 0
+    order_function = getattr(cc_mod, order.upper(), getattr(cc_mod, 'SCORE'))
     for name in iter_filenames(paths, exclude or []):
         with open(name) as fobj:
             try:
-                results = cc_visit(fobj.read())
+                results = sorted_results(cc_visit(fobj.read()), order_function)
             except Exception as e:
                 log('{0}\n{1}ERROR: {2}', name, ' ' * 4, str(e))
                 continue

@@ -3,6 +3,12 @@ import math
 from radon.visitors import GET_COMPLEXITY, ComplexityVisitor
 
 
+# sorted_block ordering functions
+SCORE = lambda block: -GET_COMPLEXITY(block)
+LINES = lambda block: block.lineno
+ALPHA = lambda block: block.name
+
+
 def cc_rank(cc):
     '''Rank the complexity score from A to F, where A stands for the simplest
     and best score and F the most complex and worst one::
@@ -40,14 +46,22 @@ def average_complexity(blocks):
     return sum((GET_COMPLEXITY(block) for block in blocks), .0) / len(blocks)
 
 
-def sorted_results(blocks):
+def sorted_results(blocks, order=SCORE):
     '''Given a ComplexityVisitor instance, returns a list of sorted blocks
     with respect to complexity. A block is a either `~radon.visitors.Function`
     object or a `~radon.visitors.Class` object.
     The blocks are sorted in descending order from the block with the highest
     complexity.
+
+    The optional `order` parameter indicates how to sort the blocks. It can be:
+
+        * `LINES`: sort by line numbering;
+        * `ALPHA`: sort by name (from A to Z);
+        * `SCORE`: sorty by score (descending).
+
+    Default is `SCORE`.
     '''
-    return sorted(blocks, key=GET_COMPLEXITY, reverse=True)
+    return sorted(blocks, key=order)
 
 
 def cc_visit(code):
