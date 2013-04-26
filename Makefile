@@ -1,4 +1,4 @@
-.PHONY: tests cov htmlcov pep8 pylint docs deps
+.PHONY: tests cov htmlcov pep8 pylint docs deps publish
 
 tests:
 	python radon/tests/run.py
@@ -21,3 +21,6 @@ docs:
 
 deps:
 	pip install -r dev_requirements.pip
+
+publish:
+	python setup.py sdist bdist_wheel register upload
