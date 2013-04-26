@@ -16,6 +16,8 @@ Radon will run from **Python 2.6** to **Python 3.3** (endpoints inclusive) with 
 single code base and without the need of tools like 2to3 or six. It can also
 run on **PyPy** without any problems (version tested: 1.9 and 2.0.0).
 
+Radon does not depend on any other Python package.
+
 Installation
 ------------
 
