@@ -48,7 +48,7 @@ Explanation:
 * ``cc`` is the radon command
 * ``-a`` tells radon to calculate the average complexity at the end
 * ``-nc`` tells radon to print only results with a complexity rank of C or
-worse. Other examples: ``-na`` (from A to F), or ``-nd`` (from D to F).
+  worse. Other examples: ``-na`` (from A to F), or ``-nd`` (from D to F).
 
 Actually it's even better: it's got colors!
 
