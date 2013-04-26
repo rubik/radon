@@ -9,6 +9,12 @@ Radon can compute
 * **Halstead** metrics (all of them)
 * **Maintainability Index** (the one used in Visual Studio)
 
+Requirements
+------------
+
+Radon will run from **Python 2.6** to **Python 3.3** (endpoints inclusive) with a
+single code base and without the need of tools like 2to3 or six. It can also
+run on **PyPy** without any problems (version tested: 1.9 and 2.0.0).
 
 Installation
 ------------
