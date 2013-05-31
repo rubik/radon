@@ -9,5 +9,5 @@ python:
 install:
     - pip install -e . --use-mirrors
     - pip install -r test_requirements.pip --use-mirrors
-before_script:
+script:
     - make coveralls
