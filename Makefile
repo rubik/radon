@@ -1,4 +1,4 @@
-.PHONY: tests cov htmlcov pep8 pylint docs deps publish
+.PHONY: tests cov htmlcov pep8 pylint docs dev-deps test-deps publish coveralls
 
 tests:
 	python radon/tests/run.py
@@ -19,8 +19,14 @@ pylint:
 docs:
 	cd docs && make html
 
-deps:
+dev-deps:
 	pip install -r dev_requirements.pip
+
+test-deps:
+	pip install -r test_requirements.pip
 
 publish:
 	python setup.py sdist bdist_wheel register upload
+
+coveralls: test-deps cov
+	coveralls
