@@ -5,7 +5,7 @@ tests:
 
 cov:
 	coverage erase && coverage run --include "radon/*" --omit "radon/__init__.py,radon/cli.py,radon/tests/*" radon/tests/run.py
-	coverage report
+	coverage report -m
 
 htmlcov: cov
 	coverage html
