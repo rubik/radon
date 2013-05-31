@@ -1,4 +1,4 @@
 paramunittest
 coverage
-python-coveralls
+coveralls-python
 importlib
