@@ -11,4 +11,5 @@ install:
     - pip install -r test_requirements.pip --use-mirrors
 before_script:
     - cd radon
+    - ls
     - make coveralls
