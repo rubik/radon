@@ -1,7 +1,7 @@
-.. image:: https://travis-ci.org/rubik/radon.png?branch=master
-
 Radon
 #####
+
+.. image:: https://travis-ci.org/rubik/radon.png?branch=master
 
 Radon is a tool for Python that computes various metrics from the source code.
 Radon can compute
