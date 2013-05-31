@@ -1,3 +1,5 @@
+.. image:: https://travis-ci.org/rubik/radon.png?branch=master
+
 Radon
 #####
 
