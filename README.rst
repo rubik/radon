@@ -2,12 +2,16 @@ Radon
 #####
 
 .. image:: https://travis-ci.org/rubik/radon.png?branch=master
+    :target: https://travis-ci.org/rubik/radon
+
+.. image:: https://coveralls.io/repos/rubik/radon/badge.png?branch=master
+    :target: https://coveralls.io/r/rubik/radon?branch=master
 
 .. image:: https://pypip.in/v/radon/badge.png
-        :target: https://crate.io/packages/radon
+    :target: https://crate.io/packages/radon
 
 .. image:: https://pypip.in/d/radon/badge.png
-        :target: https://crate.io/packages/radon
+    :target: https://crate.io/packages/radon
 
 Radon is a tool for Python that computes various metrics from the source code.
 Radon can compute
