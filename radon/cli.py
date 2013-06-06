@@ -24,6 +24,9 @@ from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank
 
+if not sys.stdout.isatty():
+    GREEN = YELLOW = RED = MAGENTA = CYAN = WHITE = BRIGHT = RESET = ''
+
 
 RANKS_COLORS = {'A': GREEN, 'B': GREEN,
                 'C': YELLOW, 'D': YELLOW,
