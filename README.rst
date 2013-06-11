@@ -13,8 +13,8 @@ Radon
 .. image:: https://pypip.in/d/radon/badge.png
     :target: https://crate.io/packages/radon
 
-Radon is a tool for Python that computes various metrics from the source code.
-Radon can compute
+Radon is a Python tool that computes various metrics from the source code.
+Radon can compute:
 
 * **McCabe's complexity**, i.e. cyclomatic complexity
 * **raw** metrics (these include SLOC, comment lines, blank lines, &c.)
@@ -24,11 +24,12 @@ Radon can compute
 Requirements
 ------------
 
-Radon will run from **Python 2.6** to **Python 3.3** (endpoints inclusive) with a
-single code base and without the need of tools like 2to3 or six. It can also
-run on **PyPy** without any problems (version tested: 1.9 and 2.0.0).
+Radon will run from **Python 2.6** to **Python 3.3** with a single code base
+and without the need of tools like 2to3 or six. It can also run on **PyPy**
+without any problems (currently only PyPy 2.0.0 is tested).
 
-Radon does not depend on any other Python package.
+Radon does not depend on any other Python package (except *Baker* for the
+command line, but it is an optional dependency).
 
 Installation
 ------------
