@@ -220,7 +220,7 @@ class ComplexityVisitor(CodeVisitor):
         # from 1.
         body_complexity = 1
         classname = node.name
-        visitors_max_lines = []
+        visitors_max_lines = [node.lineno]
         for child in node.body:
             visitor = ComplexityVisitor(True, classname, off=False)
             visitor.visit(child)
