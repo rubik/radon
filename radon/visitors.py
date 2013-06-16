@@ -207,8 +207,8 @@ class ComplexityVisitor(CodeVisitor):
                                 visitor.functions_complexity)
 
         func = Function(node.name, node.lineno, node.col_offset,
-                        visitor.max_line, self.to_method, self.classname,
-                        clojures, body_complexity)
+                        max(node.lineno, visitor.max_line), self.to_method,
+                        self.classname, clojures, body_complexity)
         self.functions.append(func)
 
     def visit_ClassDef(self, node):
