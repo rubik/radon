@@ -20,7 +20,7 @@ def cc_rank(cc):
         31 - 40      E (high risk - complex block, alarming)
         41+          F (very high risk - error-prone, unstable block)
 
-    Here *block* is used in place of function, method and class.
+    Here *block* is used in place of function, method or class.
 
     The formula used to convert the score into an index is the following::
 

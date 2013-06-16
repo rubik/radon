@@ -220,18 +220,17 @@ class ComplexityVisitor(CodeVisitor):
         # from 1.
         body_complexity = 1
         classname = node.name
+        visitors_max_lines = []
         for child in node.body:
             visitor = ComplexityVisitor(True, classname, off=False)
             visitor.visit(child)
             methods.extend(visitor.functions)
             body_complexity += (visitor.complexity +
                                 visitor.functions_complexity)
+            visitors_max_lines.append(visitor.max_line)
 
-        last_method = max(map(operator.attrgetter('endline'), methods) or
-                          [float('-inf')])
         cls = Class(classname, node.lineno, node.col_offset,
-                    max(visitor.max_line, last_method), methods,
-                    body_complexity)
+                    max(visitors_max_lines), methods, body_complexity)
         self.classes.append(cls)
 
 
