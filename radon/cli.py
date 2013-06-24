@@ -223,7 +223,7 @@ def raw(exclude=None, *paths):
             log(' ' * 4 + '- Comment Stats')
             indent = ' ' * 8
             comments = mod.comments
-            log('{0}(C % L): {1:.0%}', indent, comments / float(mod.loc))
-            log('{0}(C % S): {1:.0%}', indent, comments / float(mod.sloc))
+            log('{0}(C % L): {1:.0%}', indent, comments / (float(mod.loc) or 1))
+            log('{0}(C % S): {1:.0%}', indent, comments / (float(mod.sloc) or 1))
             log('{0}(C + M % L): {1:.0%}', indent,
                 (comments + mod.multi) / float(mod.loc))
