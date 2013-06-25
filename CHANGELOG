@@ -1,12 +1,34 @@
+0.4.2 (Jun 25, 2013)
+====================
+
+- `raw` command failed on almost-empty files: #29.
+
+
+0.4.1 (Jun 16, 2013)
+====================
+
+- Turn off colors when not printing to a tty: #26.
+- Fixed #27 (`endline` could be `float('-inf')` sometimes).
+
+
+0.4 (Apr 26, 2013)
+==================
+
+- Added `-s` option to `mi` command: #19.
+- Added `-o` option to `cc` command to sort output: #20.
+- Added `endline` attribute to `Function` and `Class` objects: #25.
+
+
+
 0.3 (Nov 2, 2012)
 =================
 
 - Code coverage to 100%, runs from Python 2.6 up to 3.3 and on PyPy as well.
-- Created a documentation at https://radon.readthedocs.org\: #5
-- Made the codebase compatible with PyPy: #9
-- Ported cli.py to Python 3: #14
-- More tests: #15
-- Minor fixes: #11, #12, #13, #17
+- Created a documentation at https://radon.readthedocs.org\: #5.
+- Made the codebase compatible with PyPy: #9.
+- Ported cli.py to Python 3: #14.
+- More tests: #15.
+- Minor fixes: #11, #12, #13, #17.
 
 
 0.2 (Oct 11, 2012)
