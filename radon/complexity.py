@@ -29,9 +29,7 @@ def cc_rank(cc):
     where H(s) stands for the Heaviside Step Function.
     The rank is then associated to a letter (0 = A, 5 = F).
     '''
-    # Lame trick to avoid an if/else block
-    # Actually it *is* an if/else block
-    return chr(min(int(math.ceil(cc / 10.)) - (1, 0)[5 - cc < 0], 5) + 65)
+    return chr(min(int(math.ceil(cc / 10.) or 1) - (1, 0)[5 - cc < 0], 5) + 65)
 
 
 def average_complexity(blocks):

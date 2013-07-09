@@ -7,6 +7,7 @@ import collections
 GET_COMPLEXITY = operator.attrgetter('complexity')
 GET_REAL_COMPLEXITY = operator.attrgetter('real_complexity')
 NAMES_GETTER = operator.attrgetter('name', 'asname')
+GET_ENDLINE = operator.attrgetter('endline')
 
 BaseFunc = collections.namedtuple('Function', ['name', 'lineno', 'col_offset',
                                                'endline', 'is_method',
@@ -230,7 +231,8 @@ class ComplexityVisitor(CodeVisitor):
             visitors_max_lines.append(visitor.max_line)
 
         cls = Class(classname, node.lineno, node.col_offset,
-                    max(visitors_max_lines), methods, body_complexity)
+                    max(visitors_max_lines + map(GET_ENDLINE, methods)),
+                    methods, body_complexity)
         self.classes.append(cls)
 
 
