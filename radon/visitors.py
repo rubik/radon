@@ -231,7 +231,7 @@ class ComplexityVisitor(CodeVisitor):
             visitors_max_lines.append(visitor.max_line)
 
         cls = Class(classname, node.lineno, node.col_offset,
-                    max(visitors_max_lines + map(GET_ENDLINE, methods)),
+                    max(visitors_max_lines + list(map(GET_ENDLINE, methods))),
                     methods, body_complexity)
         self.classes.append(cls)
 
