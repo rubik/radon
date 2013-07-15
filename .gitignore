@@ -2,6 +2,7 @@
 *~
 *.swp
 *.egg-info
+meta.yaml
 __pycache__
 .coverage
 htmlcov
