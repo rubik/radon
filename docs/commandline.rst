@@ -153,6 +153,8 @@ Like the previous examples, but does not count multiline strings as comments.
 The :command:`raw` command
 --------------------------
 
+.. program:: raw
+
 This command analyzes the given Python modules in order to compute raw metrics.
 These include:
 
