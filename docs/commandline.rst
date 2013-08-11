@@ -33,6 +33,9 @@ Ranks corresponds to complexity scores as follows:
        41+      F      very high - error-prone, unstable block
     ========== ====== =========================================
 
+Options
++++++++
+
 .. option:: -x, --max
 
     Set the maximum complexity rank to display.
@@ -106,6 +109,9 @@ follows:
     ========== ====== =================
 
 
+Options
++++++++
+
 .. option:: -e, --exclude
 
     A comma-separated list of patterns which indicate which paths to exclude
@@ -162,6 +168,10 @@ These include:
 The equation :math:`sloc + blank = loc` should always hold.
 
 .. [Wikipedia] More information on **LOC**, **SLOC**, **LLOC** here: http://en.wikipedia.org/wiki/Source_lines_of_code
+
+
+Options
++++++++
 
 .. option:: -e, --exclude
 
