@@ -101,8 +101,8 @@ def mi_visit(code, multi):
 def mi_rank(score):
     '''Rank the score with a letter:
 
-        * A if `score > 19`;
-        * B if `9 < score <= 19`;
-        * C if `score <= 9`.
+        * A if :math:`\\text{score} > 19`;
+        * B if :math:`9 < \\text{score} \le 19`;
+        * C if :math:`\\text{score} \le 9`.
     '''
     return chr(65 + (9 - score >= 0) + (19 - score >= 0))

@@ -238,7 +238,7 @@ class ComplexityVisitor(CodeVisitor):
 
 class HalsteadVisitor(CodeVisitor):
     '''Visitor that keeps track of operators and operands, in order to compute
-    Halstead metrics (see :func:`radon.metrics.hh_visit`).
+    Halstead metrics (see :func:`radon.metrics.h_visit`).
     '''
 
     types = {ast.Num: 'n',

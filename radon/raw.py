@@ -146,19 +146,15 @@ def analyze(source):
     '''Analyze the source code and return a namedtuple with the following
     fields:
 
-        * loc: The number of lines of code (total)
-        * lloc: The number of logical lines of code
-        * sloc: The number of source lines of code (not necessarily
+        * **loc**: The number of lines of code (total)
+        * **lloc**: The number of logical lines of code
+        * **sloc**: The number of source lines of code (not necessarily
             corresponding to the LLOC)
-        * comments: The number of Python comment lines
-        * multi: The number of lines which represent multi-line strings
-        * blank: The number of blank lines (or whitespace-only ones)
+        * **comments**: The number of Python comment lines
+        * **multi**: The number of lines which represent multi-line strings
+        * **blank**: The number of blank lines (or whitespace-only ones)
 
-    The equation:
-
-        sloc + blanks = loc
-
-    should always hold.
+    The equation :math:`sloc + blanks = loc` should always hold.
     Multiline strings are not counted as comments, since, to the Python
     interpreter, they are not comments but strings.
     '''
