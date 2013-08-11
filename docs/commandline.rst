@@ -153,7 +153,7 @@ These include:
     * **LOC**: the total number of lines of code
     * **LLOC**: the number of logical lines of code
     * **SLOC**: the number of source lines of code - not necessarily
-      corresponding to the **LLOC** [WikiRef]_
+      corresponding to the **LLOC** [Wikipedia]_
     * **comments**: the number of Python comment lines (i.e. only single-line
       comments ``#``)
     * **multi**: the number of lines representing multi-line strings
@@ -161,7 +161,7 @@ These include:
 
 The equation :math:`sloc + blank = loc` should always hold.
 
-.. [WikiRef] More information here: http://en.wikipedia.org/wiki/Source_lines_of_code
+.. [Wikipedia] More information on **LOC**, **SLOC**, **LLOC** here: http://en.wikipedia.org/wiki/Source_lines_of_code
 
 .. option:: -e, --exclude
 
