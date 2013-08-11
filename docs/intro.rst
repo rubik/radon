@@ -54,13 +54,13 @@ Common formulas are:
 * the derivative used by SEI:
 
   .. math::
-  
+
     MI = 171 - 5.2\log_2 V - 0.23 G - 16.2 \log_2 L + 50 \sin(\sqrt{2.4 C})
 
 * the derivative used by Visual Studio:
-  
+
   .. math::
-  
+
     MI = max \left [ 0, 100\dfrac{171 - 5.2\ln V - 0.23 G - 16.2 \ln L}{171} \right ].
 
 Radon uses another derivative, computed from both SEI derivative and Visual
@@ -71,7 +71,7 @@ Studio one:
     MI = max \left [ 0, 100\dfrac{171 - 5.2\ln V - 0.23 G - 16.2 \ln L + 50 \sin(\sqrt{2.4 C}))}{171} \right ]
 
 Where:
-    * ``V`` is the Halstead Volume;
+    * ``V`` is the Halstead Volume (see below);
     * ``G`` is the total Cyclomatic Complexity;
     * ``L`` is the number of Source Lines of Code (SLOC);
     * ``C`` is the percent of comment lines (important: converted to radians).
