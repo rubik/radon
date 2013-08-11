@@ -33,6 +33,18 @@ Ranks corresponds to complexity scores as follows:
        41+      F      very high - error-prone, unstable block
     ========== ====== =========================================
 
+Blocks are also classified into three types: functions, methods and classes.
+They're listed by letter in the command output for convenience when scanning
+through a longer list of blocks:
+
+    ============ ========
+     Block type   Letter
+    ============ ========
+     Function     F
+     Method       M
+     Class        C
+    ============ ========
+
 Options
 +++++++
 
