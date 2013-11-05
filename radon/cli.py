@@ -118,11 +118,9 @@ def mi(multi=True, exclude=None, show=False, *paths):
     The maintainability index (MI) is a compound metric, with the primary aim
     of to determine how easy it will be to maintain a particular body of code.
 
-    :param multi: Whether or not to count multiline strings as comments. Most
-        of the time this is safe since multiline strings are used as functions
-        docstrings, but one should be aware that their use is not limited to
-        that and sometimes it would be wrong to count them as comment lines.
-    :param paths: The modules or packages to analyze.
+    -e <str>, --exclude <str>
+    -m, --multi  If set multiline strings are counted as comments
+    paths  The modules or packages to analyze.
     '''
     for name in iter_filenames(paths, exclude):
         with open(name) as fobj:
@@ -152,13 +150,13 @@ def cc(min='A', max='F', show_complexity=False, average=False,
     The output can be filtered using the *min* and *max* flags. In addition
     to that, by default complexity score is not displayed.
 
-    :param min: The minimum complexity to display (default to A).
-    :param max: The maximum complexity to display (default to F).
-    :param show_complexity: Whether or not to show the actual complexity
-        score together with the A-F rank. Default to False.
-    :param average: If True, at the end of the analysis display the average
+    -n, --min  The minimum complexity to display (default to A).
+    -x, --max  The maximum complexity to display (default to F).
+    -s, --show_complexity  Whether or not to show the actual complexity score
+        together with the A-F rank. Default to False.
+    -a, --average  If True, at the end of the analysis display the average
         complexity. Default to False.
-    :param paths: The modules or packages to analyze.
+    paths  The modules or packages to analyze.
     '''
     min = min.upper()
     max = max.upper()
