@@ -4,6 +4,9 @@ Radon
 .. image:: https://travis-ci.org/rubik/radon.png?branch=master
     :target: https://travis-ci.org/rubik/radon
 
+.. image:: https://drone.io/github.com/rubik/radon/status.png
+    :target: https://drone.io/github.com/rubik/radon
+
 .. image:: https://coveralls.io/repos/rubik/radon/badge.png?branch=master
     :target: https://coveralls.io/r/rubik/radon?branch=master
 
