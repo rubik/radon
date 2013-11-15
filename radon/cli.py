@@ -19,10 +19,12 @@ except ImportError:
 import os
 import sys
 import fnmatch
+import json
 import radon.complexity as cc_mod
 from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank
+from radon.visitors import Function
 
 if not sys.stdout.isatty():
     GREEN = YELLOW = RED = MAGENTA = CYAN = WHITE = BRIGHT = RESET = ''
@@ -110,7 +112,6 @@ def _print_cc_results(path, results, min, max, show_complexity):
         log_list(res)
     return average_cc, len(results)
 
-
 @BAKER.command(shortopts={'multi': 'm', 'exclude': 'e', 'show': 's'})
 def mi(multi=True, exclude=None, show=False, *paths):
     '''Analyze the given Python modules and compute the Maintainability Index.
@@ -140,10 +141,62 @@ def mi(multi=True, exclude=None, show=False, *paths):
             log('{0} - {1}{2}{3}{4}', name, color, rank, to_show, RESET)
 
 
+def analyze_cc(*paths):
+    """Analyze all Python files in the provided paths and return a dictionary
+    mapping each filename to a list of its components (functions or classes)."""
+    result = {}
+    for name in iter_filenames(paths, []):
+        with open(name) as fobj:
+            try:
+                results = cc_visit(fobj.read())
+            except Exception as e:
+                log('{0}\n{1}ERROR: {2}', name, ' ' * 4, str(e))
+                continue
+        result[name] = results
+    return result
+
+
+def cc_to_dict(obj):
+    """Convert Function or Class to a dictionary for JSON export."""
+    def get_type(obj):
+        if isinstance(obj, Function):
+            if obj.is_method:
+                return 'method'
+            else:
+                return 'function'
+        else:
+            return 'class'
+    result = {}
+    result['type'] = get_type(obj)
+    attrs = ['name', 'lineno', 'col_offset', 'endline', 'classname',
+             'complexity', 'real_complexity']
+    for a in attrs:
+        try:
+            v = getattr(obj, a)
+            if v is not None:
+                result[a] = getattr(obj, a)
+        except AttributeError:
+            pass
+    for key in ('methods', 'clojures'):
+        if hasattr(obj, key):
+            result[key] = map(cc_to_dict, getattr(obj, key))
+    return result
+
+
+def cc_json(*paths):
+    """Prints the JSON representation of the cyclomatic complexity metrics"""
+    cc_data = analyze_cc(*paths)
+    result = {}
+    for key, data in cc_data.iteritems():
+        result[key] = map(cc_to_dict, data)
+    print json.dumps(result)
+
+
 @BAKER.command(shortopts={'min': 'n', 'max': 'x', 'show_complexity': 's',
-                          'average': 'a', 'exclude': 'e', 'order': 'o'})
+                          'average': 'a', 'exclude': 'e', 'order': 'o',
+                          'json': 'j'})
 def cc(min='A', max='F', show_complexity=False, average=False,
-       exclude=None, order='SCORE', *paths):
+       exclude=None, order='SCORE', json=False, *paths):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -158,18 +211,16 @@ def cc(min='A', max='F', show_complexity=False, average=False,
         complexity. Default to False.
     paths  The modules or packages to analyze.
     '''
+    if json:
+        return cc_json(*paths)
     min = min.upper()
     max = max.upper()
     average_cc = .0
     analyzed = 0
     order_function = getattr(cc_mod, order.upper(), getattr(cc_mod, 'SCORE'))
-    for name in iter_filenames(paths, exclude or []):
-        with open(name) as fobj:
-            try:
-                results = sorted_results(cc_visit(fobj.read()), order_function)
-            except Exception as e:
-                log('{0}\n{1}ERROR: {2}', name, ' ' * 4, str(e))
-                continue
+    cc_data = analyze_cc(*paths)
+    for name, results in cc_data.iteritems():
+        results = sorted_results(results, order_function)
         cc, blocks = _print_cc_results(name, results, min, max,
                                        show_complexity)
         average_cc += cc
