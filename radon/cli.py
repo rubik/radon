@@ -68,7 +68,7 @@ def walk_paths(paths):
 
 
 def iter_filenames(paths, exclude):
-    exclude = filter(None, (exclude or '').split(','))
+    exclude = list(filter(None, (exclude or '').split(',')))
     for path in walk_paths(paths):
         if all(not fnmatch.fnmatch(path, pattern) for pattern in exclude):
             yield path
