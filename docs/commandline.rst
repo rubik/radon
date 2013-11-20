@@ -192,6 +192,11 @@ Options
     A comma-separated list of patterns which indicate which paths to exclude
     from the analysis.
 
+.. option:: -s, --summary
+
+    If given, at the end of the analysis show the summary of the gathered
+    metrics.
+
 Examples
 ++++++++
 
