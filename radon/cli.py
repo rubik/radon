@@ -216,7 +216,7 @@ def raw(exclude=None, summary=False, *paths):
     paths: The modules or packages to analyze.
     '''
     headers = ['LOC', 'LLOC', 'SLOC', 'Comments', 'Multi', 'Blank']
-    sum_metrics = {key: 0 for key in headers}
+    sum_metrics = dict.fromkeys(headers, 0)
 
     for path in iter_filenames(paths, exclude):
         with open(path) as fobj:
