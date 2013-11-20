@@ -18,8 +18,8 @@ except ImportError:
 
 import os
 import sys
-import fnmatch
 import radon.complexity as cc_mod
+from radon.tools import iter_filenames
 from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank
@@ -43,35 +43,24 @@ BAKER = baker.Baker()
 
 
 def log(msg, *args, **kwargs):
-    '''Log a message, passing `*args` and `**kwargs` to `.format()`.'''
-    sys.stdout.write(msg.format(*args, **kwargs) + '\n')
+    '''Log a message, passing `*args` to `.format()`.
+
+    `indent`, if present as a keyword argument, specifies the indent level, so
+    that `indent=0` will log normally, `indent=1` will indent the message by 4
+    spaces, &c..'''
+    indent = 4 * kwargs.get('indent', 0)
+    sys.stdout.write(' ' * indent + msg.format(*args) + '\n')
 
 
-def log_list(lst):
+def log_list(lst, **kwargs):
     '''Log an entire list, line by line.'''
     for line in lst:
-        log(line)
+        log(line, **kwargs)
 
 
-def walk_paths(paths):
-    '''Recursively iter filenames starting from the given *paths*.
-    Filenames are filtered and only Python files (those ending with .py) are
-    yielded.
-    '''
-    for path in paths:
-        if os.path.isdir(path):
-            for root, _, files in os.walk(path):
-                for filename in (f for f in files if f.endswith('.py')):
-                    yield os.path.join(root, filename)
-        elif path.endswith('.py'):
-            yield path
-
-
-def iter_filenames(paths, exclude):
-    exclude = list(filter(None, (exclude or '').split(',')))
-    for path in walk_paths(paths):
-        if all(not fnmatch.fnmatch(path, pattern) for pattern in exclude):
-            yield path
+def log_error(msg, *args, **kwargs):
+    '''Log an error message. Arguments are the same as log().'''
+    log('{0}{1}ERROR{2}: {3}'.format(BRIGHT, RED, RESET, msg), *args, **kwargs)
 
 
 def _format_line(line, ranked, show_complexity=False):
@@ -81,7 +70,7 @@ def _format_line(line, ranked, show_complexity=False):
     '''
     letter_colored = LETTERS_COLORS[line.letter] + line.letter
     rank_colored = RANKS_COLORS[ranked] + ranked
-    compl = ' ({0}) '.format(line.complexity) if show_complexity else ''
+    compl = '' if not show_complexity else ' ({0}) '.format(line.complexity)
     return TEMPLATE.format(BRIGHT, letter_colored, line.lineno,
                            line.col_offset, line.fullname, rank_colored,
                            compl, reset=RESET)
@@ -103,11 +92,10 @@ def _print_cc_results(path, results, min, max, show_complexity):
         average_cc += line.complexity
         if not min <= ranked <= max:
             continue
-        res.append('{0}{1}'.format(' ' * 4, _format_line(line, ranked,
-                                                         show_complexity)))
+        res.append(_format_line(line, ranked, show_complexity))
     if res:
         log(path)
-        log_list(res)
+        log_list(res, indent=1)
     return average_cc, len(results)
 
 
@@ -116,10 +104,12 @@ def mi(multi=True, exclude=None, show=False, *paths):
     '''Analyze the given Python modules and compute the Maintainability Index.
 
     The maintainability index (MI) is a compound metric, with the primary aim
-    of to determine how easy it will be to maintain a particular body of code.
+    being to determine how easy it will be to maintain a particular body of
+    code.
 
-    -e <str>, --exclude <str>
-    -m, --multi  If set multiline strings are counted as comments
+    -e <str>, --exclude <str>  Comma separated list of patterns to exclude
+    -m, --multi  If set, multiline strings are counted as comments
+    -s, --show  If set, the actual MI value is shown in results
     paths  The modules or packages to analyze.
     '''
     for name in iter_filenames(paths, exclude):
@@ -127,16 +117,15 @@ def mi(multi=True, exclude=None, show=False, *paths):
             try:
                 result = mi_visit(fobj.read(), multi)
             except Exception as e:
-                log('{0}\n{1}ERROR: {2}', name, ' ' * 4, str(e))
+                log(name, indent=1)
+                log_error(e, indent=1)
                 continue
             except KeyboardInterrupt:
                 log(name)
                 return
             rank = mi_rank(result)
             color = MI_RANKS[rank]
-            to_show = ''
-            if show:
-                to_show = ' ({0:.2f})'.format(result)
+            to_show = '' if not show else ' ({0:.2f})'.format(result)
             log('{0} - {1}{2}{3}{4}', name, color, rank, to_show, RESET)
 
 
@@ -152,6 +141,8 @@ def cc(min='A', max='F', show_complexity=False, average=False,
 
     -n, --min  The minimum complexity to display (default to A).
     -x, --max  The maximum complexity to display (default to F).
+    -e, --exclude  Comma separated list of patterns to exclude. By default
+        hidden directories (those starting with '.') are excluded.
     -s, --show_complexity  Whether or not to show the actual complexity score
         together with the A-F rank. Default to False.
     -a, --average  If True, at the end of the analysis display the average
@@ -163,12 +154,13 @@ def cc(min='A', max='F', show_complexity=False, average=False,
     average_cc = .0
     analyzed = 0
     order_function = getattr(cc_mod, order.upper(), getattr(cc_mod, 'SCORE'))
-    for name in iter_filenames(paths, exclude or []):
+    for name in iter_filenames(paths, exclude):
         with open(name) as fobj:
             try:
                 results = sorted_results(cc_visit(fobj.read()), order_function)
             except Exception as e:
-                log('{0}\n{1}ERROR: {2}', name, ' ' * 4, str(e))
+                log(name, indent=1)
+                log_error(e, indent=1)
                 continue
         cc, blocks = _print_cc_results(name, results, min, max,
                                        show_complexity)
@@ -205,23 +197,22 @@ def raw(exclude=None, *paths):
 
     :param paths: The modules or packages to analyze.
     '''
-    for path in iter_filenames(paths, exclude or []):
+    for path in iter_filenames(paths, exclude):
         with open(path) as fobj:
             log(path)
             try:
                 mod = analyze(fobj.read())
             except Exception as e:
-                log('{0}ERROR: {1}', ' ' * 4, str(e))
+                log_error(e, indent=1)
                 continue
             for header, value in zip(['LOC', 'LLOC', 'SLOC', 'Comments',
                                       'Multi', 'Blank'], mod):
-                log('{0}{1}: {2}', ' ' * 4, header, value)
+                log('{0}: {1}', header, value, indent=1)
             if not mod.loc:
                 continue
-            log(' ' * 4 + '- Comment Stats')
-            indent = ' ' * 8
+            log('- Comment Stats', indent=1)
             comments = mod.comments
-            log('{0}(C % L): {1:.0%}', indent, comments / (float(mod.loc) or 1))
-            log('{0}(C % S): {1:.0%}', indent, comments / (float(mod.sloc) or 1))
-            log('{0}(C + M % L): {1:.0%}', indent,
-                (comments + mod.multi) / float(mod.loc))
+            log('(C % L): {0:.0%}', comments / (float(mod.loc) or 1), indent=2)
+            log('(C % S): {0:.0%}', comments / (float(mod.sloc) or 1), indent=2)
+            log('(C + M % L): {0:.0%}', (comments + mod.multi) / float(mod.loc),
+                indent=2)

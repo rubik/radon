@@ -1,7 +1,8 @@
 import os.path
 import tempfile
 import shutil
-from radon.cli import cc, mi, raw, iter_filenames
+from radon.cli import cc, mi, raw
+from radon.tools import iter_filenames
 from paramunittest import *
 
 

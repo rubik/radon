@@ -3,9 +3,13 @@ __version__ = '0.4.3'
 
 def main():
     '''The entry point for Setuptools.'''
-    from radon.cli import BAKER
+    from radon.cli import BAKER, log_error
 
-    BAKER.run()
+    try:
+        BAKER.run()
+    except Exception as e:
+        log_error(e)
+        raise
 
 
 if __name__ == '__main__':
