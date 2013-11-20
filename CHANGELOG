@@ -1,3 +1,10 @@
+0.4.4 (Nov 20, 2013)
+====================
+
+- Add `-j` option to `cc` command: #33.
+- Use pathfinder and improve `iter_filenames`: #31.
+- Complete the documentation: #18
+
 0.4.2 (Jun 25, 2013)
 ====================
 
