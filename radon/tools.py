@@ -15,7 +15,7 @@ def iter_filenames(paths, exclude=None):
 def build_finder(path, filter):
     if os.path.isfile(path):
         return (path,)
-    return find_paths(path, filter=filter)
+    return find_paths(path, filter=filter, ignore=FnmatchFilter('*/.*'))
 
 
 def build_filter(exclude=None):

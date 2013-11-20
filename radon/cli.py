@@ -19,6 +19,7 @@ except ImportError:
 import os
 import sys
 import json as json_mod
+import collections
 import radon.complexity as cc_mod
 from radon.tools import iter_filenames, cc_to_dict, _filter_by_rank
 from radon.complexity import cc_visit, cc_rank, sorted_results
@@ -216,7 +217,7 @@ def raw(exclude=None, summary=False, *paths):
     paths: The modules or packages to analyze.
     '''
     headers = ['LOC', 'LLOC', 'SLOC', 'Comments', 'Multi', 'Blank']
-    sum_metrics = {key: 0 for key in headers}
+    sum_metrics = collections.defaultdict(int, zip(headers, [0] * 6))
 
     for path in iter_filenames(paths, exclude):
         with open(path) as fobj:
@@ -226,8 +227,7 @@ def raw(exclude=None, summary=False, *paths):
             except Exception as e:
                 log_error(e, indent=1)
                 continue
-            for header, value in zip(['LOC', 'LLOC', 'SLOC', 'Comments',
-                                      'Multi', 'Blank'], mod):
+            for header, value in zip(headers, mod):
                 log('{0}: {1}', header, value, indent=1)
                 sum_metrics[header] = sum_metrics[header] + value
             if not mod.loc:
@@ -242,4 +242,4 @@ def raw(exclude=None, summary=False, *paths):
     if summary:
         log('** Total **')
         for header in sum_metrics:
-            log('{0}{1}: {2}', ' ' * 4, header, sum_metrics[header])
+            log('{0}: {1}', header, sum_metrics[header], indent=1)
