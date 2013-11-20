@@ -34,11 +34,11 @@ def cc_to_dict(obj):
             return 'method' if obj.is_method else 'function'
         return 'class'
 
-    result = {}
-    result['type'] = get_type(obj)
-    #TODO: Avoid hard-coding attributes
-    attrs = ['name', 'lineno', 'col_offset', 'endline', 'classname',
-             'complexity', 'real_complexity']
+    result = {
+        'type': get_type(obj),
+        'rank': cc_rank(obj.complexity),
+    }
+    attrs = set(Function._fields) - set(('is_method', 'clojures'))
     for a in attrs:
         v = getattr(obj, a, None)
         if v is not None:
