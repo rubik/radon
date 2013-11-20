@@ -101,6 +101,14 @@ def _print_cc_results(path, results, show_complexity):
 
 
 def analyze_cc(paths, exclude, min, max, order_function):
+    '''Analyze the files located under `paths`.
+
+    :param paths: A list of paths to analyze.
+    :param exclude: A comma-separated string of fnmatch patterns.
+    :param min: The minimum rank to output.
+    :param max: The maximum rank to output.
+    :param order_function: Can be `SCORE`, `LINES` or `ALPHA`, to sort the
+        results respectively by CC score, line number or name.'''
     for name in iter_filenames(paths, exclude):
         with open(name) as fobj:
             try:

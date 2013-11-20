@@ -70,6 +70,11 @@ Options
     A comma-separated list of patterns which indicate which paths to exclude
     from the analysis.
 
+.. option:: -j, --json
+
+    If given, the results will be converted into JSON. Output can be filtered
+    with the :option:`-n, --min` and :option:`-x, --max` options.
+
 Examples
 ++++++++
 
@@ -88,7 +93,7 @@ As in the above example, Radon will walk the directories, excluding paths
 matching ``path/tests/*`` and ``path/docs/*``.
 
 .. warning::
-    Remember to quote the patterns, otherwise your shell will expand them!
+    Remember to quote the patterns, otherwise your shell might expand them!
 
 
 ::
@@ -194,8 +199,8 @@ Options
 
 .. option:: -s, --summary
 
-    If given, at the end of the analysis show the summary of the gathered
-    metrics.
+    If given, at the end of the analysis a summary of the gathered
+    metrics will be shown.
 
 Examples
 ++++++++

@@ -8,17 +8,23 @@ from radon.complexity import cc_rank
 
 
 def iter_filenames(paths, exclude=None):
+    '''A generator that yields all sub-paths of the ones specified in `paths`.
+    Optional exclude filters can be passed as a comma-separated string of
+    fnmatch patterns.'''
     finder = lambda path: build_finder(path, build_filter(exclude))
     return itertools.chain(*map(finder, paths))
 
 
 def build_finder(path, filter):
+    '''Construct a path finder for the specified `path` and with the specified
+    `filter`. Hidden directories are ignored by default.'''
     if os.path.isfile(path):
         return (path,)
     return find_paths(path, filter=filter, ignore=FnmatchFilter('*/.*'))
 
 
 def build_filter(exclude=None):
+    '''Construct a filter from a comma-separated string of fnmatch patterns.'''
     excluded = [FnmatchFilter(e) for e in (exclude or '').split(',') if e]
     f = FileFilter() & FnmatchFilter('*.py')
     if excluded:
@@ -29,6 +35,8 @@ def build_filter(exclude=None):
 
 
 def cc_to_dict(obj):
+    '''Convert a list of results into a dictionary. This is meant for JSON
+    dumping.'''
     def get_type(obj):
         if isinstance(obj, Function):
             return 'method' if obj.is_method else 'function'
@@ -50,6 +58,7 @@ def cc_to_dict(obj):
 
 
 def _filter_by_rank(results, min, max):
+    '''Yield results whose rank is between `min` and `max`.'''
     for result in results:
         if min <= cc_rank(result.complexity) <= max:
             yield result
