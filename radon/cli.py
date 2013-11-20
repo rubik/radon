@@ -189,8 +189,8 @@ def cc(min='A', max='F', show_complexity=False, average=False,
             ranked_cc, cc, RESET)
 
 
-@BAKER.command(shortopts={'exclude': 'e'})
-def raw(exclude=None, *paths):
+@BAKER.command(shortopts={'exclude': 'e', 'summary': 's'})
+def raw(exclude=None, summary=False, *paths):
     '''Analyze the given Python modules and compute raw metrics.
 
     Raw metrics include:
@@ -209,8 +209,15 @@ def raw(exclude=None, *paths):
 
     should always hold.
 
-    :param paths: The modules or packages to analyze.
+    -e, --exclude  Comma separated list of patterns to exclude. By default
+        hidden directories (those starting with '.') are excluded.
+    -s, --summary  If True, at the end of the analysis display the summary
+        of the gathered metrics. Default to False.
+    paths: The modules or packages to analyze.
     '''
+    headers = ['LOC', 'LLOC', 'SLOC', 'Comments', 'Multi', 'Blank']
+    sum_metrics = {key: 0 for key in headers}
+
     for path in iter_filenames(paths, exclude):
         with open(path) as fobj:
             log(path)
@@ -222,6 +229,7 @@ def raw(exclude=None, *paths):
             for header, value in zip(['LOC', 'LLOC', 'SLOC', 'Comments',
                                       'Multi', 'Blank'], mod):
                 log('{0}: {1}', header, value, indent=1)
+                sum_metrics[header] = sum_metrics[header] + value
             if not mod.loc:
                 continue
             log('- Comment Stats', indent=1)
@@ -230,3 +238,8 @@ def raw(exclude=None, *paths):
             log('(C % S): {0:.0%}', comments / (float(mod.sloc) or 1), indent=2)
             log('(C + M % L): {0:.0%}', (comments + mod.multi) / float(mod.loc),
                 indent=2)
+
+    if summary:
+        log('** Total **')
+        for header in sum_metrics:
+            log('{0}{1}: {2}', ' ' * 4, header, sum_metrics[header])
