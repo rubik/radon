@@ -1,9 +1,4 @@
-try:
-    import baker
-except ImportError:
-    raise ImportError('You need the baker module in order to use '
-                      'the CLI tool')
-
+import baker
 try:
     import colorama
     colorama.init()
