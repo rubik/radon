@@ -84,3 +84,4 @@ Links
 
 * Documentation: https://radon.readthedocs.org
 * PyPI: http://pypi.python.org/pypi/radon
+* Issue Tracker: https://github.com/rubik/radon/issues
