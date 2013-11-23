@@ -85,3 +85,9 @@ Links
 * Documentation: https://radon.readthedocs.org
 * PyPI: http://pypi.python.org/pypi/radon
 * Issue Tracker: https://github.com/rubik/radon/issues
+
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/rubik/radon/trend.png
+   :alt: Bitdeli badge
+   :target: https://bitdeli.com/free
+
