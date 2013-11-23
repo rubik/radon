@@ -2,19 +2,28 @@ Radon
 #####
 
 .. image:: https://travis-ci.org/rubik/radon.png?branch=master
+    :alt: Travis-CI badge
     :target: https://travis-ci.org/rubik/radon
 
 .. image:: https://drone.io/github.com/rubik/radon/status.png
+    :alt: Drone badge
     :target: https://drone.io/github.com/rubik/radon
 
 .. image:: https://coveralls.io/repos/rubik/radon/badge.png?branch=master
+    :alt: Coveralls badge
     :target: https://coveralls.io/r/rubik/radon?branch=master
 
 .. image:: https://pypip.in/v/radon/badge.png
+    :alt: PyPI latest version badge
     :target: https://crate.io/packages/radon
 
 .. image:: https://pypip.in/d/radon/badge.png
+    :alt: PyPI downloads badge
     :target: https://crate.io/packages/radon
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/rubik/radon/trend.png
+    :alt: Bitdeli badge
+    :target: https://bitdeli.com/free
 
 Radon is a Python tool that computes various metrics from the source code.
 Radon can compute:
