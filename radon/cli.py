@@ -1,4 +1,4 @@
-import baker
+from mando import Program
 try:
     import colorama
     colorama.init()
@@ -34,9 +34,8 @@ LETTERS_COLORS = {'F': MAGENTA,
                   'M': WHITE}
 
 MI_RANKS = {'A': GREEN, 'B': YELLOW, 'C': RED}
-
 TEMPLATE = '{0}{1} {reset}{2}:{3} {4} - {5}{6}{reset}'
-BAKER = baker.Baker()
+program = Program()
 
 
 def log(msg, *args, **kwargs):
@@ -115,7 +114,7 @@ def analyze_cc(paths, exclude, min, max, order_function):
                 continue
 
 
-@BAKER.command(shortopts={'multi': 'm', 'exclude': 'e', 'show': 's'})
+@program.command
 def mi(multi=True, exclude=None, show=False, *paths):
     '''Analyze the given Python modules and compute the Maintainability Index.
 
@@ -123,10 +122,10 @@ def mi(multi=True, exclude=None, show=False, *paths):
     being to determine how easy it will be to maintain a particular body of
     code.
 
-    -e <str>, --exclude <str>  Comma separated list of patterns to exclude
-    -m, --multi  If set, multiline strings are counted as comments
-    -s, --show  If set, the actual MI value is shown in results
-    paths  The modules or packages to analyze.
+    :param -e, --exclude <str>:  Comma separated list of patterns to exclude
+    :param -m, --multi:  If given, multiline strings are counted as comments
+    :param -s, --show:  If given, the actual MI value is shown in results
+    :param paths: The modules or packages to analyze.
     '''
     for name in iter_filenames(paths, exclude):
         with open(name) as fobj:
@@ -145,29 +144,30 @@ def mi(multi=True, exclude=None, show=False, *paths):
             log('{0} - {1}{2}{3}{4}', name, color, rank, to_show, RESET)
 
 
-@BAKER.command(shortopts={'min': 'n', 'max': 'x', 'show_complexity': 's',
-                          'average': 'a', 'exclude': 'e', 'order': 'o',
-                          'json': 'j'})
-def cc(min='A', max='F', show_complexity=False, average=False,
-       exclude=None, order='SCORE', json=False, *paths):
+@program.command
+def cc(path, min='A', max='F', show_complexity=False, average=False,
+       exclude=None, order='SCORE', json=False, *more_paths):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
     The output can be filtered using the *min* and *max* flags. In addition
     to that, by default complexity score is not displayed.
 
-    -n, --min  The minimum complexity to display (default to A).
-    -x, --max  The maximum complexity to display (default to F).
-    -e, --exclude  Comma separated list of patterns to exclude. By default
-        hidden directories (those starting with '.') are excluded.
-    -s, --show_complexity  Whether or not to show the actual complexity score
+    :param path: The path where to find modules or packages to analyze.
+    :param -n, --min <str>: The minimum complexity to display (default to A).
+    :param -x, --max <str>: The maximum complexity to display (default to F).
+    :param -e, --exclude <str>: Comma separated list of patterns to exclude.
+        By default hidden directories (those starting with '.') are excluded.
+    :param -s, --show_complexity: Whether or not to show the actual complexity score
         together with the A-F rank. Default to False.
-    -a, --average  If True, at the end of the analysis display the average
+    :param -a, --average: If True, at the end of the analysis display the average
         complexity. Default to False.
-    -o, --order  The ordering function. Can be SCORE, LINES or ALPHA.
-    -j, --json  Format results in JSON.
-    paths  The modules or packages to analyze.
+    :param -o, --order <str>: The ordering function. Can be SCORE, LINES or
+        ALPHA.
+    :param -j, --json: Format results in JSON.
+    :param more_paths: Additional paths to analyze.
     '''
+    paths = [path] + list(more_paths)
     min = min.upper()
     max = max.upper()
     average_cc = .0
@@ -193,7 +193,7 @@ def cc(min='A', max='F', show_complexity=False, average=False,
             ranked_cc, cc, RESET)
 
 
-@BAKER.command(shortopts={'exclude': 'e', 'summary': 's'})
+@program.command
 def raw(exclude=None, summary=False, *paths):
     '''Analyze the given Python modules and compute raw metrics.
 
@@ -213,11 +213,11 @@ def raw(exclude=None, summary=False, *paths):
 
     should always hold.
 
-    -e, --exclude  Comma separated list of patterns to exclude. By default
-        hidden directories (those starting with '.') are excluded.
-    -s, --summary  If True, at the end of the analysis display the summary
-        of the gathered metrics. Default to False.
-    paths: The modules or packages to analyze.
+    :param -e, --exclude <str>: Comma separated list of patterns to exclude.
+        By default hidden directories (those starting with '.') are excluded.
+    :param -s, --summary:  If given, at the end of the analysis display the
+        summary of the gathered metrics. Default to False.
+    :param paths: The modules or packages to analyze.
     '''
     headers = ['LOC', 'LLOC', 'SLOC', 'Comments', 'Multi', 'Blank']
     sum_metrics = collections.defaultdict(int, zip(headers, [0] * 6))
