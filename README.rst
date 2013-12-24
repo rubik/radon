@@ -21,6 +21,10 @@ Radon
     :alt: PyPI downloads badge
     :target: https://crate.io/packages/radon
 
+.. image:: https://gemnasium.com/rubik/radon.png
+    :alt: Dependency Status
+    :target: https://gemnasium.com/rubik/radon
+
 .. image:: https://d2weczhvl823v0.cloudfront.net/rubik/radon/trend.png
     :alt: Bitdeli badge
     :target: https://bitdeli.com/free
