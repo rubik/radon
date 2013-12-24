@@ -1,0 +1,4 @@
+pep8
+pylint
+tox
+-r test_requirements.txt

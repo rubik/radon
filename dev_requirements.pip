@@ -1,4 +1,0 @@
-pep8
-pylint
-tox
--r test_requirements.pip
