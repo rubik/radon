@@ -94,16 +94,17 @@ def _print_cc_results(path, results, show_complexity):
     return average_cc, len(results)
 
 
-def analyze_cc(paths, exclude, min, max, order_function):
+def analyze_cc(paths, exclude, ignore, min, max, order_function):
     '''Analyze the files located under `paths`.
 
     :param paths: A list of paths to analyze.
     :param exclude: A comma-separated string of fnmatch patterns.
+    :param ignore: A comma-separated string of patterns to ignore.
     :param min: The minimum rank to output.
     :param max: The maximum rank to output.
     :param order_function: Can be `SCORE`, `LINES` or `ALPHA`, to sort the
         results respectively by CC score, line number or name.'''
-    for name in iter_filenames(paths, exclude):
+    for name in iter_filenames(paths, exclude, ignore):
         with open(name) as fobj:
             try:
                 results = sorted_results(cc_visit(fobj.read()), order_function)
@@ -115,19 +116,21 @@ def analyze_cc(paths, exclude, min, max, order_function):
 
 
 @program.command
-def mi(multi=True, exclude=None, show=False, *paths):
+def mi(multi=True, exclude=None, ignore=None, show=False, *paths):
     '''Analyze the given Python modules and compute the Maintainability Index.
 
     The maintainability index (MI) is a compound metric, with the primary aim
     being to determine how easy it will be to maintain a particular body of
     code.
 
-    :param -e, --exclude <str>:  Comma separated list of patterns to exclude
-    :param -m, --multi:  If given, multiline strings are counted as comments
-    :param -s, --show:  If given, the actual MI value is shown in results
+    :param -e, --exclude <str>:  Comma separated list of patterns to exclude.
+    :param -i, --ignore <str>: Comma separated list of patterns to ignore.
+        Radon won't even descend into those directories.
+    :param -m, --multi:  If given, multiline strings are counted as comments.
+    :param -s, --show:  If given, the actual MI value is shown in results.
     :param paths: The modules or packages to analyze.
     '''
-    for name in iter_filenames(paths, exclude):
+    for name in iter_filenames(paths, exclude, ignore):
         with open(name) as fobj:
             try:
                 result = mi_visit(fobj.read(), multi)
@@ -146,7 +149,7 @@ def mi(multi=True, exclude=None, show=False, *paths):
 
 @program.command
 def cc(path, min='A', max='F', show_complexity=False, average=False,
-       exclude=None, order='SCORE', json=False, *more_paths):
+       exclude=None, ignore=None, order='SCORE', json=False, *more_paths):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -158,6 +161,8 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
     :param -x, --max <str>: The maximum complexity to display (default to F).
     :param -e, --exclude <str>: Comma separated list of patterns to exclude.
         By default hidden directories (those starting with '.') are excluded.
+    :param -i, --ignore <str>: Comma separated list of patterns to ignore.
+        Radon won't even descend into them.
     :param -s, --show_complexity: Whether or not to show the actual complexity score
         together with the A-F rank. Default to False.
     :param -a, --average: If True, at the end of the analysis display the average
@@ -173,7 +178,7 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
     average_cc = .0
     analyzed = 0
     order_function = getattr(cc_mod, order.upper(), getattr(cc_mod, 'SCORE'))
-    cc_data = analyze_cc(paths, exclude, min, max, order_function)
+    cc_data = analyze_cc(paths, exclude, ignore, min, max, order_function)
     if json:
         result = {}
         for key, data in cc_data:
@@ -194,7 +199,7 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
 
 
 @program.command
-def raw(exclude=None, summary=False, *paths):
+def raw(exclude=None, ignore=None, summary=False, *paths):
     '''Analyze the given Python modules and compute raw metrics.
 
     Raw metrics include:
@@ -215,6 +220,8 @@ def raw(exclude=None, summary=False, *paths):
 
     :param -e, --exclude <str>: Comma separated list of patterns to exclude.
         By default hidden directories (those starting with '.') are excluded.
+    :param -i, --ignore <str>: Comma separated list of patterns to ignore.
+        Radon won't even descend into those directories.
     :param -s, --summary:  If given, at the end of the analysis display the
         summary of the gathered metrics. Default to False.
     :param paths: The modules or packages to analyze.
@@ -222,7 +229,7 @@ def raw(exclude=None, summary=False, *paths):
     headers = ['LOC', 'LLOC', 'SLOC', 'Comments', 'Multi', 'Blank']
     sum_metrics = collections.defaultdict(int, zip(headers, [0] * 6))
 
-    for path in iter_filenames(paths, exclude):
+    for path in iter_filenames(paths, exclude, ignore):
         with open(path) as fobj:
             log(path)
             try:

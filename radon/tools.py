@@ -2,37 +2,48 @@ import os
 import operator
 import itertools
 from functools import reduce
-from pathfinder import find_paths, FnmatchFilter, NotFilter, FileFilter
+from pathfinder import (find_paths, FnmatchFilter, NotFilter, FileFilter,
+    DirectoryFilter)
 from radon.visitors import Function
 from radon.complexity import cc_rank
 
 
-def iter_filenames(paths, exclude=None):
+def iter_filenames(paths, exclude=None, ignore=None):
     '''A generator that yields all sub-paths of the ones specified in `paths`.
     Optional exclude filters can be passed as a comma-separated string of
     fnmatch patterns.'''
-    finder = lambda path: build_finder(path, build_filter(exclude))
+    finder = lambda path: build_finder(path, build_filter(exclude),
+                                       build_ignore(ignore))
     return itertools.chain(*map(finder, paths))
 
 
-def build_finder(path, filter):
+def build_finder(path, filter, ignore):
     '''Construct a path finder for the specified `path` and with the specified
     `filter`. Hidden directories are ignored by default.'''
     if os.path.isfile(path):
         return (path,)
-    return find_paths(path, filter=filter, ignore=FnmatchFilter('*/.*'))
+    return find_paths(path, filter=filter, ignore=ignore)
 
 
-def build_filter(exclude=None):
+def build_filter(exclude):
     '''Construct a filter from a comma-separated string of fnmatch patterns.'''
-    excluded = [FnmatchFilter(e) for e in (exclude or '').split(',') if e]
-    f = FileFilter() & FnmatchFilter('*.py')
-    if excluded:
-        f &= NotFilter(
-                reduce(operator.or_, excluded[1:], excluded[0])
-             )
-    return f
+    return build_custom(exclude, FileFilter() & FnmatchFilter('*.py'),
+                        NotFilter)
 
+
+def build_ignore(ignore):
+    '''Construct an ignore filter from a comma-separated string of fnmatch
+    patterns.'''
+    return build_custom(ignore, DirectoryFilter(), add=[FnmatchFilter('*/.*')])
+
+
+def build_custom(pattern, start, final=lambda x: x, op=operator.or_, add=[]):
+    patt = [FnmatchFilter(p) for p in (pattern or '').split(',') if p] + add
+    if patt:
+        start &= final(
+            reduce(op, patt[1:], patt[0])
+        )
+    return start
 
 def cc_to_dict(obj):
     '''Convert a list of results into a dictionary. This is meant for JSON
