@@ -6,7 +6,7 @@ python:
     - "pypy"
 install:
     - pip install -e . --use-mirrors
-    - pip install -r test_requirements.pip --use-mirrors
+    - pip install -r test_requirements.txt --use-mirrors
 script:
     - make cov
 after_success:
