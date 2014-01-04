@@ -164,6 +164,10 @@ SIMPLE_BLOCKS = [
     ('''
      assert i < 0, "Fail"
      ''', 2),
+
+    ('''
+     assert i < 0
+     ''', 1, {'no_assert': True}),
 ]
 
 
@@ -194,12 +198,13 @@ if sys.version_info[:2] >= (2, 7):
 class TestBlocks(ParametrizedTestCase):
     '''Test blocks.'''
 
-    def setParameters(self, code, expected_complexity):
+    def setParameters(self, code, expected_complexity, kwargs={}):
         self.code = dedent(code)
         self.expected_complexity = expected_complexity
+        self.kwargs = kwargs
 
     def testComplexityVisitor(self):
-        visitor = ComplexityVisitor.from_code(self.code)
+        visitor = ComplexityVisitor.from_code(self.code, **self.kwargs)
         self.assertEqual(visitor.complexity, self.expected_complexity)
 
 

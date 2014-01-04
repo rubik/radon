@@ -68,16 +68,16 @@ def sorted_results(blocks, order=SCORE):
     return sorted(blocks, key=order)
 
 
-def cc_visit(code):
+def cc_visit(code, **kwargs):
     '''Visit the given code with :class:`~radon.visitors.ComplexityVisitor` and
     then pass the result to the :func:`~radon.complexity.sorted_results`
     function.
     '''
-    return cc_visit_ast(ast.parse(code))
+    return cc_visit_ast(ast.parse(code), **kwargs)
 
 
-def cc_visit_ast(ast_node):
+def cc_visit_ast(ast_node, **kwargs):
     '''Visit the AST node with :class:`~radon.visitors.ComplexityVisitor` and
     pass the resulting blocks to :func:`~radon.complexity.sorted_results`.
     '''
-    return sorted_results(ComplexityVisitor.from_ast(ast_node).blocks)
+    return sorted_results(ComplexityVisitor.from_ast(ast_node, **kwargs).blocks)

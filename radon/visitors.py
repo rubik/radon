@@ -113,13 +113,15 @@ class ComplexityVisitor(CodeVisitor):
         otherwise to 0.
     '''
 
-    def __init__(self, to_method=False, classname=None, off=True):
+    def __init__(self, to_method=False, classname=None, off=True,
+                 no_assert=False):
         self.off = off
         self.complexity = 1 if off else 0
         self.functions = []
         self.classes = []
         self.to_method = to_method
         self.classname = classname
+        self.no_assert = no_assert
         self._max_line = float('-inf')
 
     @property
@@ -180,7 +182,7 @@ class ComplexityVisitor(CodeVisitor):
         elif name == 'BoolOp':
             self.complexity += len(node.values) - 1
         # Lambda functions, ifs, with and assert statements count all as 1.
-        elif name in ('Lambda', 'With', 'If', 'IfExp', 'Assert'):
+        elif name in ('Lambda', 'With', 'If', 'IfExp'):
             self.complexity += 1
         # The For and While blocks count as 1 plus the `else` block.
         elif name in ('For', 'While'):
@@ -192,6 +194,9 @@ class ComplexityVisitor(CodeVisitor):
 
         super(ComplexityVisitor, self).generic_visit(node)
 
+    def visit_Assert(self, node):
+        self.complexity += not self.no_assert
+
     def visit_FunctionDef(self, node):
         # The complexity of a function is computed taking into account
         # the following factors: number of decorators, the complexity
@@ -200,7 +205,7 @@ class ComplexityVisitor(CodeVisitor):
         clojures = []
         body_complexity = 1
         for child in node.body:
-            visitor = ComplexityVisitor(off=False)
+            visitor = ComplexityVisitor(off=False, no_assert=self.no_assert)
             visitor.visit(child)
             clojures.extend(visitor.functions)
             # Add general complexity and clojures' complexity
@@ -223,7 +228,8 @@ class ComplexityVisitor(CodeVisitor):
         classname = node.name
         visitors_max_lines = [node.lineno]
         for child in node.body:
-            visitor = ComplexityVisitor(True, classname, off=False)
+            visitor = ComplexityVisitor(True, classname, off=False,
+                                        no_assert=self.no_assert)
             visitor.visit(child)
             methods.extend(visitor.functions)
             body_complexity += (visitor.complexity +

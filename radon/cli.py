@@ -94,7 +94,7 @@ def _print_cc_results(path, results, show_complexity):
     return average_cc, len(results)
 
 
-def analyze_cc(paths, exclude, ignore, min, max, order_function):
+def analyze_cc(paths, exclude, ignore, min, max, order_function, no_assert):
     '''Analyze the files located under `paths`.
 
     :param paths: A list of paths to analyze.
@@ -103,11 +103,14 @@ def analyze_cc(paths, exclude, ignore, min, max, order_function):
     :param min: The minimum rank to output.
     :param max: The maximum rank to output.
     :param order_function: Can be `SCORE`, `LINES` or `ALPHA`, to sort the
-        results respectively by CC score, line number or name.'''
+        results respectively by CC score, line number or name.
+    :param no_assert: If `True` assert statements will not be counted.'''
     for name in iter_filenames(paths, exclude, ignore):
         with open(name) as fobj:
             try:
-                results = sorted_results(cc_visit(fobj.read()), order_function)
+                results = sorted_results(cc_visit(fobj.read(),
+                                                  no_assert=no_assert),
+                                         order_function)
                 yield name, list(_filter_by_rank(results, min, max))
             except Exception as e:
                 log(name)
@@ -183,7 +186,8 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
     average_cc = .0
     analyzed = 0
     order_function = getattr(cc_mod, order.upper(), getattr(cc_mod, 'SCORE'))
-    cc_data = analyze_cc(paths, exclude, ignore, min, max, order_function)
+    cc_data = analyze_cc(paths, exclude, ignore, min, max, order_function,
+                         no_assert)
     if json:
         result = {}
         for key, data in cc_data:
