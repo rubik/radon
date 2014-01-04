@@ -64,7 +64,7 @@ def cc_to_dict(obj):
             result[a] = v
     for key in ('methods', 'clojures'):
         if hasattr(obj, key):
-            result[key] = map(cc_to_dict, getattr(obj, key))
+            result[key] = list(map(cc_to_dict, getattr(obj, key)))
     return result
 
 

@@ -110,7 +110,7 @@ def analyze_cc(paths, exclude, ignore, min, max, order_function):
                 results = sorted_results(cc_visit(fobj.read()), order_function)
                 yield name, list(_filter_by_rank(results, min, max))
             except Exception as e:
-                log(name, indent=1)
+                log(name)
                 log_error(e, indent=1)
                 continue
 
@@ -149,7 +149,8 @@ def mi(multi=True, exclude=None, ignore=None, show=False, *paths):
 
 @program.command
 def cc(path, min='A', max='F', show_complexity=False, average=False,
-       exclude=None, ignore=None, order='SCORE', json=False, *more_paths):
+       exclude=None, ignore=None, order='SCORE', json=False, no_assert=False,
+       min_average=None, *more_paths):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -163,13 +164,17 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
         By default hidden directories (those starting with '.') are excluded.
     :param -i, --ignore <str>: Comma separated list of patterns to ignore.
         Radon won't even descend into them.
-    :param -s, --show_complexity: Whether or not to show the actual complexity score
+    :param -s, --show-complexity: Whether or not to show the actual complexity score
         together with the A-F rank. Default to False.
     :param -a, --average: If True, at the end of the analysis display the average
         complexity. Default to False.
+    :param --min-average <str>: A threshold for the average complexity below
+        which radon will exit with a non-zero exit code.
     :param -o, --order <str>: The ordering function. Can be SCORE, LINES or
         ALPHA.
     :param -j, --json: Format results in JSON.
+    :param --no-assert: Do not count `assert` statements when computing
+        complexity.
     :param more_paths: Additional paths to analyze.
     '''
     paths = [path] + list(more_paths)
@@ -182,7 +187,7 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
     if json:
         result = {}
         for key, data in cc_data:
-            result[key] = map(cc_to_dict, data)
+            result[key] = list(map(cc_to_dict, data))
         log(json_mod.dumps(result), noformat=True)
     else:
         for name, results in cc_data:
