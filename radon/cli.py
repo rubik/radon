@@ -16,7 +16,7 @@ import sys
 import json as json_mod
 import collections
 import radon.complexity as cc_mod
-from radon.tools import iter_filenames, cc_to_dict, _filter_by_rank
+from radon.tools import iter_filenames, cc_to_dict, raw_to_dict, _filter_by_rank
 from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank
@@ -118,6 +118,22 @@ def analyze_cc(paths, exclude, ignore, min, max, order_function, no_assert):
                 continue
 
 
+def analyze_raw(paths, exclude, ignore):
+    '''Analyze the files located under `paths`.
+
+    :param paths: A list of paths to analyze.
+    :param exclude: A comma-separated string of fnmatch patterns.
+    :param ignore: A comma-separated string of patterns to ignore.'''
+    for name in iter_filenames(paths, exclude, ignore):
+        with open(name) as fobj:
+            try:
+                yield name, analyze(fobj.read())
+            except Exception as e:
+                log(name)
+                log_error(e, indent=1)
+                continue
+
+
 @program.command
 def mi(multi=True, exclude=None, ignore=None, show=False, *paths):
     '''Analyze the given Python modules and compute the Maintainability Index.
@@ -208,7 +224,7 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
 
 
 @program.command
-def raw(exclude=None, ignore=None, summary=False, *paths):
+def raw(exclude=None, ignore=None, summary=False, json=False, *paths):
     '''Analyze the given Python modules and compute raw metrics.
 
     Raw metrics include:
@@ -233,19 +249,22 @@ def raw(exclude=None, ignore=None, summary=False, *paths):
         Radon won't even descend into those directories.
     :param -s, --summary:  If given, at the end of the analysis display the
         summary of the gathered metrics. Default to False.
+    :param -j, --json: Format results in JSON.
     :param paths: The modules or packages to analyze.
     '''
     headers = ['LOC', 'LLOC', 'SLOC', 'Comments', 'Multi', 'Blank']
     sum_metrics = collections.defaultdict(int, zip(headers, [0] * 6))
 
-    for path in iter_filenames(paths, exclude, ignore):
-        with open(path) as fobj:
+    raw_data = analyze_raw(paths, exclude, ignore)
+
+    if json:
+        result = {}
+        for key, data in raw_data:
+            result[key] = raw_to_dict(data)
+        log(json_mod.dumps(result), noformat=True)
+    else:
+        for path, mod in raw_data:
             log(path)
-            try:
-                mod = analyze(fobj.read())
-            except Exception as e:
-                log_error(e, indent=1)
-                continue
             for header, value in zip(headers, mod):
                 log('{0}: {1}', header, value, indent=1)
                 sum_metrics[header] = sum_metrics[header] + value
@@ -258,7 +277,7 @@ def raw(exclude=None, ignore=None, summary=False, *paths):
             log('(C + M % L): {0:.0%}', (comments + mod.multi) / float(mod.loc),
                 indent=2)
 
-    if summary:
-        log('** Total **')
-        for header in sum_metrics:
-            log('{0}: {1}', header, sum_metrics[header], indent=1)
+        if summary:
+            log('** Total **')
+            for header in sum_metrics:
+                log('{0}: {1}', header, sum_metrics[header], indent=1)

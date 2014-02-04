@@ -45,6 +45,7 @@ def build_custom(pattern, start, final=lambda x: x, op=operator.or_, add=[]):
         )
     return start
 
+
 def cc_to_dict(obj):
     '''Convert a list of results into a dictionary. This is meant for JSON
     dumping.'''
@@ -65,6 +66,17 @@ def cc_to_dict(obj):
     for key in ('methods', 'clojures'):
         if hasattr(obj, key):
             result[key] = list(map(cc_to_dict, getattr(obj, key)))
+    return result
+
+
+def raw_to_dict(obj):
+    '''Convert a list of results into a dictionary. This is meant for JSON
+    dumping.'''
+    result = {}
+    for a in obj._fields:
+        v = getattr(obj, a, None)
+        if v is not None:
+            result[a] = v
     return result
 
 
