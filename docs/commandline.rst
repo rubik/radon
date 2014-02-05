@@ -202,6 +202,10 @@ Options
     If given, at the end of the analysis a summary of the gathered
     metrics will be shown.
 
+.. option:: -j, --json
+
+    If given, the results will be converted into JSON.
+
 Examples
 ++++++++
 
