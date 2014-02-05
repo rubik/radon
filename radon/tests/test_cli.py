@@ -94,7 +94,6 @@ for letter in 'ABCDEF':
 for arg in args[:]:
     arg2 = arg.copy()
     arg2['show_complexity'] = True
-    arg2['min_average'] = 'B'
     arg2['no_assert'] = True
     arg2['average'] = True
     arg3 = arg2.copy()

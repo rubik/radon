@@ -75,7 +75,7 @@ def _format_line(line, ranked, show_complexity=False):
                            compl, reset=RESET)
 
 
-def _print_cc_results(path, results, show_complexity):
+def _print_cc_results(path, results, show_complexity, min, max, total_average):
     '''Print Cyclomatic Complexity results.
 
     :param path: the path of the module that has been analyzed
@@ -83,18 +83,24 @@ def _print_cc_results(path, results, show_complexity):
         the complexity rank
     '''
     res = []
+    counted = 0
     average_cc = .0
     for line in results:
         ranked = cc_rank(line.complexity)
-        average_cc += line.complexity
-        res.append(_format_line(line, ranked, show_complexity))
+        if min <= ranked <= max:
+            average_cc += line.complexity
+            counted += 1
+            res.append(_format_line(line, ranked, show_complexity))
+        elif total_average:
+            average_cc += line.complexity
+            counted += 1
     if res:
         log(path)
         log_list(res, indent=1)
-    return average_cc, len(results)
+    return average_cc, counted
 
 
-def analyze_cc(paths, exclude, ignore, min, max, order_function, no_assert):
+def analyze_cc(paths, exclude, ignore, order_function, no_assert):
     '''Analyze the files located under `paths`.
 
     :param paths: A list of paths to analyze.
@@ -111,7 +117,7 @@ def analyze_cc(paths, exclude, ignore, min, max, order_function, no_assert):
                 results = sorted_results(cc_visit(fobj.read(),
                                                   no_assert=no_assert),
                                          order_function)
-                yield name, list(_filter_by_rank(results, min, max))
+                yield name, results
             except Exception as e:
                 log(name)
                 log_error(e, indent=1)
@@ -153,7 +159,7 @@ def mi(multi=True, exclude=None, ignore=None, show=False, *paths):
 @program.command
 def cc(path, min='A', max='F', show_complexity=False, average=False,
        exclude=None, ignore=None, order='SCORE', json=False, no_assert=False,
-       min_average=None, *more_paths):
+       total_average=False, *more_paths):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -171,8 +177,9 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
         together with the A-F rank. Default to False.
     :param -a, --average: If True, at the end of the analysis display the average
         complexity. Default to False.
-    :param --min-average <str>: A threshold for the average complexity below
-        which radon will exit with a non-zero exit code.
+    :param --total-average: Like `-a, --average`, but it is not influenced by
+        `min` and `max`. Every analyzed block is counted, no matter whether it
+        is displayed or not.
     :param -o, --order <str>: The ordering function. Can be SCORE, LINES or
         ALPHA.
     :param -j, --json: Format results in JSON.
@@ -186,7 +193,7 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
     average_cc = .0
     analyzed = 0
     order_function = getattr(cc_mod, order.upper(), getattr(cc_mod, 'SCORE'))
-    cc_data = analyze_cc(paths, exclude, ignore, min, max, order_function,
+    cc_data = analyze_cc(paths, exclude, ignore, order_function,
                          no_assert)
     if json:
         result = {}
@@ -195,7 +202,8 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
         log(json_mod.dumps(result), noformat=True)
     else:
         for name, results in cc_data:
-            cc, blocks = _print_cc_results(name, results, show_complexity)
+            cc, blocks = _print_cc_results(name, results, show_complexity, min,
+                                           max, total_average)
             average_cc += cc
             analyzed += blocks
 
