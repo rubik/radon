@@ -16,7 +16,6 @@ import sys
 import json as json_mod
 import collections
 import radon.complexity as cc_mod
-from radon._version import __version__
 from radon.tools import iter_filenames, cc_to_dict, raw_to_dict, _filter_by_rank
 from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
@@ -24,6 +23,8 @@ from radon.metrics import mi_visit, mi_rank
 
 if not sys.stdout.isatty():
     GREEN = YELLOW = RED = MAGENTA = CYAN = WHITE = BRIGHT = RESET = ''
+
+__version__ = '0.4.5'
 
 
 RANKS_COLORS = {'A': GREEN, 'B': GREEN,

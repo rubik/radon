@@ -1,4 +1,4 @@
-from radon._version import __version__
+__version__ = '0.4.5'
 
 def main():
     '''The entry point for Setuptools.'''
