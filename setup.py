@@ -1,13 +1,13 @@
 import os
 from setuptools import setup
-import radon
+import radon.cli
 
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as fobj:
     readme = fobj.read()
 
 setup(name='radon',
-      version=radon.__version__,
+      version=radon.cli.__version__,
       author='Michele Lacchia',
       author_email='michelelacchia@gmail.com',
       url='https://radon.readthedocs.org/',
