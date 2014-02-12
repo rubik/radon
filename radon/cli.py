@@ -21,6 +21,8 @@ from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank
 
+__version__ = '0.4.5'
+
 if not sys.stdout.isatty():
     GREEN = YELLOW = RED = MAGENTA = CYAN = WHITE = BRIGHT = RESET = ''
 
@@ -35,7 +37,7 @@ LETTERS_COLORS = {'F': MAGENTA,
 
 MI_RANKS = {'A': GREEN, 'B': YELLOW, 'C': RED}
 TEMPLATE = '{0}{1} {reset}{2}:{3} {4} - {5}{6}{reset}'
-program = Program()
+program = Program(version=__version__)
 
 
 def log(msg, *args, **kwargs):

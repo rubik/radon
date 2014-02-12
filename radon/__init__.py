@@ -1,4 +1,4 @@
-__version__ = '0.4.5'
+from radon.cli import __version__
 
 
 def main():
