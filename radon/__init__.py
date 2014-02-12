@@ -1,5 +1,4 @@
-from radon.cli import __version__
-
+from radon._version import __version__
 
 def main():
     '''The entry point for Setuptools.'''
