@@ -34,6 +34,8 @@ def cc_rank(cc):
     where ``H(s)`` stands for the Heaviside Step Function.
     The rank is then associated to a letter (0 = A, 5 = F).
     '''
+    if cc < 0:
+        raise ValueError('Complexity must be a non-negative value')
     return chr(min(int(math.ceil(cc / 10.) or 1) - (1, 0)[5 - cc < 0], 5) + 65)
 
 

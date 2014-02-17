@@ -59,7 +59,13 @@ Options
 .. option:: -a, --average
 
     If given, at the end of the analysis show the average Cyclomatic
-    Complexity.
+    Complexity. This option is influenced by :option:`-x, --max` and
+    :option:`-n, --min` options.
+
+.. option:: --total-average
+
+   Like :option:`-a, --average`, but it is not influenced by `min` and `max`.
+   Every analyzed block is counted, no matter whether it is displayed or not.
 
 .. option:: -s, --show_complexity
 
@@ -70,10 +76,28 @@ Options
     A comma-separated list of patterns which indicate which paths to exclude
     from the analysis.
 
+.. option:: -i, --ignore
+
+   A comma-separated list of names to ignore. If they are directories, radon
+   won't even descend into them.
+
+.. option:: -o, --order
+
+   The ordering function for the results. Can be one of:
+
+    * `SCORE`: order by cyclomatic complexity (descending):
+    * `LINES`: order by line numbers;
+    * `ALPHA`: order by block names (alphabetically).
+
 .. option:: -j, --json
 
     If given, the results will be converted into JSON. Output can be filtered
     with the :option:`-n, --min` and :option:`-x, --max` options.
+
+.. option:: --no-assert
+
+   Does not count assert statements when computing complexity. This is because
+   Python can be run with an optimize flag which removes assert statements.
 
 Examples
 ++++++++

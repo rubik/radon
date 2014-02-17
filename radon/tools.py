@@ -2,8 +2,8 @@ import os
 import operator
 import itertools
 from functools import reduce
-from pathfinder import (find_paths, FnmatchFilter, NotFilter, FileFilter,
-    DirectoryFilter)
+from radon.pathfinder import (find_paths, FnmatchFilter, NotFilter, FileFilter,
+    DirectoryFilter, AlwaysAcceptFilter)
 from radon.visitors import Function
 from radon.complexity import cc_rank
 
@@ -34,11 +34,13 @@ def build_filter(exclude):
 def build_ignore(ignore):
     '''Construct an ignore filter from a comma-separated string of fnmatch
     patterns.'''
-    return build_custom(ignore, DirectoryFilter(), add=[FnmatchFilter('*/.*')])
+    return build_custom(ignore, None, add=[FnmatchFilter('*/.*')])
 
 
-def build_custom(pattern, start, final=lambda x: x, op=operator.or_, add=[]):
+def build_custom(pattern, start=None, final=lambda x: x, op=operator.or_,
+                 add=[]):
     patt = [FnmatchFilter(p) for p in (pattern or '').split(',') if p] + add
+    start = start or AlwaysAcceptFilter()
     if patt:
         start &= final(
             reduce(op, patt[1:], patt[0])

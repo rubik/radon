@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 import radon
 
 
@@ -16,7 +16,7 @@ setup(name='radon',
       description='Code Metrics in Python',
       platforms='any',
       long_description=readme,
-      packages=['radon', 'radon.tests'],
+      packages=find_packages(),
       tests_require=['tox'],
       install_requires=['mando', 'colorama', 'pathfinder'],
       entry_points={'console_scripts': ['radon = radon:main']},

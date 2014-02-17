@@ -190,7 +190,7 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
     :param -e, --exclude <str>: Comma separated list of patterns to exclude.
         By default hidden directories (those starting with '.') are excluded.
     :param -i, --ignore <str>: Comma separated list of patterns to ignore.
-        Radon won't even descend into them.
+        If they are directory names, radon won't even descend into them.
     :param -s, --show-complexity: Whether or not to show the actual complexity score
         together with the A-F rank. Default to False.
     :param -a, --average: If True, at the end of the analysis display the average
