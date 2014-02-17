@@ -25,10 +25,6 @@ Radon
     :alt: Dependency Status
     :target: https://gemnasium.com/rubik/radon
 
-.. image:: https://d2weczhvl823v0.cloudfront.net/rubik/radon/trend.png
-    :alt: Bitdeli badge
-    :target: https://bitdeli.com/free
-
 Radon is a Python tool that computes various metrics from the source code.
 Radon can compute:
 
