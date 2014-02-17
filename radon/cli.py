@@ -16,7 +16,8 @@ import sys
 import json as json_mod
 import collections
 import radon.complexity as cc_mod
-from radon.tools import iter_filenames, cc_to_dict, raw_to_dict, _filter_by_rank
+from radon.tools import (iter_filenames, cc_to_dict, raw_to_dict,
+                         _filter_by_rank)
 from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank
@@ -191,10 +192,10 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
         By default hidden directories (those starting with '.') are excluded.
     :param -i, --ignore <str>: Comma separated list of patterns to ignore.
         If they are directory names, radon won't even descend into them.
-    :param -s, --show-complexity: Whether or not to show the actual complexity score
-        together with the A-F rank. Default to False.
-    :param -a, --average: If True, at the end of the analysis display the average
-        complexity. Default to False.
+    :param -s, --show-complexity: Whether or not to show the actual complexity
+        score together with the A-F rank. Default to False.
+    :param -a, --average: If True, at the end of the analysis display the
+        average complexity. Default to False.
     :param --total-average: Like `-a, --average`, but it is not influenced by
         `min` and `max`. Every analyzed block is counted, no matter whether it
         is displayed or not.
@@ -283,7 +284,8 @@ def raw(exclude=None, ignore=None, summary=False, json=False, *paths):
             log('- Comment Stats', indent=1)
             comments = mod.comments
             log('(C % L): {0:.0%}', comments / (float(mod.loc) or 1), indent=2)
-            log('(C % S): {0:.0%}', comments / (float(mod.sloc) or 1), indent=2)
+            log('(C % S): {0:.0%}', comments / (float(mod.sloc) or 1),
+                indent=2)
             log('(C + M % L): {0:.0%}', (comments + mod.multi) / float(mod.loc),
                 indent=2)
 

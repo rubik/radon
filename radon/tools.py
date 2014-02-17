@@ -3,7 +3,7 @@ import operator
 import itertools
 from functools import reduce
 from radon.pathfinder import (find_paths, FnmatchFilter, NotFilter, FileFilter,
-    DirectoryFilter, AlwaysAcceptFilter)
+                              DirectoryFilter, AlwaysAcceptFilter)
 from radon.visitors import Function
 from radon.complexity import cc_rank
 
