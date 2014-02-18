@@ -301,12 +301,6 @@ class FindTest(unittest.TestCase):
         paths = walk_and_filter(BASEPATH, p_filter)
         self.assertEqual(3, len(paths))
 
-    def test_image(self):
-        """ Find all images. """
-        filter = ImageFilter()
-        paths = walk_and_filter(BASEPATH, filter)
-        self.assertEqual(6, len(paths))
-
     def test_find_filepath(self):
         """ Test when the root path to a find is a file and not a directory. """
         a_paths = pathfind(os.path.join(BASEPATH, 'python_logo.png'), just_files=True)
