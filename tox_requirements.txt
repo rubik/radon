@@ -1,2 +1,3 @@
 https://github.com/rubik/ParamUnittest/tarball/fix-all
+nose
 -r requirements.txt

@@ -1,3 +1,5 @@
 include README.rst
 include requirements.txt
 include tox_requirements.txt
+include tox.ini
+recursive-include tests *

@@ -2,7 +2,7 @@ import operator
 from paramunittest import *
 from radon.complexity import *
 from radon.visitors import Class, Function
-from radon.tests.test_complexity_visitor import GENERAL_CASES, dedent
+from .test_complexity_visitor import GENERAL_CASES, dedent
 
 
 get_index = lambda seq: lambda index: seq[index]
@@ -11,7 +11,9 @@ get_index = lambda seq: lambda index: seq[index]
 def _compute_cc_rank(score):
     # This is really ugly
     # Luckily the rank function in radon.complexity is not like this!
-    if 1 <= score <= 5:
+    if score < 0:
+        rank = ValueError
+    elif 0 <= score <= 5:
         rank = 'A'
     elif 6 <= score <= 10:
         rank = 'B'
@@ -26,7 +28,7 @@ def _compute_cc_rank(score):
     return rank
 
 
-RANK_CASES = [(score, _compute_cc_rank(score)) for score in range(1, 100)]
+RANK_CASES = [(score, _compute_cc_rank(score)) for score in range(-1, 100)]
 
 
 @parametrized(*RANK_CASES)
@@ -37,7 +39,11 @@ class TestRank(ParametrizedTestCase):
         self.expected_rank = expected_rank
 
     def testRank(self):
-        self.assertEqual(cc_rank(self.score), self.expected_rank)
+        if (hasattr(self.expected_rank, '__call__') and
+            isinstance(self.expected_rank(), Exception)):
+            self.assertRaises(self.expected_rank, cc_rank, self.score)
+        else:
+            self.assertEqual(cc_rank(self.score), self.expected_rank)
 
 
 fun = lambda complexity: Function('randomname', 1, 4, 23, False, None, [], complexity)

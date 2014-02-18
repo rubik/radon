@@ -14,7 +14,7 @@ class Filter(object):
         return OrFilter(self, other)
 
     def find(self, filepath):
-        from pathfinder import walk_and_filter
+        from radon.pathfinder import walk_and_filter
         return walk_and_filter(filepath, self)
 
 class AlwaysAcceptFilter(Filter):

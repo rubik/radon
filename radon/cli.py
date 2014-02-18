@@ -16,8 +16,7 @@ import sys
 import json as json_mod
 import collections
 import radon.complexity as cc_mod
-from radon.tools import (iter_filenames, cc_to_dict, raw_to_dict,
-                         _filter_by_rank)
+from radon.tools import iter_filenames, cc_to_dict, raw_to_dict
 from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank

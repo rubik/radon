@@ -80,10 +80,3 @@ def raw_to_dict(obj):
         if v is not None:
             result[a] = v
     return result
-
-
-def _filter_by_rank(results, min, max):
-    '''Yield results whose rank is between `min` and `max`.'''
-    for result in results:
-        if min <= cc_rank(result.complexity) <= max:
-            yield result

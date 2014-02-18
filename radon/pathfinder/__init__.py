@@ -6,7 +6,7 @@
 
 import os
 
-from pathfinder.filters import *
+from radon.pathfinder.filters import *
 
 def walk_and_filter(filepath, pathfilter, ignore=None, abspath=None, depth=None):
     return list(walk_and_filter_generator(filepath, pathfilter, ignore,
@@ -71,26 +71,6 @@ def walk_and_filter_generator(filepath, pathfilter,
                 if abspath:
                     filepath = os.path.abspath(filepath)
                 yield filepath
-
-
-def pathfind(filepath, just_dirs=None, just_files=None, regex=None, \
-            fnmatch=None, filter=None, ignore=None, abspath=None, depth=None):
-    import warnings
-    warnings.warn("Deprecated. Please use find.", DeprecationWarning)
-    return find(filepath, just_dirs, just_files, regex, fnmatch,
-            filter, ignore, abspath, depth)
-
-
-def find(
-        directory_path, just_dirs=None, just_files=None, regex=None,
-        fnmatch=None, filter=None, ignore=None, abspath=None, depth=None):
-    """
-    Find paths in the tree rooted at filepath.
-    """
-    import warnings
-    warnings.warn("Deprecated. Please use find_paths.", DeprecationWarning)
-    return list(find_paths(directory_path, just_dirs, just_files, regex, fnmatch,
-            filter, ignore, abspath, depth))
 
 
 def find_paths(
