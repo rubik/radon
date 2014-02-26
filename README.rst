@@ -58,7 +58,7 @@ Usage
 -----
 
 Radon can be used either from the command line or programmatically.
-Documentation is WIP at https://radon.readthedocs.org/.
+Documentation is at https://radon.readthedocs.org/.
 
 Cyclomatic Complexity Example
 -----------------------------
