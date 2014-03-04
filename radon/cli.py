@@ -225,7 +225,7 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
             average_cc += cc
             analyzed += blocks
 
-    if average and analyzed:
+    if (average or total_average) and analyzed:
         cc = average_cc / analyzed
         ranked_cc = cc_rank(cc)
         log('\n{0} blocks (classes, functions, methods) analyzed.', analyzed)
