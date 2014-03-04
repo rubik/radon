@@ -24,7 +24,7 @@ from radon.metrics import mi_visit, mi_rank
 if not sys.stdout.isatty():
     GREEN = YELLOW = RED = MAGENTA = CYAN = WHITE = BRIGHT = RESET = ''
 
-__version__ = '0.5'
+__version__ = '0.5.1'
 
 
 RANKS_COLORS = {'A': GREEN, 'B': GREEN,
