@@ -1,5 +1,4 @@
-strictness:
-    - high
+strictness: high
 ignore_paths:
     - tests
     - docs
