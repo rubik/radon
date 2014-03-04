@@ -5,10 +5,6 @@ Radon
     :alt: Travis-CI badge
     :target: https://travis-ci.org/rubik/radon
 
-.. image:: https://drone.io/github.com/rubik/radon/status.png
-    :alt: Drone badge
-    :target: https://drone.io/github.com/rubik/radon
-
 .. image:: https://coveralls.io/repos/rubik/radon/badge.png?branch=master
     :alt: Coveralls badge
     :target: https://coveralls.io/r/rubik/radon?branch=master
