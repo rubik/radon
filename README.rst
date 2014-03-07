@@ -88,6 +88,16 @@ Actually it's even better: it's got colors!
 .. image:: http://cloud.github.com/downloads/rubik/radon/radon_cc.png
     :alt: A screen of Radon's cc command
 
+
+On a Continuous Integration server
+----------------------------------
+
+If you are looking to use `radon` on a CI server you may be better off with
+`xenon <https://github.com/rubik/xenon>`_. Although still experimental, it will
+fail (that means exiting with a non-zero exit code) when various thresholds are
+surpassed. `radon` is more of a reporting tool, while `xenon` is a monitoring
+one.
+
 Links
 -----
 
