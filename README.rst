@@ -40,8 +40,10 @@ Radon will run from **Python 2.6** to **Python 3.3** with a single code base
 and without the need of tools like 2to3 or six. It can also run on **PyPy**
 without any problems (currently only PyPy 2.0.0 is tested).
 
-Radon does not depend on any other Python package (except *Baker* for the
-command line, but it is an optional dependency).
+Radon depends on as few packages as possible. Currently only `mando` is
+strictly required (for the CLI interface). `colorama` is also listed as a
+dependency but if Radon cannot import it, the output simply will not be
+colored.
 
 Installation
 ------------

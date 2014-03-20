@@ -18,7 +18,7 @@ setup(name='radon',
       long_description=readme,
       packages=find_packages(),
       tests_require=['tox'],
-      install_requires=['mando', 'colorama', 'pathfinder'],
+      install_requires=['mando', 'colorama'],
       entry_points={'console_scripts': ['radon = radon:main']},
       classifiers=[
           'Development Status :: 4 - Beta',
