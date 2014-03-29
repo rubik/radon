@@ -186,7 +186,7 @@ class ComplexityVisitor(CodeVisitor):
             self.complexity += 1
         # The For and While blocks count as 1 plus the `else` block.
         elif name in ('For', 'While'):
-            self.complexity += len(node.orelse) + 1
+            self.complexity += bool(node.orelse) + 1
         # List, set, dict comprehensions and generator exps count as 1 plus
         # the `if` statement.
         elif name == 'comprehension':

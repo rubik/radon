@@ -158,6 +158,25 @@ SIMPLE_BLOCKS = [
      ''', 6),
 
     ('''
+     for i in range(10):
+         print(i)
+     else:
+         print('wah')
+         print('really not found')
+         print(3)
+     ''', 3),
+
+    ('''
+     while True:
+         print(1)
+     else:
+         print(2)
+         print(1)
+         print(0)
+         print(-1)
+     ''', 3),
+
+    ('''
      assert i < 0
      ''', 2),
 
