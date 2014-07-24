@@ -14,7 +14,7 @@ def iter_filenames(paths, exclude=None, ignore=None):
     fnmatch patterns.'''
     finder = lambda path: build_finder(path, build_filter(exclude),
                                        build_ignore(ignore))
-    return itertools.chain(*map(finder, paths))
+    return itertools.chain(*list(map(finder, paths)))
 
 
 def build_finder(path, filter, ignore):
@@ -40,7 +40,7 @@ def build_ignore(ignore):
 def build_custom(pattern, start=None, final=lambda x: x, op=operator.or_,
                  add=None):
     patt = ([FnmatchFilter(p) for p in (pattern or '').split(',') if p] +
-            (add or None))
+            (add or []))
     start = start or AlwaysAcceptFilter()
     if patt:
         start &= final(
