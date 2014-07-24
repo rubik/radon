@@ -3,7 +3,7 @@ import operator
 import itertools
 from functools import reduce
 from radon.pathfinder import (find_paths, FnmatchFilter, NotFilter, FileFilter,
-                              DirectoryFilter, AlwaysAcceptFilter)
+                              AlwaysAcceptFilter)
 from radon.visitors import Function
 from radon.complexity import cc_rank
 
@@ -38,8 +38,9 @@ def build_ignore(ignore):
 
 
 def build_custom(pattern, start=None, final=lambda x: x, op=operator.or_,
-                 add=[]):
-    patt = [FnmatchFilter(p) for p in (pattern or '').split(',') if p] + add
+                 add=None):
+    patt = ([FnmatchFilter(p) for p in (pattern or '').split(',') if p] +
+            (add or None))
     start = start or AlwaysAcceptFilter()
     if patt:
         start &= final(
