@@ -1,7 +1,10 @@
+'''In this module the CLI interface is created.'''
+
+import sys
 from mando import Program
 try:
     import colorama
-    colorama.init()
+    colorama.init(strip=(not sys.stdout.isatty()))
     GREEN, YELLOW, RED = (colorama.Fore.GREEN, colorama.Fore.YELLOW,
                           colorama.Fore.RED)
     MAGENTA, CYAN, WHITE = (colorama.Fore.MAGENTA, colorama.Fore.CYAN,
@@ -11,8 +14,6 @@ except ImportError:
     # No colorama, so let's fallback to no-color mode
     GREEN = YELLOW = RED = MAGENTA = CYAN = WHITE = BRIGHT = RESET = ''
 
-import os
-import sys
 import json as json_mod
 import collections
 import radon.complexity as cc_mod
@@ -20,9 +21,6 @@ from radon.tools import iter_filenames, cc_to_dict, raw_to_dict
 from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank
-
-if not sys.stdout.isatty():
-    GREEN = YELLOW = RED = MAGENTA = CYAN = WHITE = BRIGHT = RESET = ''
 
 __version__ = '0.5.1'
 
