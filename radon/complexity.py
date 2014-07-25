@@ -1,6 +1,5 @@
-import ast
 import math
-from radon.visitors import GET_COMPLEXITY, ComplexityVisitor
+from radon.visitors import GET_COMPLEXITY, ComplexityVisitor, code2ast
 
 
 # sorted_block ordering functions
@@ -75,7 +74,7 @@ def cc_visit(code, **kwargs):
     then pass the result to the :func:`~radon.complexity.sorted_results`
     function.
     '''
-    return cc_visit_ast(ast.parse(code), **kwargs)
+    return cc_visit_ast(code2ast(code), **kwargs)
 
 
 def cc_visit_ast(ast_node, **kwargs):

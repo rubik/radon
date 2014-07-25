@@ -18,6 +18,16 @@ BaseClass = collections.namedtuple('Class', ['name', 'lineno', 'col_offset',
                                              'real_complexity'])
 
 
+def code2ast(source):
+    '''Convert a string object into an AST object. This function attempts to
+    convert the string into bytes.'''
+    try:
+        source = source.encode('utf-8')  # necessary in Python 3
+    except UnicodeDecodeError:
+        pass
+    return ast.parse(source)
+
+
 class Function(BaseFunc):
     '''Base object represeting a function.
     '''
@@ -90,15 +100,11 @@ class CodeVisitor(ast.NodeVisitor):
         '''Instanciate the class from source code (string object). The
         `**kwargs` are directly passed to the `ast.NodeVisitor` constructor.
         '''
-        try:
-            code = code.encode('utf-8')  # necessary in Python 3
-        except UnicodeDecodeError:
-            pass
-        return cls.from_ast(ast.parse(code), **kwargs)
+        return cls.from_ast(code2ast(code), **kwargs)
 
     @classmethod
     def from_ast(cls, ast_node, **kwargs):
-        '''Instanciate the class from an AST node. The `**kwargs` are
+        '''Instantiate the class from an AST node. The `**kwargs` are
         directly passed to the `ast.NodeVisitor` constructor.
         '''
         visitor = cls(**kwargs)
