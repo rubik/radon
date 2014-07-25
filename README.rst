@@ -48,11 +48,15 @@ colored.
 Installation
 ------------
 
-With Pip::
+With Pip:
+
+.. code-block:: sh
 
     $ pip install radon
 
-Or download the source and run the setup file::
+Or download the source and run the setup file:
+
+.. code-block:: sh
 
     $ python setup.py install
 
@@ -65,29 +69,42 @@ Documentation is at https://radon.readthedocs.org/.
 Cyclomatic Complexity Example
 -----------------------------
 
-Quick example::
+Quick example:
 
-    $ radon cc -anc ../baker/baker.py
-    ../baker/baker.py
-        M 581:4 Baker.parse_args - D
-        M 723:4 Baker.parse - D
-        M 223:4 Baker.command - C
-        M 796:4 Baker.apply - C
-        M 857:4 Baker.run - C
+.. code-block:: sh
 
-    32 blocks (classes, functions, methods) analyzed.
-    Average complexity: B (6.15625)
+    $ radon cc sympy/solvers/solvers.py -a -nc
+    sympy/solvers/solvers.py
+        F 346:0 solve - F
+        F 1093:0 _solve - F
+        F 1434:0 _solve_system - F
+        F 2647:0 unrad - F
+        F 110:0 checksol - F
+        F 2238:0 _tsolve - F
+        F 2482:0 _invert - F
+        F 1862:0 solve_linear_system - E
+        F 1781:0 minsolve_linear_system - D
+        F 1636:0 solve_linear - D
+        F 2382:0 nsolve - C
+
+    11 blocks (classes, functions, methods) analyzed.
+    Average complexity: F (61.0)
 
 Explanation:
 
-* ``cc`` is the radon command
-* ``-a`` tells radon to calculate the average complexity at the end
+* ``cc`` is the radon command to compute Cyclomatic Complexity
+* ``-a`` tells radon to calculate the average complexity at the end. Note that
+  the average is computed among the *shown* blocks. If you want the total
+  average, among all the blocks, regardless of what is being shown, you should
+  use ``--total-average``.
 * ``-nc`` tells radon to print only results with a complexity rank of C or
   worse. Other examples: ``-na`` (from A to F), or ``-nd`` (from D to F).
+* The letter *in front of* the line numbers represents the type of the block
+  (**F** means function, **M** method and **C** class).
 
 Actually it's even better: it's got colors!
 
-.. image:: http://cloud.github.com/downloads/rubik/radon/radon_cc.png
+.. image:: https://cloud.githubusercontent.com/assets/238549/3707477/5793aeaa-1435-11e4-98fb-00e0bd8137f5.png
     :alt: A screen of Radon's cc command
 
 
