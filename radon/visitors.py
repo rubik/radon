@@ -90,6 +90,10 @@ class CodeVisitor(ast.NodeVisitor):
         '''Instanciate the class from source code (string object). The
         `**kwargs` are directly passed to the `ast.NodeVisitor` constructor.
         '''
+        try:
+            code = code.encode('utf-8')  # necessary in Python 3
+        except UnicodeDecodeError:
+            pass
         return cls.from_ast(ast.parse(code), **kwargs)
 
     @classmethod
