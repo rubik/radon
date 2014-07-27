@@ -16,6 +16,7 @@ except ImportError:
 
 import json as json_mod
 import collections
+from contextlib import contextmanager
 import radon.complexity as cc_mod
 from radon.tools import iter_filenames, cc_to_dict, raw_to_dict
 from radon.complexity import cc_visit, cc_rank, sorted_results
@@ -112,7 +113,7 @@ def analyze_cc(paths, exclude, ignore, order_function, no_assert):
         results respectively by CC score, line number or name.
     :param no_assert: If `True` assert statements will not be counted.'''
     for name in iter_filenames(paths, exclude, ignore):
-        with open(name) as fobj:
+        with _open(name) as fobj:
             try:
                 results = sorted_results(cc_visit(fobj.read(),
                                                   no_assert=no_assert),
@@ -131,7 +132,7 @@ def analyze_raw(paths, exclude, ignore):
     :param exclude: A comma-separated string of fnmatch patterns.
     :param ignore: A comma-separated string of patterns to ignore.'''
     for name in iter_filenames(paths, exclude, ignore):
-        with open(name) as fobj:
+        with _open(name) as fobj:
             try:
                 yield name, analyze(fobj.read())
             except Exception as e:
@@ -156,7 +157,7 @@ def mi(multi=True, exclude=None, ignore=None, show=False, *paths):
     :param paths: The modules or packages to analyze.
     '''
     for name in iter_filenames(paths, exclude, ignore):
-        with open(name) as fobj:
+        with _open(name) as fobj:
             try:
                 result = mi_visit(fobj.read(), multi)
             except Exception as e:
@@ -290,3 +291,16 @@ def raw(exclude=None, ignore=None, summary=False, json=False, *paths):
             log('** Total **')
             for header in sum_metrics:
                 log('{0}: {1}', header, sum_metrics[header], indent=1)
+
+
+@contextmanager
+def _open(path):
+    """
+    :param path <str>: file path to open ('-' for stdin)
+    :returns file: open file object
+    """
+    if path == '-':
+        yield sys.stdin
+    else:
+        with open(path) as f:
+            yield f

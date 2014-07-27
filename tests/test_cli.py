@@ -83,6 +83,11 @@ class TestGeneralCommands(ParametrizedTestCase):
             self.assertEqual(set(names), set([f1]))
             names = iter_filenames(dir1, exclude)
             self.assertEqual(set(names), set([f1]))
+
+            # Test with "-" is preserved for stdin if it's the only
+            # parameter
+            names = iter_filenames(['-'])
+            self.assertEqual(set(names), set(['-']))
         finally:
             shutil.rmtree(tmpdir)
 
