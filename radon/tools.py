@@ -11,7 +11,10 @@ from radon.complexity import cc_rank
 def iter_filenames(paths, exclude=None, ignore=None):
     '''A generator that yields all sub-paths of the ones specified in `paths`.
     Optional exclude filters can be passed as a comma-separated string of
-    fnmatch patterns.'''
+    fnmatch patterns.
+    If paths contains only a single hyphen, stdin is implied, return as is.'''
+    if set(paths) == set(('-',)):
+        return paths
     finder = lambda path: build_finder(path, build_filter(exclude),
                                        build_ignore(ignore))
     return itertools.chain(*list(map(finder, paths)))

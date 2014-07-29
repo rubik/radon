@@ -119,6 +119,11 @@ matching ``path/tests/*`` and ``path/docs/*``.
 .. warning::
     Remember to quote the patterns, otherwise your shell might expand them!
 
+::
+
+    $ cat path/to/file.py | radon cc -
+
+Setting the path to "-" will cause Radon to analyze code from stdin
 
 ::
 
