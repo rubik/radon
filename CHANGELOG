@@ -1,20 +1,51 @@
+0.5.3 (dev)
+===========
+
+- Encode the source code to bytes if that's possible (Python 3).
+- Show help if no command is given.
+- Add support to read code from stdin (thanks @io41): #55.
+
+0.5.2 (Jul 24, 2014)
+====================
+
+- Fix `while ... else` bug: #53.
+
+0.5.1 (Mar 4, 2014)
+===================
+
+- Fix `--total-average` behavior.
+
+0.5 (Feb 17, 2014)
+==================
+
+- Add `-i, --ignore` option to ignore directories: #39.
+- Add `--no-assert` option to `cc` command to avoid `assert` statements: #42.
+- Add `-j, --json` option to `raw` command (thanks @cjav): #45.
+- Add `--total-average` option to `cc` command: #44.
+- Add `--version` global option: #47.
+
+0.4.5 (Dec 16, 2013)
+====================
+
+- Baker is replaced with mando: https://github.com/rubik/mando.
+
 0.4.4 (Nov 20, 2013)
 ====================
 
 - Add `-j` option to `cc` command: #33.
 - Use pathfinder and improve `iter_filenames`: #31.
-- Complete the documentation: #18
+- Complete the documentation: #18.
+- Add `-s, --summarize` option to `raw` command (thanks @jsargiot): #36.
 
 0.4.2 (Jun 25, 2013)
 ====================
 
 - `raw` command failed on almost-empty files: #29.
 
-
 0.4.1 (Jun 16, 2013)
 ====================
 
-- Turn off colors when not printing to a tty: #26.
+- Turn off colors when not printing to a tty (thanks @kennknowles): #26.
 - Fixed #27 (`endline` could be `float('-inf')` sometimes).
 
 
