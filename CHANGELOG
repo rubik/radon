@@ -1,22 +1,22 @@
 0.5.3 (dev)
-===========
+-----------
 
 - Encode the source code to bytes if that's possible (Python 3).
 - Show help if no command is given.
 - Add support to read code from stdin (thanks @io41): #55.
 
 0.5.2 (Jul 24, 2014)
-====================
+--------------------
 
 - Fix `while ... else` bug: #53.
 
 0.5.1 (Mar 4, 2014)
-===================
+-------------------
 
 - Fix `--total-average` behavior.
 
 0.5 (Feb 17, 2014)
-==================
+------------------
 
 - Add `-i, --ignore` option to ignore directories: #39.
 - Add `--no-assert` option to `cc` command to avoid `assert` statements: #42.
@@ -25,12 +25,12 @@
 - Add `--version` global option: #47.
 
 0.4.5 (Dec 16, 2013)
-====================
+--------------------
 
 - Baker is replaced with mando: https://github.com/rubik/mando.
 
 0.4.4 (Nov 20, 2013)
-====================
+--------------------
 
 - Add `-j` option to `cc` command: #33.
 - Use pathfinder and improve `iter_filenames`: #31.
@@ -38,19 +38,19 @@
 - Add `-s, --summarize` option to `raw` command (thanks @jsargiot): #36.
 
 0.4.2 (Jun 25, 2013)
-====================
+--------------------
 
 - `raw` command failed on almost-empty files: #29.
 
 0.4.1 (Jun 16, 2013)
-====================
+--------------------
 
 - Turn off colors when not printing to a tty (thanks @kennknowles): #26.
 - Fixed #27 (`endline` could be `float('-inf')` sometimes).
 
 
 0.4 (Apr 26, 2013)
-==================
+------------------
 
 - Added `-s` option to `mi` command: #19.
 - Added `-o` option to `cc` command to sort output: #20.
@@ -59,7 +59,7 @@
 
 
 0.3 (Nov 2, 2012)
-=================
+-----------------
 
 - Code coverage to 100%, runs from Python 2.6 up to 3.3 and on PyPy as well.
 - Created a documentation at https://radon.readthedocs.org\: #5.
@@ -70,12 +70,12 @@
 
 
 0.2 (Oct 11, 2012)
-==================
+------------------
 
 Initial version.
 
 
 0.1 (Never)
-===========
+-----------
 
 There was no 0.1.

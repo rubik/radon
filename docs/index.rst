@@ -24,6 +24,7 @@ Contents:
    intro
    commandline
    api
+   changelog
 
 
 Indices and tables
