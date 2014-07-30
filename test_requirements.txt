@@ -2,3 +2,4 @@ paramunittest
 coverage
 coveralls
 tox
+nose
