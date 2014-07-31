@@ -248,4 +248,4 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
-mathjax_path = 'MathJax.js'
+mathjax_path = 'MathJax.js?config=TeX-AMS_HTML'
