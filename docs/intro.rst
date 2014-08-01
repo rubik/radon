@@ -79,7 +79,7 @@ Where:
 Raw Metrics
 -----------
 
-The following is the definition employed by Radon:
+The following are the definitions employed by Radon:
 
     * **LOC**: The total number of lines of code. It is the sum of the **SLOC**
       and the number of blank lines: the equation `LOC = SLOC + Blanks` should
