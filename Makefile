@@ -1,17 +1,17 @@
 .PHONY: tests cov htmlcov pep8 pylint docs dev-deps test-deps publish coveralls
 
 tests:
-	python tests/run.py
+	python radon/tests/run.py
 
 cov:
-	coverage erase && coverage run --include "radon/*" --omit "radon/__init__.py,radon/cli.py,radon/tests/*" tests/run.py
+	coverage erase && coverage run --include "radon/*" --omit "radon/__init__.py,radon/cli.py,radon/tests/*" radon/tests/run.py
 	coverage report -m
 
 htmlcov: cov
 	coverage html
 
 pep8:
-	pep8 radon
+	pep8 radon --exclude "tests"
 
 pylint:
 	pylint --rcfile pylintrc radon
