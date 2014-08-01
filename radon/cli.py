@@ -23,7 +23,7 @@ from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank
 
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 
 RANKS_COLORS = {'A': GREEN, 'B': GREEN,
