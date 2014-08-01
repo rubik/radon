@@ -4,6 +4,7 @@
 - Encode the source code to bytes if that's possible (Python 3).
 - Show help if no command is given.
 - Add support to read code from stdin (thanks @io41): #55.
+- Move the tests inside the radon directory: #58.
 
 0.5.2 (Jul 24, 2014)
 --------------------
