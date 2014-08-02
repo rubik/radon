@@ -103,7 +103,9 @@ for arg in args[:]:
     arg2['average'] = True
     arg3 = arg2.copy()
     arg3['json'] = True
-    args.extend([arg2, arg3])
+    arg4 = arg2.copy()
+    arg4['xml'] = True
+    args.extend([arg2, arg3, arg4])
 
 for pattern in ['*/tests', '.dir']:
     args.append(dict(ignore=pattern))

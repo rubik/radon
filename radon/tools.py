@@ -1,6 +1,7 @@
 import os
 import operator
 import itertools
+import xml.etree.cElementTree as et
 from functools import reduce
 from radon.pathfinder import (find_paths, FnmatchFilter, NotFilter, FileFilter,
                               AlwaysAcceptFilter)
@@ -84,3 +85,24 @@ def raw_to_dict(obj):
         if v is not None:
             result[a] = v
     return result
+
+
+def dict_to_xml(results):
+    '''Convert a dictionary holding analysis result into a string containing
+    xml.'''
+    ccm = et.Element('ccm')
+    for filename, blocks in results.items():
+        for block in blocks:
+            metric = et.SubElement(ccm, 'metric')
+            complexity = et.SubElement(metric, 'complexity')
+            complexity.text = str(block['complexity'])
+            unit = et.SubElement(metric, 'unit')
+            name = block['name']
+            if 'classname' in block:
+                name = '{0}.{1}'.format(block['classname'], block['name'])
+            unit.text = name
+            classification = et.SubElement(metric, 'classification')
+            classification.text = block['rank']
+            file = et.SubElement(metric, 'file')
+            file.text = filename
+    return et.tostring(ccm).decode('utf-8')

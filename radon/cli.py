@@ -18,7 +18,7 @@ import json as json_mod
 import collections
 from contextlib import contextmanager
 import radon.complexity as cc_mod
-from radon.tools import iter_filenames, cc_to_dict, raw_to_dict
+from radon.tools import iter_filenames, cc_to_dict, raw_to_dict, dict_to_xml
 from radon.complexity import cc_visit, cc_rank, sorted_results
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank
@@ -141,6 +141,15 @@ def analyze_raw(paths, exclude, ignore):
                 continue
 
 
+def format(cc_data, json):
+    result = {}
+    for key, data in cc_data:
+        result[key] = list(map(cc_to_dict, data))
+    if json:
+        return json_mod.dumps(result)
+    return dict_to_xml(result)
+
+
 @program.command
 def mi(multi=True, exclude=None, ignore=None, show=False, *paths):
     '''Analyze the given Python modules and compute the Maintainability Index.
@@ -176,7 +185,7 @@ def mi(multi=True, exclude=None, ignore=None, show=False, *paths):
 @program.command
 def cc(path, min='A', max='F', show_complexity=False, average=False,
        exclude=None, ignore=None, order='SCORE', json=False, no_assert=False,
-       total_average=False, *more_paths):
+       total_average=False, xml=False, *more_paths):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -200,6 +209,7 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
     :param -o, --order <str>: The ordering function. Can be SCORE, LINES or
         ALPHA.
     :param -j, --json: Format results in JSON.
+    :param --xml: Format results in XML (compatible with CCM).
     :param --no-assert: Do not count `assert` statements when computing
         complexity.
     :param more_paths: Additional paths to analyze.
@@ -212,11 +222,8 @@ def cc(path, min='A', max='F', show_complexity=False, average=False,
     order_function = getattr(cc_mod, order.upper(), getattr(cc_mod, 'SCORE'))
     cc_data = analyze_cc(paths, exclude, ignore, order_function,
                          no_assert)
-    if json:
-        result = {}
-        for key, data in cc_data:
-            result[key] = list(map(cc_to_dict, data))
-        log(json_mod.dumps(result), noformat=True)
+    if json or xml:
+        log(format(cc_data, json), noformat=True)
     else:
         for name, results in cc_data:
             cc, blocks = _print_cc_results(name, results, show_complexity, min,
