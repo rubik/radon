@@ -15,15 +15,15 @@ Radon
 
 .. image:: https://pypip.in/v/radon/badge.png
     :alt: PyPI latest version badge
-    :target: https://crate.io/packages/radon
+    :target: https://pypi.python.org/pypi/radon
 
 .. image:: https://pypip.in/d/radon/badge.png
     :alt: PyPI downloads badge
-    :target: https://crate.io/packages/radon
+    :target: https://pypi.python.org/pypi/radon
 
-.. image:: https://gemnasium.com/rubik/radon.png
-    :alt: Dependency Status
-    :target: https://gemnasium.com/rubik/radon
+.. image:: https://pypip.in/license/radon/badge.png?style=flat
+    :alt: Radon license
+    :target: https://pypi.python.org/pypi/radon
 
 Radon is a Python tool that computes various metrics from the source code.
 Radon can compute:
