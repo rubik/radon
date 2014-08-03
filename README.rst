@@ -13,11 +13,11 @@ Radon
     :alt: Coveralls badge
     :target: https://coveralls.io/r/rubik/radon?branch=master
 
-.. image:: https://pypip.in/v/radon/badge.png
+.. image:: https://pypip.in/v/radon/badge.png?style=flat
     :alt: PyPI latest version badge
     :target: https://pypi.python.org/pypi/radon
 
-.. image:: https://pypip.in/d/radon/badge.png
+.. image:: https://pypip.in/d/radon/badge.png?style=flat
     :alt: PyPI downloads badge
     :target: https://pypi.python.org/pypi/radon
 
