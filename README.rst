@@ -1,7 +1,7 @@
 Radon
 #####
 
-.. image:: https://travis-ci.org/rubik/radon.png?branch=master
+.. image:: http://img.shields.io/travis/rubik/radon/master.svg?style=flat
     :alt: Travis-CI badge
     :target: https://travis-ci.org/rubik/radon
 
@@ -9,7 +9,7 @@ Radon
    :target: https://landscape.io/github/rubik/radon/master
    :alt: Code Health
 
-.. image:: https://coveralls.io/repos/rubik/radon/badge.png?branch=master
+.. image:: http://img.shields.io/coveralls/rubik/radon/master.svg?style=flat
     :alt: Coveralls badge
     :target: https://coveralls.io/r/rubik/radon?branch=master
 
