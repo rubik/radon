@@ -5,10 +5,6 @@ Radon
     :alt: Travis-CI badge
     :target: https://travis-ci.org/rubik/radon
 
-.. image:: https://landscape.io/github/rubik/radon/master/landscape.png
-   :target: https://landscape.io/github/rubik/radon/master
-   :alt: Code Health
-
 .. image:: http://img.shields.io/coveralls/rubik/radon/master.svg?style=flat
     :alt: Coveralls badge
     :target: https://coveralls.io/r/rubik/radon?branch=master
@@ -20,6 +16,10 @@ Radon
 .. image:: https://pypip.in/d/radon/badge.png?style=flat
     :alt: PyPI downloads badge
     :target: https://pypi.python.org/pypi/radon
+
+.. image:: https://pypip.in/format/radon/badge.svg?style=flat
+    :target: https://pypi.python.org/pypi/radon/
+    :alt: Download format
 
 .. image:: https://pypip.in/license/radon/badge.png?style=flat
     :alt: Radon license
