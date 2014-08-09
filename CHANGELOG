@@ -1,5 +1,11 @@
-0.5.3 (dev)
------------
+dev
+---
+
+- Add `--xml` option to `cc` command: #49.
+- Officialy support Python 3.4.
+
+0.5.3 (Aug 1, 2014)
+-------------------
 
 - Encode the source code to bytes if that's possible (Python 3).
 - Show help if no command is given.
