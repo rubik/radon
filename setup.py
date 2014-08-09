@@ -20,6 +20,7 @@ setup(name='radon',
       tests_require=['tox'],
       install_requires=['mando', 'colorama'],
       entry_points={'console_scripts': ['radon = radon:main']},
+      keywords='static analysis code complexity metrics',
       classifiers=[
           'Development Status :: 4 - Beta',
           'Environment :: Console',

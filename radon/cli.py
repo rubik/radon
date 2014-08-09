@@ -161,7 +161,8 @@ def mi(multi=True, exclude=None, ignore=None, show=False, *paths):
     :param -e, --exclude <str>:  Comma separated list of patterns to exclude.
     :param -i, --ignore <str>: Comma separated list of patterns to ignore.
         Radon won't even descend into those directories.
-    :param -m, --multi:  If given, multiline strings are counted as comments.
+    :param -m, --multi:  If given, multiline strings are not counted as
+        comments.
     :param -s, --show:  If given, the actual MI value is shown in results.
     :param paths: The modules or packages to analyze.
     '''
