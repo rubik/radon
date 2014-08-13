@@ -9,7 +9,8 @@ python:
 install:
     - pip install -e . --use-mirrors
     - pip install -r test_requirements.txt --use-mirrors
-    - ./travis-additional-deps.py
+    - ls
+    - python travis-additional-deps.py
 script:
     - make cov
 after_success:
