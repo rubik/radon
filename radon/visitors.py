@@ -23,7 +23,7 @@ def code2ast(source):
     convert the string into bytes.'''
     try:
         source = source.encode('utf-8')  # necessary in Python 3
-    except UnicodeDecodeError:
+    except UnicodeDecodeError:  # pragma: no cover
         pass
     return ast.parse(source)
 
