@@ -62,6 +62,14 @@ class TestBaseHarvester(unittest.TestCase):
         h = harvest.Harvester([], BASE_CONFIG)
         self.assertRaises(NotImplementedError, h.gobble)
 
+    def test_as_xml_not_implemented(self):
+        h = harvest.Harvester([], BASE_CONFIG)
+        self.assertRaises(NotImplementedError, h.as_xml)
+
+    def test_to_terminal_not_implemented(self):
+        h = harvest.Harvester([], BASE_CONFIG)
+        self.assertRaises(NotImplementedError, h.to_terminal)
+
     def test_run(self):
         h = harvest.Harvester(['-'], BASE_CONFIG)
         h.gobble = fake_gobble
@@ -92,18 +100,17 @@ class TestCCHarvester(unittest.TestCase):
     @mock.patch('radon.cli.harvest.sorted_results')
     @mock.patch('radon.cli.harvest.cc_visit')
     def test_gobble(self, cc_mock, sr_mock):
-        sentinel = object()
-        sentinel2 = object()
-        cc_mock.return_value = sentinel
+        cc_mock.return_value = mock.sentinel.one
         fobj = mock.MagicMock()
-        fobj.read.return_value = sentinel2
+        fobj.read.return_value = mock.sentinel.two
 
         h = harvest.CCHarvester([], CC_CONFIG)
         h.gobble(fobj)
 
         self.assertTrue(fobj.read.called)
-        cc_mock.assert_called_with(sentinel2, no_assert=CC_CONFIG.no_assert)
-        sr_mock.assert_called_with(sentinel, order=CC_CONFIG.order)
+        cc_mock.assert_called_with(mock.sentinel.two,
+                                   no_assert=CC_CONFIG.no_assert)
+        sr_mock.assert_called_with(mock.sentinel.one, order=CC_CONFIG.order)
 
     @mock.patch('radon.cli.harvest.cc_to_dict')
     def test_to_dicts(self, c2d_mock):
@@ -160,17 +167,16 @@ class TestRawHarvester(unittest.TestCase):
     @mock.patch('radon.cli.harvest.raw_to_dict')
     @mock.patch('radon.cli.harvest.analyze')
     def test_gobble(self, analyze_mock, r2d_mock):
-        sentinel, sentinel2 = object(), object()
         fobj = mock.MagicMock()
-        fobj.read.return_value = sentinel
-        analyze_mock.return_value = sentinel2
+        fobj.read.return_value = mock.sentinel.one
+        analyze_mock.return_value = mock.sentinel.two
 
         h = harvest.RawHarvester([], RAW_CONFIG)
         h.gobble(fobj)
 
         self.assertEqual(fobj.read.call_count, 1)
-        analyze_mock.assert_called_once_with(sentinel)
-        r2d_mock.assert_called_once_with(sentinel2)
+        analyze_mock.assert_called_once_with(mock.sentinel.one)
+        r2d_mock.assert_called_once_with(mock.sentinel.two)
 
     def test_to_terminal(self):
         h = harvest.RawHarvester([], RAW_CONFIG)
@@ -220,17 +226,16 @@ class TestMIHarvester(unittest.TestCase):
 
     @mock.patch('radon.cli.harvest.mi_visit')
     def test_gobble(self, mv_mock):
-        sentinel, sentinel2 = object(), object()
         fobj = mock.MagicMock()
-        fobj.read.return_value = sentinel
-        mv_mock.return_value = sentinel2
+        fobj.read.return_value = mock.sentinel.one
+        mv_mock.return_value = mock.sentinel.two
 
         h = harvest.MIHarvester([], MI_CONFIG)
         result = h.gobble(fobj)
 
         self.assertEqual(fobj.read.call_count, 1)
-        mv_mock.assert_called_once_with(sentinel, MI_CONFIG.multi)
-        self.assertEqual(result, {'mi': sentinel2})
+        mv_mock.assert_called_once_with(mock.sentinel.one, MI_CONFIG.multi)
+        self.assertEqual(result, {'mi': mock.sentinel.two})
 
     @mock.patch('radon.cli.harvest.RESET')
     @mock.patch('radon.cli.harvest.MI_RANKS')

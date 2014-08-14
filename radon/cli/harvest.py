@@ -44,6 +44,12 @@ class Harvester(object):
     def as_json(self):
         return json.dumps(dict(self.results))
 
+    def as_xml(self):
+        raise NotImplementedError
+
+    def to_terminal(self):
+        raise NotImplementedError
+
 
 class CCHarvester(Harvester):
 

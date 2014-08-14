@@ -21,6 +21,12 @@ class Config(object):
             return self.config_values[attr]
         return self.__getattribute__(attr)
 
+    def __str__(self):
+        return str(self.config_values)
+
+    def __eq__(self, other):
+        return self.config_values == other.config_values
+
 
 @program.command
 @program.arg('paths', nargs='+')
@@ -139,11 +145,11 @@ def log_result(harvester, **kwargs):
         log(harvester.as_xml(), noformat=True)
     else:
         for msg, args, kwargs in harvester.to_terminal():
-            if 'error' in kwargs:
+            if kwargs.get('error', False):
                 log(msg)
                 log_error(args[0], indent=1)
                 continue
-            msg = [msg] if not isinstance(msg, list) else msg
+            msg = [msg] if not isinstance(msg, (list, tuple)) else msg
             log_list(msg, *args, **kwargs)
 
 
