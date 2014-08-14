@@ -18,7 +18,7 @@ Radon
     :target: https://pypi.python.org/pypi/radon
 
 .. image:: https://pypip.in/format/radon/badge.svg?style=flat
-    :target: https://pypi.python.org/pypi/radon/
+    :target: http://pythonwheels.com/
     :alt: Download format
 
 .. image:: https://pypip.in/license/radon/badge.png?style=flat
