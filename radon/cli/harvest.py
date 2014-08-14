@@ -9,20 +9,56 @@ from radon.cli.tools import (iter_filenames, _open, cc_to_dict, dict_to_xml,
 
 
 class Harvester(object):
+    '''Base class defining the interface of a Harvester object.
+
+    A Harvester has the following lifecycle:
+
+        1. **Initialization**: `h = Harvester(paths, config)`
+
+        2. **Execution**: `r = h.results`. `results` holds an iterable object.
+        The first time `results` is accessed, `h.run()` is called. This method
+        should not be subclassed. Instead, the :meth:`gobble` method should be
+        implemented.
+
+        3. **Reporting**: the methods *as_json* and *as_xml* return a string
+        with the corrisponding format. The method *to_terminal* is a generator
+        that yields the lines to be printed in the terminal.
+
+        This class is meant to be subclasses and cannot be used directly, since
+        the methods :meth:`gobble`, :meth:`as_xml` and :meth:`to_terminal` are
+        not implemented.
+    '''
 
     def __init__(self, paths, config):
+        '''Initialize the Harvester.
+
+        *paths* is a list of paths to analyze.
+        *config* is a :class:`~radon.cli.Config` object holding the
+        configuration values specific to the Harvester.
+        '''
         self.paths = paths
         self.config = config
         self._results = []
 
     def _iter_filenames(self):
+        '''A wrapper around :func:`~radon.cli.tools.iter_filenames`.'''
         return iter_filenames(self.paths, self.config.exclude,
                               self.config.ignore)
 
     def gobble(self, fobj):
+        '''Subclasses must implement this method to define behavior.
+
+        This method is called for every file to analyze. *fobj* is the file
+        object. This method should return the results from the analysis,
+        preferably a dictionary.
+        '''
         raise NotImplementedError
 
     def run(self):
+        '''Start the analysis. For every file, this method calls the
+        :meth:`gobble` method. Results are yielded as tuple:
+        ``(filename, analysis_results)``.
+        '''
         for name in self._iter_filenames():
             with _open(name) as fobj:
                 try:
@@ -32,7 +68,15 @@ class Harvester(object):
 
     @property
     def results(self):
+        '''This property holds the results of the analysis.
+
+        The first time it is accessed, an iterator is returned. Its
+        elements are cached into a list as it is iterated over. Therefore, if
+        `results` is accessed multiple times after the first one, a list will
+        be returned.
+        '''
         def caching_iterator(it, r):
+            '''An iterator that caches another iterator.'''
             for t in it:
                 yield t
                 r.append(t)
@@ -42,34 +86,49 @@ class Harvester(object):
         return caching_iterator(self.run(), self._results)
 
     def as_json(self):
+        '''Format the results as JSON.'''
         return json.dumps(dict(self.results))
 
     def as_xml(self):
+        '''Format the results as XML.'''
         raise NotImplementedError
 
     def to_terminal(self):
+        '''Yields tuples representing lines to be printed to a terminal.
+
+        The tuples have the following format: ``(line, args, kwargs)``.
+        The line is then formatted with `line.format(*args, **kwargs)`.
+        '''
         raise NotImplementedError
 
 
 class CCHarvester(Harvester):
+    '''A class that analyzes Python modules' Cyclomatic Complexity.'''
 
     def gobble(self, fobj):
+        '''Analyze the content of the file object.'''
         r = cc_visit(fobj.read(), no_assert=self.config.no_assert)
         return sorted_results(r, order=self.config.order)
 
     def _to_dicts(self):
+        '''Format the results as a dictionary of dictionaries.'''
         result = {}
         for key, data in self.results:
             result[key] = list(map(cc_to_dict, data))
         return result
 
     def as_json(self):
+        '''Format the results as JSON.'''
         return json.dumps(self._to_dicts())
 
     def as_xml(self):
+        '''Format the results as XML. This is meant to be compatible with
+        Jenkin's CCM plugin. Therefore not all the fields are kept.
+        '''
         return dict_to_xml(self._to_dicts())
 
     def to_terminal(self):
+        '''Yield lines to be printed in a terminal.'''
         average_cc = .0
         analyzed = 0
         for name, blocks in self.results:
@@ -95,16 +154,20 @@ class CCHarvester(Harvester):
 
 
 class RawHarvester(Harvester):
+    '''A class that analyzes Python modules' raw metrics.'''
 
     headers = ['LOC', 'LLOC', 'SLOC', 'Comments', 'Multi', 'Blank']
 
     def gobble(self, fobj):
+        '''Analyze the content of the file object.'''
         return raw_to_dict(analyze(fobj.read()))
 
     def as_xml(self):
+        '''Placeholder method. Currently not implemented.'''
         raise NotImplementedError('Cannot export results as XML')
 
     def to_terminal(self):
+        '''Yield lines to be printed to a terminal.'''
         sum_metrics = collections.defaultdict(int)
         for path, mod in self.results:
             if 'error' in mod:
@@ -132,14 +195,18 @@ class RawHarvester(Harvester):
 
 
 class MIHarvester(Harvester):
+    '''A class that analyzes Python modules' Maintainability Index.'''
 
     def gobble(self, fobj):
+        '''Analyze the content of the file object.'''
         return {'mi': mi_visit(fobj.read(), self.config.multi)}
 
     def as_xml(self):
+        '''Placeholder method. Currently not implemented.'''
         raise NotImplementedError('Cannot export results as XML')
 
     def to_terminal(self):
+        '''Yield lines to be printed to a terminal.'''
         for name, mi in self.results:
             if 'error' in mi:
                 yield name, (mi['error'],), {'error': True}

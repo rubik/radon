@@ -1,3 +1,7 @@
+'''Module holding constants used to format lines that are printed to the
+terminal.
+'''
+
 import sys
 try:
     import colorama

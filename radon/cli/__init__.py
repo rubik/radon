@@ -12,19 +12,28 @@ program = Program(version=sys.modules['radon'].__version__)
 
 
 class Config(object):
+    '''An object holding config values.'''
 
     def __init__(self, **kwargs):
+        '''Configuration values are passed as keyword parameters.'''
         self.config_values = kwargs
 
     def __getattr__(self, attr):
+        '''If an attribute is not found inside the config values, the request
+        is handed to `__getattribute__`.
+        '''
         if attr in self.config_values:
             return self.config_values[attr]
         return self.__getattribute__(attr)
 
     def __str__(self):
+        '''The string representation of the Config object is just the one of
+        the dictionary holding the configuration values.
+        '''
         return str(self.config_values)
 
     def __eq__(self, other):
+        '''Two Config objects are equals if their contents are equal.'''
         return self.config_values == other.config_values
 
 
@@ -61,7 +70,6 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
     :param --no-assert: Do not count `assert` statements when computing
         complexity.
     '''
-
     config = Config(
         min=min.upper(),
         max=max.upper(),
@@ -92,7 +100,6 @@ def raw(paths, exclude=None, ignore=None, summary=False, json=False):
         summary of the gathered metrics. Default to False.
     :param -j, --json: Format results in JSON.
     '''
-
     config = Config(
         exclude=exclude,
         ignore=ignore,
@@ -124,7 +131,6 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
     :param -s, --show: If given, the actual MI value is shown in results.
     :param -j, --json: Format results in JSON.
     '''
-
     config = Config(
         min=min.upper(),
         max=max.upper(),
@@ -139,6 +145,14 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
 
 
 def log_result(harvester, **kwargs):
+    '''Log the results of an :class:`~radon.cli.harvest.Harvester object.
+
+    Keywords parameters determine how the results are formatted. If *json* is
+    `True`, then `harvester.as_json()` is called. If *xml* is `True`, then
+    `harvester.as_xml()` is called.
+    Otherwise, `harvester.to_terminal()` is executed and `kwargs` is directly
+    passed to the :func:`~radon.cli.log` function.
+    '''
     if kwargs.get('json'):
         log(harvester.as_json(), noformat=True)
     elif kwargs.get('xml'):
@@ -154,20 +168,23 @@ def log_result(harvester, **kwargs):
 
 
 def log(msg, *args, **kwargs):
-    '''Log a message, passing `*args` to `.format()`.
+    '''Log a message, passing *args* to the strings' `format()` method.
 
-    `indent`, if present as a keyword argument, specifies the indent level, so
+    *indent*, if present as a keyword argument, specifies the indent level, so
     that `indent=0` will log normally, `indent=1` will indent the message by 4
     spaces, &c..
-    `noformat`, if present and True, will cause the message not to be formatted
-    in any way.'''
+    *noformat*, if present and True, will cause the message not to be formatted
+    in any way.
+    '''
     indent = 4 * kwargs.get('indent', 0)
     m = msg if kwargs.get('noformat', False) else msg.format(*args)
     sys.stdout.write(' ' * indent + m + '\n')
 
 
 def log_list(lst, *args, **kwargs):
-    '''Log an entire list, line by line.'''
+    '''Log an entire list, line by line. All the arguments are directly passed
+    to :func:`~radon.cli.log`.
+    '''
     for line in lst:
         log(line, *args, **kwargs)
 
