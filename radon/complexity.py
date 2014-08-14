@@ -1,3 +1,7 @@
+'''This module contains all high-level helpers function that allow to work with
+Cyclomatic Complexity
+'''
+
 import math
 from radon.visitors import GET_COMPLEXITY, ComplexityVisitor, code2ast
 

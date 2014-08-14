@@ -20,7 +20,8 @@ BaseClass = collections.namedtuple('Class', ['name', 'lineno', 'col_offset',
 
 def code2ast(source):
     '''Convert a string object into an AST object. This function attempts to
-    convert the string into bytes.'''
+    convert the string into bytes.
+    '''
     try:
         source = source.encode('utf-8')  # necessary in Python 3
     except UnicodeDecodeError:  # pragma: no cover
@@ -170,10 +171,12 @@ class ComplexityVisitor(CodeVisitor):
 
     @property
     def max_line(self):
+        '''The maximum line number among the analyzed lines.'''
         return self._max_line
 
     @max_line.setter
     def max_line(self, value):
+        '''The maximum line number among the analyzed lines.'''
         if value > self._max_line:
             self._max_line = value
 
@@ -206,9 +209,15 @@ class ComplexityVisitor(CodeVisitor):
         super(ComplexityVisitor, self).generic_visit(node)
 
     def visit_Assert(self, node):
+        '''When visiting `assert` statements, the complexity is increased only
+        if the `no_assert` attribute is `False`.
+        '''
         self.complexity += not self.no_assert
 
     def visit_FunctionDef(self, node):
+        '''When visiting functions a new visitor is created to recursively
+        analyze the function's body.
+        '''
         # The complexity of a function is computed taking into account
         # the following factors: number of decorators, the complexity
         # the function's body and the number of clojures (which count
@@ -229,6 +238,9 @@ class ComplexityVisitor(CodeVisitor):
         self.functions.append(func)
 
     def visit_ClassDef(self, node):
+        '''When visiting classes a new visitor is created to recursively
+        analyze the class' body and methods.
+        '''
         # The complexity of a class is computed taking into account
         # the following factors: number of decorators and the complexity
         # of the class' body (which is the sum of all the complexities).
@@ -263,6 +275,7 @@ class HalsteadVisitor(CodeVisitor):
              ast.Attribute: 'attr'}
 
     def __init__(self, context=None):
+        '''*context* is a string used to keep track the analysis' context.'''
         self.operators_seen = set()
         self.operands_seen = set()
         self.operators = 0
@@ -280,7 +293,7 @@ class HalsteadVisitor(CodeVisitor):
         return len(self.operands_seen)
 
     def dispatch(meth):
-        '''Does all the hard work needed for every node.
+        '''This decorator does all the hard work needed for every node.
 
         The decorated method must return a tuple of 4 elements:
 
@@ -290,6 +303,7 @@ class HalsteadVisitor(CodeVisitor):
             * the operands seen (a sequence)
         '''
         def aux(self, node):
+            '''Actual function that updates the stats.'''
             results = meth(self, node)
             self.operators += results[0]
             self.operands += results[1]
@@ -331,6 +345,9 @@ class HalsteadVisitor(CodeVisitor):
                 map(self.get_name, node.ops), node.comparators + [node.left])
 
     def visit_FunctionDef(self, node):
+        '''When visiting functions, another visitor is created to recursively
+        analyze the function's body.
+        '''
         for child in node.body:
             visitor = HalsteadVisitor.from_ast(child, context=node.name)
             self.operators += visitor.operators

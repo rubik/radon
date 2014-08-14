@@ -1,3 +1,7 @@
+'''Module holding functions related to miscellaneous metrics, such as Halstead
+metrics or the Maintainability Index.
+'''
+
 import ast
 import math
 import collections
