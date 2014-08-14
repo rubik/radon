@@ -150,7 +150,7 @@ class ComplexityVisitor(CodeVisitor):
 
     @property
     def total_complexity(self):
-        '''The total complexity. Computed adding up the class complexity, the
+        '''The total complexity. Computed adding up the visitor complexity, the
         functions complexity, and the classes complexity.
         '''
         return (self.complexity + self.functions_complexity +
@@ -161,7 +161,8 @@ class ComplexityVisitor(CodeVisitor):
         '''All the blocks visited. These include: all the functions, the
         classes and their methods. The returned list is not sorted.
         '''
-        blocks = self.functions
+        blocks = []
+        blocks.extend(self.functions)
         for cls in self.classes:
             blocks.append(cls)
             blocks.extend(cls.methods)

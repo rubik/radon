@@ -197,7 +197,7 @@ SIMPLE_BLOCKS = [
      class TestYo(object):
         def test_yo(self):
             assert self.n > 4
-     ''', 1, {'no_assert': True}),  #XXX: Check this one out
+     ''', 1, {'no_assert': True}),
 ]
 
 
@@ -512,6 +512,11 @@ class TestClojures(ParametrizedTestCase):
 
     def testTotalComplexity(self):
         self.assertEqual(self.func.complexity, self.expected_total_cc)
+
+    def testMutableBlocks(self):
+        # There was a bug for which `blocks` increased while it got accessed
+        v = self.visitor
+        self.assertTrue(v.blocks == v.blocks == v.blocks)
 
 
 CONTAINERS_CASES = [
