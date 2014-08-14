@@ -1,3 +1,6 @@
+'''This module contains various utility functions used in the CLI interface.
+'''
+
 import os
 import re
 import sys
@@ -12,10 +15,8 @@ from radon.cli.colors import (LETTERS_COLORS, RANKS_COLORS, TEMPLATE, BRIGHT,
 
 @contextmanager
 def _open(path):
-    '''Mock of the built-in `open()` function. Can read stdin.
-
-    :param path <str>: file path to open ('-' for stdin)
-    :returns file: open file object
+    '''Mock of the built-in `open()` function. If `path` is `-` then
+    `sys.stdin` is returned.
     '''
     if path == '-':
         yield sys.stdin
@@ -26,10 +27,11 @@ def _open(path):
 
 def iter_filenames(paths, exclude=None, ignore=None):
     '''A generator that yields all sub-paths of the ones specified in
-    `paths`. Optional exclude filters can be passed as a comma-separated
-    string of regexes, while ignore filters are a comma-separated list of
-    directory names to ignore. If paths contains only a single hyphen,
-    stdin is implied, return as is.
+    `paths`. Optional `exclude` filters can be passed as a comma-separated
+    string of regexes, while `ignore` filters are a comma-separated list of
+    directory names to ignore. Ignore patterns are can be plain names or glob
+    patterns. If paths contains only a single hyphen, stdin is implied,
+    returned as is.
     '''
     if set(paths) == set(('-',)):
         yield '-'
@@ -43,6 +45,9 @@ def iter_filenames(paths, exclude=None, ignore=None):
 
 
 def explore_directories(start, exclude, ignore):
+    '''Explore files and directories under `start`. `explore` and `ignore`
+    arguments are the same as in :func:`iter_filenames`.
+    '''
     exclude = (exclude or '').split(',')
     ignore = '.*,{0}'.format(ignore).split(',') if ignore else ['.*']
     if not exclude[0]:
@@ -56,12 +61,15 @@ def explore_directories(start, exclude, ignore):
 
 
 def filter_ignores(dirs, ignore):
+    '''Filter out directories matching any of the ignore patters.'''
     for dir in dirs:
         if all(not fnmatch.fnmatch(dir, i) for i in ignore):
             yield dir
 
 
 def filter_out(root, paths, exclude):
+    '''Filter out filenames (as absolute paths) matching any of the exclude
+    patterns.'''
     for path in paths:
         fullpath = os.path.normpath(os.path.join(root, path))
         if all(re.match(e, fullpath) is None for e in exclude):
@@ -69,8 +77,8 @@ def filter_out(root, paths, exclude):
 
 
 def cc_to_dict(obj):
-    '''Convert a CC result into a dictionary. This is meant for JSON
-    dumping.'''
+    '''Convert an object holding CC results into a dictionary. This is meant
+    for JSON dumping.'''
 
     def get_type(obj):
         if isinstance(obj, Function):
@@ -93,8 +101,8 @@ def cc_to_dict(obj):
 
 
 def raw_to_dict(obj):
-    '''Convert a result or raw analysis into a dictionary. This is meant for
-    JSON dumping.'''
+    '''Convert an object holding raw analysis results into a dictionary. This
+    is meant for JSON dumping.'''
     result = {}
     for a in obj._fields:
         v = getattr(obj, a, None)
@@ -104,7 +112,7 @@ def raw_to_dict(obj):
 
 
 def dict_to_xml(results):
-    '''Convert a dictionary holding analysis result into a string containing
+    '''Convert a dictionary holding CC analysis result into a string containing
     xml.'''
     ccm = et.Element('ccm')
     for filename, blocks in results.items():
@@ -125,11 +133,22 @@ def dict_to_xml(results):
 
 
 def cc_to_terminal(results, show_complexity, min, max, total_average):
-    '''Print Cyclomatic Complexity results.
+    '''Transfom Cyclomatic Complexity results into a 3-elements tuple:
 
-    :param path: the path of the module that has been analyzed
-    :param show_complexity: if True, show the complexity score in addition to
-        the complexity rank.
+        ``(res, total_cc, counted)``
+
+    `res` is a list holding strings that are specifically formatted to be
+    printed to a terminal.
+    `total_cc` is a number representing the total analyzed cyclomatic
+    complexity.
+    `counted` holds the number of the analyzed blocks.
+
+    If *show_complexity* is `True`, then the complexity of a block will be
+    shown in the terminal line alongside its rank.
+    *min* and *max* are used to control which blocks are shown in the resulting
+    list. A block is formatted only if its rank is `min <= rank <= max`.
+    If *total_average* is `True`, the `total_cc` and `counted` count every
+    block, regardless of the fact that they are formatted in `res` or not.
     '''
 
     res = []
@@ -148,9 +167,9 @@ def cc_to_terminal(results, show_complexity, min, max, total_average):
 
 
 def _format_line(block, ranked, show_complexity=False):
-    '''Format a single line. *ranked* is the rank given by the
-    `~radon.complexity.rank` function. If *show_complexity* is True, then
-    the complexity score is added.
+    '''Format a single block as a line.
+    *ranked* is the rank given by the `~radon.complexity.rank` function. If
+    *show_complexity* is True, then the complexity score is added alongside.
     '''
 
     letter_colored = LETTERS_COLORS[block.letter] + block.letter
