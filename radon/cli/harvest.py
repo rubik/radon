@@ -19,7 +19,7 @@ class Harvester(object):
         return iter_filenames(self.paths, self.config.exclude,
                               self.config.ignore)
 
-    def gobble(self):
+    def gobble(self, fobj):
         raise NotImplementedError
 
     def run(self):
@@ -101,6 +101,9 @@ class RawHarvester(Harvester):
     def gobble(self, fobj):
         return raw_to_dict(analyze(fobj.read()))
 
+    def as_xml(self):
+        raise NotImplementedError('Cannot export results as XML')
+
     def to_terminal(self):
         sum_metrics = collections.defaultdict(int)
         for path, mod in self.results:
@@ -132,6 +135,9 @@ class MIHarvester(Harvester):
 
     def gobble(self, fobj):
         return {'mi': mi_visit(fobj.read(), self.config.multi)}
+
+    def as_xml(self):
+        raise NotImplementedError('Cannot export results as XML')
 
     def to_terminal(self):
         for name, mi in self.results:

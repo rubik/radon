@@ -60,7 +60,7 @@ class TestBaseHarvester(unittest.TestCase):
 
     def test_gobble_not_implemented(self):
         h = harvest.Harvester([], BASE_CONFIG)
-        self.assertRaises(NotImplementedError, h.gobble)
+        self.assertRaises(NotImplementedError, h.gobble, None)
 
     def test_as_xml_not_implemented(self):
         h = harvest.Harvester([], BASE_CONFIG)
@@ -178,6 +178,10 @@ class TestRawHarvester(unittest.TestCase):
         analyze_mock.assert_called_once_with(mock.sentinel.one)
         r2d_mock.assert_called_once_with(mock.sentinel.two)
 
+    def test_as_xml(self):
+        h = harvest.RawHarvester([], RAW_CONFIG)
+        self.assertRaises(NotImplementedError, h.as_xml)
+
     def test_to_terminal(self):
         h = harvest.RawHarvester([], RAW_CONFIG)
         h._results = [
@@ -236,6 +240,10 @@ class TestMIHarvester(unittest.TestCase):
         self.assertEqual(fobj.read.call_count, 1)
         mv_mock.assert_called_once_with(mock.sentinel.one, MI_CONFIG.multi)
         self.assertEqual(result, {'mi': mock.sentinel.two})
+
+    def test_as_xml(self):
+        h = harvest.MIHarvester([], MI_CONFIG)
+        self.assertRaises(NotImplementedError, h.as_xml)
 
     @mock.patch('radon.cli.harvest.RESET')
     @mock.patch('radon.cli.harvest.MI_RANKS')
