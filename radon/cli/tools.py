@@ -69,8 +69,9 @@ def filter_out(root, paths, exclude):
 
 
 def cc_to_dict(obj):
-    '''Convert a list of results into a dictionary. This is meant for JSON
+    '''Convert a CC result into a dictionary. This is meant for JSON
     dumping.'''
+
     def get_type(obj):
         if isinstance(obj, Function):
             return 'method' if obj.is_method else 'function'
@@ -92,13 +93,13 @@ def cc_to_dict(obj):
 
 
 def raw_to_dict(obj):
-    '''Convert a list of results into a dictionary. This is meant for JSON
-    dumping.'''
+    '''Convert a result or raw analysis into a dictionary. This is meant for
+    JSON dumping.'''
     result = {}
     for a in obj._fields:
         v = getattr(obj, a, None)
         if v is not None:
-            result[a] = int(v)
+            result[a] = v
     return result
 
 
@@ -123,36 +124,38 @@ def dict_to_xml(results):
     return et.tostring(ccm).decode('utf-8')
 
 
-def cc_to_terminal(path, results, show_complexity, min, max, total_average):
+def cc_to_terminal(results, show_complexity, min, max, total_average):
     '''Print Cyclomatic Complexity results.
 
     :param path: the path of the module that has been analyzed
     :param show_complexity: if True, show the complexity score in addition to
         the complexity rank.
     '''
+
     res = []
     counted = 0
-    average_cc = .0
+    total_cc = .0
     for line in results:
         ranked = cc_rank(line.complexity)
         if min <= ranked <= max:
-            average_cc += line.complexity
+            total_cc += line.complexity
             counted += 1
             res.append(_format_line(line, ranked, show_complexity))
         elif total_average:
-            average_cc += line.complexity
+            total_cc += line.complexity
             counted += 1
-    return res, average_cc, counted
+    return res, total_cc, counted
 
 
-def _format_line(line, ranked, show_complexity=False):
+def _format_line(block, ranked, show_complexity=False):
     '''Format a single line. *ranked* is the rank given by the
     `~radon.complexity.rank` function. If *show_complexity* is True, then
     the complexity score is added.
     '''
-    letter_colored = LETTERS_COLORS[line.letter] + line.letter
+
+    letter_colored = LETTERS_COLORS[block.letter] + block.letter
     rank_colored = RANKS_COLORS[ranked] + ranked
-    compl = '' if not show_complexity else ' ({0}) '.format(line.complexity)
-    return TEMPLATE.format(BRIGHT, letter_colored, line.lineno,
-                           line.col_offset, line.fullname, rank_colored,
+    compl = '' if not show_complexity else ' ({0})'.format(block.complexity)
+    return TEMPLATE.format(BRIGHT, letter_colored, block.lineno,
+                           block.col_offset, block.fullname, rank_colored,
                            compl, reset=RESET)

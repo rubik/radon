@@ -1,6 +1,6 @@
 *.pyc
 *~
-*.swp
+*.sw[op]
 *.egg-info
 meta.yaml
 __pycache__

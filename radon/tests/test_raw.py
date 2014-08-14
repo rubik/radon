@@ -219,8 +219,3 @@ class TestAnalyze(ParametrizedTestCase):
             self.assertEqual(result, self.expected)
             # blank + sloc = loc
             self.assertTrue(result[0] == result[2] + result[5])
-
-
-if __name__ == '__main__':
-    import unittest
-    unittest.main()

@@ -187,6 +187,17 @@ SIMPLE_BLOCKS = [
     ('''
      assert i < 0
      ''', 1, {'no_assert': True}),
+
+    ('''
+     def f():
+        assert 10 > 20
+     ''', 1, {'no_assert': True}),
+
+    ('''
+     class TestYo(object):
+        def test_yo(self):
+            assert self.n > 4
+     ''', 1, {'no_assert': True}),  #XXX: Check this one out
 ]
 
 
@@ -533,7 +544,3 @@ class TestContainers(ParametrizedTestCase):
         self.assertEqual(obj.letter, self.expected_letter)
         self.assertEqual(obj.fullname, self.expected_name)
         self.assertEqual(str(obj), self.expected_str)
-
-
-if __name__ == '__main__':
-    unittest.main()

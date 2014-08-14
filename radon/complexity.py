@@ -81,5 +81,4 @@ def cc_visit_ast(ast_node, **kwargs):
     '''Visit the AST node with :class:`~radon.visitors.ComplexityVisitor` and
     pass the resulting blocks to :func:`~radon.complexity.sorted_results`.
     '''
-    return sorted_results(ComplexityVisitor.from_ast(ast_node, **kwargs)
-                          .blocks)
+    return ComplexityVisitor.from_ast(ast_node, **kwargs).blocks

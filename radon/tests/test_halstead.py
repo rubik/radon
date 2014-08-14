@@ -75,8 +75,3 @@ class TestHalsteadVisitor(ParametrizedTestCase):
         result = visitor.operators, visitor.operands, \
             visitor.distinct_operators, visitor.distinct_operands
         self.assertEqual(result, self.expected_result)
-
-
-if __name__ == '__main__':
-    import unittest
-    unittest.main()

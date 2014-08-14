@@ -69,12 +69,11 @@ class CCHarvester(Harvester):
         for name, blocks in self.results:
             if 'error' in blocks:
                 yield name, (blocks['error'],), {'error': True}
-            res, cc, blocks = cc_to_terminal(name, blocks,
-                                             self.config.show_complexity,
-                                             self.config.min, self.config.max,
-                                             self.config.total_average)
+            res, cc, n = cc_to_terminal(blocks, self.config.show_complexity,
+                                        self.config.min, self.config.max,
+                                        self.config.total_average)
             average_cc += cc
-            analyzed += blocks
+            analyzed += n
             if res:
                 yield name, (), {}
                 yield res, (), {'indent': 1}

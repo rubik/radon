@@ -140,8 +140,3 @@ class TestMIVisit(ParametrizedTestCase):
 
     def testMIParameters(self):
         self.assertEqual(mi_visit(self.code, self.count_multi), self.expected)
-
-
-if __name__ == '__main__':
-    import unittest
-    unittest.main()
