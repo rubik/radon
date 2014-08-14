@@ -23,6 +23,17 @@ CC_CONFIG = Config(
     **BASE_CONFIG.config_values
 )
 
+RAW_CONFIG = Config(
+    summary=True,
+)
+
+MI_CONFIG = Config(
+    multi=True,
+    min='B',
+    max='C',
+    show=True,
+)
+
 
 def fake_gobble(fobj):
     return 42
@@ -141,4 +152,104 @@ class TestCCHarvester(unittest.TestCase):
             ('\n{0} blocks (classes, functions, methods) analyzed.', (3,), {}),
             ('Average complexity: {0}{1} ({2}){3}',
              ('<|A|>', 'A', 3, '__R__'), {}),
+        ])
+
+
+class TestRawHarvester(unittest.TestCase):
+
+    @mock.patch('radon.cli.harvest.raw_to_dict')
+    @mock.patch('radon.cli.harvest.analyze')
+    def test_gobble(self, analyze_mock, r2d_mock):
+        sentinel, sentinel2 = object(), object()
+        fobj = mock.MagicMock()
+        fobj.read.return_value = sentinel
+        analyze_mock.return_value = sentinel2
+
+        h = harvest.RawHarvester([], RAW_CONFIG)
+        h.gobble(fobj)
+
+        self.assertEqual(fobj.read.call_count, 1)
+        analyze_mock.assert_called_once_with(sentinel)
+        r2d_mock.assert_called_once_with(sentinel2)
+
+    def test_to_terminal(self):
+        h = harvest.RawHarvester([], RAW_CONFIG)
+        h._results = [
+            ('a', {'error': 'mystr'}),
+            ('b', {'loc': 24, 'lloc': 27, 'sloc': 15, 'comments': 3,
+                   'multi': 3, 'blank': 9}),
+            ('c', {'loc': 24, 'lloc': 27, 'sloc': 15, 'comments': 3,
+                   'multi': 3, 'blank': 9}),
+        ]
+
+        self.assertEqual(list(h.to_terminal()), [
+            ('a', ('mystr',), {'error': True}),
+            ('b', (), {}),
+            ('{0}: {1}', ('LOC', 24), {'indent': 1}),
+            ('{0}: {1}', ('LLOC', 27), {'indent': 1}),
+            ('{0}: {1}', ('SLOC', 15), {'indent': 1}),
+            ('{0}: {1}', ('Comments', 3), {'indent': 1}),
+            ('{0}: {1}', ('Multi', 3), {'indent': 1}),
+            ('{0}: {1}', ('Blank', 9), {'indent': 1}),
+            ('- Comment Stats', (), {'indent': 1}),
+            ('(C % L): {0:.0%}', (0.125,), {'indent': 2}),
+            ('(C % S): {0:.0%}', (0.2,), {'indent': 2}),
+            ('(C + M % L): {0:.0%}', (0.25,), {'indent': 2}),
+            ('c', (), {}),
+            ('{0}: {1}', ('LOC', 24), {'indent': 1}),
+            ('{0}: {1}', ('LLOC', 27), {'indent': 1}),
+            ('{0}: {1}', ('SLOC', 15), {'indent': 1}),
+            ('{0}: {1}', ('Comments', 3), {'indent': 1}),
+            ('{0}: {1}', ('Multi', 3), {'indent': 1}),
+            ('{0}: {1}', ('Blank', 9), {'indent': 1}),
+            ('- Comment Stats', (), {'indent': 1}),
+            ('(C % L): {0:.0%}', (0.125,), {'indent': 2}),
+            ('(C % S): {0:.0%}', (0.2,), {'indent': 2}),
+            ('(C + M % L): {0:.0%}', (0.25,), {'indent': 2}),
+            ('** Total **', (), {}),
+            ('{0}: {1}', ('LOC', 48), {'indent': 1}),
+            ('{0}: {1}', ('LLOC', 54), {'indent': 1}),
+            ('{0}: {1}', ('SLOC', 30), {'indent': 1}),
+            ('{0}: {1}', ('Comments', 6), {'indent': 1}),
+            ('{0}: {1}', ('Multi', 6), {'indent': 1}),
+            ('{0}: {1}', ('Blank', 18), {'indent': 1}),
+        ])
+
+
+class TestMIHarvester(unittest.TestCase):
+
+    @mock.patch('radon.cli.harvest.mi_visit')
+    def test_gobble(self, mv_mock):
+        sentinel, sentinel2 = object(), object()
+        fobj = mock.MagicMock()
+        fobj.read.return_value = sentinel
+        mv_mock.return_value = sentinel2
+
+        h = harvest.MIHarvester([], MI_CONFIG)
+        result = h.gobble(fobj)
+
+        self.assertEqual(fobj.read.call_count, 1)
+        mv_mock.assert_called_once_with(sentinel, MI_CONFIG.multi)
+        self.assertEqual(result, {'mi': sentinel2})
+
+    @mock.patch('radon.cli.harvest.RESET')
+    @mock.patch('radon.cli.harvest.MI_RANKS')
+    def test_to_terminal(self, ranks_mock, reset_mock):
+        ranks_mock.__getitem__.side_effect = lambda j: '<|{0}|>'.format(j)
+        reset_mock.__eq__.side_effect = lambda o: o == '__R__'
+
+        h = harvest.MIHarvester([], MI_CONFIG)
+        h._results = [
+            ('a', {'error': 'mystr'}),
+            ('b', {'mi': 25}),
+            ('c', {'mi': 15}),
+            ('d', {'mi': 0}),
+        ]
+
+        self.assertEqual(list(h.to_terminal()), [
+            ('a', ('mystr',), {'error': True}),
+            ('{0} - {1}{2}{3}{4}', ('c', '<|B|>', 'B', ' (15.00)', '__R__'),
+             {}),
+            ('{0} - {1}{2}{3}{4}', ('d', '<|C|>', 'C', ' (0.00)', '__R__'),
+             {}),
         ])

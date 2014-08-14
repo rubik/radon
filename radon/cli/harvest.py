@@ -105,9 +105,8 @@ class RawHarvester(Harvester):
             for header in self.headers:
                 value = mod[header.lower()]
                 yield '{0}: {1}', (header, value), {'indent': 1}
-                sum_metrics[header] = sum_metrics[header] + value
-            if not mod['loc']:
-                continue
+                sum_metrics[header] += value
+
             loc, comments = mod['loc'], mod['comments']
             yield '- Comment Stats', (), {'indent': 1}
             yield ('(C % L): {0:.0%}', (comments / (float(loc) or 1),),
@@ -119,7 +118,7 @@ class RawHarvester(Harvester):
 
         if self.config.summary:
             yield '** Total **', (), {}
-            for header in sum_metrics:
+            for header in self.headers:
                 yield '{0}: {1}', (header, sum_metrics[header]), {'indent': 1}
 
 
