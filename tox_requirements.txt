@@ -1,3 +1,5 @@
 https://github.com/rubik/ParamUnittest/tarball/fix-all
+mando==0.3.2
+colorama==0.3.1
 nose
 -r requirements.txt
