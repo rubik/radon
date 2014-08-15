@@ -1,5 +1,4 @@
-'''This module contains various utility functions used in the CLI interface.
-'''
+'''This module contains various utility functions used in the CLI interface.'''
 
 import os
 import sys
@@ -71,6 +70,7 @@ def cc_to_dict(obj):
     for JSON dumping.'''
 
     def get_type(obj):
+        '''The object can be of type *method*, *function* or *class*.'''
         if isinstance(obj, Function):
             return 'method' if obj.is_method else 'function'
         return 'class'

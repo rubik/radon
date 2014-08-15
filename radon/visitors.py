@@ -30,8 +30,7 @@ def code2ast(source):
 
 
 class Function(BaseFunc):
-    '''Base object represeting a function.
-    '''
+    '''Object represeting a function block.'''
 
     @property
     def letter(self):
@@ -52,6 +51,7 @@ class Function(BaseFunc):
         return '{0}.{1}'.format(self.classname, self.name)
 
     def __str__(self):
+        '''String representation of a function block.'''
         return '{0} {1}:{2}->{3} {4} - {5}'.format(self.letter, self.lineno,
                                                    self.col_offset,
                                                    self.endline,
@@ -60,6 +60,7 @@ class Function(BaseFunc):
 
 
 class Class(BaseClass):
+    '''Object representing a class block.'''
 
     letter = 'C'
 
@@ -80,6 +81,7 @@ class Class(BaseClass):
         return int(self.real_complexity / float(len(self.methods))) + 1
 
     def __str__(self):
+        '''String representation of a class block.'''
         return '{0} {1}:{2}->{3} {4} - {5}'.format(self.letter, self.lineno,
                                                    self.col_offset,
                                                    self.endline, self.name,
