@@ -2,7 +2,6 @@
 '''
 
 import os
-import re
 import sys
 import fnmatch
 import xml.etree.cElementTree as et
@@ -48,32 +47,23 @@ def explore_directories(start, exclude, ignore):
     '''Explore files and directories under `start`. `explore` and `ignore`
     arguments are the same as in :func:`iter_filenames`.
     '''
-    exclude = (exclude or '').split(',')
+    e = '*[!p][!y]'
+    exclude = '{0},{1}'.format(e, exclude).split(',') if exclude else [e]
     ignore = '.*,{0}'.format(ignore).split(',') if ignore else ['.*']
-    if not exclude[0]:
-        exclude = []
     for root, dirs, files in os.walk(start):
-        dirs[:] = list(filter_ignores(dirs, ignore))
-        for filename in filter_out(root, files, exclude):
+        dirs[:] = list(filter_out(dirs, ignore))
+        fullpaths = (os.path.normpath(os.path.join(root, p)) for p in files)
+        for filename in filter_out(fullpaths, exclude):
             if (not os.path.basename(filename).startswith('.') and
                     filename.endswith('.py')):
                 yield filename
 
 
-def filter_ignores(dirs, ignore):
-    '''Filter out directories matching any of the ignore patters.'''
-    for dir in dirs:
-        if all(not fnmatch.fnmatch(dir, i) for i in ignore):
-            yield dir
-
-
-def filter_out(root, paths, exclude):
-    '''Filter out filenames (as absolute paths) matching any of the exclude
-    patterns.'''
-    for path in paths:
-        fullpath = os.path.normpath(os.path.join(root, path))
-        if all(re.match(e, fullpath) is None for e in exclude):
-            yield fullpath
+def filter_out(strings, patterns):
+    '''Filter out any string that matches any of the specified patterns.'''
+    for s in strings:
+        if all(not fnmatch.fnmatch(s, p) for p in patterns):
+            yield s
 
 
 def cc_to_dict(obj):

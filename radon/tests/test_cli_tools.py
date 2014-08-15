@@ -21,7 +21,7 @@ def fake_walk(start):
     dirs = ['tests', 'sub', '.hid']
     contents = {'tests': ['test_amod.py', 'run.py', '.hid.py'],
                 'sub': ['amod.py', 'bmod.py']}
-    yield '.', dirs, ['tox.ini', 'amod.py', 'test_all.py']
+    yield '.', dirs, ['tox.ini', 'amod.py', 'test_all.py', 'fake.yp', 'noext']
     for d in dirs:
         yield './{0}'.format(d), [], contents[d]
 
@@ -61,19 +61,29 @@ class TestIterFilenames(unittest.TestCase):
                           'sub/bmod.py'])
 
         self.assertEqual(self.iter_files(['file.py', 'random/path'],
-                                         'test_.*'),
+                                         'test_*'),
                          ['file.py', 'amod.py', 'tests/test_amod.py',
                           'tests/run.py', 'sub/amod.py', 'sub/bmod.py'])
 
         self.assertEqual(self.iter_files(['file.py', 'random/path'],
-                                         '.*test_.*'),
+                                         '*test_*'),
                          ['file.py', 'amod.py', 'tests/run.py', 'sub/amod.py',
                           'sub/bmod.py'])
+
+        self.assertEqual(self.iter_files(['file.py', 'random/path'],
+                                         '*/test_*,amod*'),
+                         ['file.py', 'test_all.py', 'tests/run.py',
+                          'sub/amod.py', 'sub/bmod.py'])
 
         self.assertEqual(self.iter_files(['file.py', 'random/path'], None,
                                          'tests'),
                          ['file.py', 'amod.py', 'test_all.py', 'sub/amod.py',
                           'sub/bmod.py'])
+
+        self.assertEqual(self.iter_files(['file.py', 'random/path'], None,
+                                         'tests,sub'),
+                         ['file.py', 'amod.py', 'test_all.py'])
+
 
 CC_RESULTS_CASES = [
     ([
