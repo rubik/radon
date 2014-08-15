@@ -43,6 +43,10 @@ class TestIterFilenames(unittest.TestCase):
     def setUp(self):
         self.iter_files = lambda *a, **kw: list(tools.iter_filenames(*a, **kw))
 
+    def assertPEqual(self, a, b):
+        paths = [list(map(os.path.normpath, p)) for p in (a, b)]
+        self.assertEqual(*paths)
+
     def test_stdin(self):
         self.assertEqual(self.iter_files(['-']), ['-'])
 
@@ -55,34 +59,34 @@ class TestIterFilenames(unittest.TestCase):
         os_path_mod.isfile.side_effect = fake_isfile
         os_mod.walk = fake_walk
 
-        self.assertEqual(self.iter_files(['file.py', 'random/path']),
-                         ['file.py', 'amod.py', 'test_all.py',
-                          'tests/test_amod.py', 'tests/run.py', 'sub/amod.py',
-                          'sub/bmod.py'])
+        self.assertPEqual(self.iter_files(['file.py', 'random/path']),
+                          ['file.py', 'amod.py', 'test_all.py',
+                           'tests/test_amod.py', 'tests/run.py', 'sub/amod.py',
+                           'sub/bmod.py'])
 
-        self.assertEqual(self.iter_files(['file.py', 'random/path'],
-                                         'test_*'),
-                         ['file.py', 'amod.py', 'tests/test_amod.py',
-                          'tests/run.py', 'sub/amod.py', 'sub/bmod.py'])
+        self.assertPEqual(self.iter_files(['file.py', 'random/path'],
+                                          'test_*'),
+                          ['file.py', 'amod.py', 'tests/test_amod.py',
+                           'tests/run.py', 'sub/amod.py', 'sub/bmod.py'])
 
-        self.assertEqual(self.iter_files(['file.py', 'random/path'],
-                                         '*test_*'),
-                         ['file.py', 'amod.py', 'tests/run.py', 'sub/amod.py',
-                          'sub/bmod.py'])
+        self.assertPEqual(self.iter_files(['file.py', 'random/path'],
+                                          '*test_*'),
+                          ['file.py', 'amod.py', 'tests/run.py', 'sub/amod.py',
+                           'sub/bmod.py'])
 
-        self.assertEqual(self.iter_files(['file.py', 'random/path'],
-                                         '*/test_*,amod*'),
-                         ['file.py', 'test_all.py', 'tests/run.py',
-                          'sub/amod.py', 'sub/bmod.py'])
+        self.assertPEqual(self.iter_files(['file.py', 'random/path'],
+                                          '*/test_*,amod*'),
+                          ['file.py', 'test_all.py', 'tests/run.py',
+                           'sub/amod.py', 'sub/bmod.py'])
 
-        self.assertEqual(self.iter_files(['file.py', 'random/path'], None,
-                                         'tests'),
-                         ['file.py', 'amod.py', 'test_all.py', 'sub/amod.py',
-                          'sub/bmod.py'])
+        self.assertPEqual(self.iter_files(['file.py', 'random/path'], None,
+                                          'tests'),
+                          ['file.py', 'amod.py', 'test_all.py', 'sub/amod.py',
+                           'sub/bmod.py'])
 
-        self.assertEqual(self.iter_files(['file.py', 'random/path'], None,
-                                         'tests,sub'),
-                         ['file.py', 'amod.py', 'test_all.py'])
+        self.assertPEqual(self.iter_files(['file.py', 'random/path'], None,
+                                          'tests,sub'),
+                          ['file.py', 'amod.py', 'test_all.py'])
 
 
 CC_RESULTS_CASES = [
