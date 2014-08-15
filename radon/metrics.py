@@ -103,7 +103,7 @@ def mi_visit(code, multi):
 
 
 def mi_rank(score):
-    '''Rank the score with a letter:
+    r'''Rank the score with a letter:
 
         * A if :math:`\\text{score} > 19`;
         * B if :math:`9 < \\text{score} \le 19`;

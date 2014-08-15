@@ -13,7 +13,7 @@ ALPHA = lambda block: block.name
 
 
 def cc_rank(cc):
-    '''Rank the complexity score from A to F, where A stands for the simplest
+    r'''Rank the complexity score from A to F, where A stands for the simplest
     and best score and F the most complex and worst one:
 
     ============= =====================================================

@@ -1,3 +1,7 @@
+'''This module contains the ComplexityVisitor class which is where all the
+analysis concerning Cyclomatic Complexity is done. There is also the class
+HalsteadVisitor, that counts Halstead metrics.'''
+
 import ast
 import operator
 import collections
