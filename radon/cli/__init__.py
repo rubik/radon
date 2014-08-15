@@ -52,10 +52,11 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
         than one path is allowed.
     :param -n, --min <str>: The minimum complexity to display (default to A).
     :param -x, --max <str>: The maximum complexity to display (default to F).
-    :param -e, --exclude <str>: Comma separated list of patterns to exclude.
-        By default hidden directories (those starting with '.') are excluded.
-    :param -i, --ignore <str>: Comma separated list of patterns to ignore.
-        If they are directory names, radon won't even descend into them.
+    :param -e, --exclude <str>: Exclude files only when their path matches one
+        of these glob patterns. Usually needs quoting at the command line.
+    :param -i, --ignore <str>: Ignore directories when their name matches one
+        of these glob patterns: radon won't even descend into them. By default,
+        hidden directories (starting with '.') are ignored.
     :param -s, --show-complexity: Whether or not to show the actual complexity
         score together with the A-F rank. Default to False.
     :param -a, --average: If True, at the end of the analysis display the
@@ -92,10 +93,11 @@ def raw(paths, exclude=None, ignore=None, summary=False, json=False):
 
     :param paths: The paths where to find modules or packages to analyze. More
         than one path is allowed.
-    :param -e, --exclude <str>: Comma separated list of patterns to exclude.
-        By default hidden directories (those starting with '.') are excluded.
-    :param -i, --ignore <str>: Comma separated list of patterns to ignore.
-        Radon won't even descend into those directories.
+    :param -e, --exclude <str>: Exclude files only when their path matches one
+        of these glob patterns. Usually needs quoting at the command line.
+    :param -i, --ignore <str>: Ignore directories when their name matches one
+        of these glob patterns: radon won't even descend into them. By default,
+        hidden directories (starting with '.') are ignored.
     :param -s, --summary:  If given, at the end of the analysis display the
         summary of the gathered metrics. Default to False.
     :param -j, --json: Format results in JSON.
@@ -123,9 +125,11 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
         than one path is allowed.
     :param -n, --min <str>: The minimum MI to display (default to A).
     :param -x, --max <str>: The maximum MI to display (default to C).
-    :param -e, --exclude <str>: Comma separated list of patterns to exclude.
-    :param -i, --ignore <str>: Comma separated list of patterns to ignore.
-        Radon won't even descend into those directories.
+    :param -e, --exclude <str>: Exclude files only when their path matches one
+        of these glob patterns. Usually needs quoting at the command line.
+    :param -i, --ignore <str>: Ignore directories when their name matches one
+        of these glob patterns: radon won't even descend into them. By default,
+        hidden directories (starting with '.') are ignored.
     :param -m, --multi: If given, multiline strings are not counted as
         comments.
     :param -s, --show: If given, the actual MI value is shown in results.
