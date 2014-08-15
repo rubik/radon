@@ -1,7 +1,7 @@
 '''This module contains the main() function, which is the entry point for the
 command line interface.'''
 
-__version__ = '0.5.3'
+__version__ = '1.0'
 
 
 def main():

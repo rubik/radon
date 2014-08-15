@@ -22,7 +22,7 @@ setup(name='radon',
       entry_points={'console_scripts': ['radon = radon:main']},
       keywords='static analysis code complexity metrics',
       classifiers=[
-          'Development Status :: 4 - Beta',
+          'Development Status :: 5 - Production/Stable',
           'Environment :: Console',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: MIT License',
