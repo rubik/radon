@@ -60,8 +60,8 @@ def h_visit_ast(ast_node):
 def mi_compute(halstead_volume, complexity, sloc, comments):
     '''Compute the Maintainability Index (MI) given the Halstead Volume, the
     Cyclomatic Complexity, the SLOC number and the number of comment lines.
-    Usually it is not used directly but instead
-    :func:`~radon.metrics.mi_visit` is preferred.
+    Usually it is not used directly but instead :func:`~radon.metrics.mi_visit`
+    is preferred.
     '''
     if any(metric <= 0 for metric in (halstead_volume, sloc)):
         return 100.
@@ -105,8 +105,8 @@ def mi_visit(code, multi):
 def mi_rank(score):
     r'''Rank the score with a letter:
 
-        * A if :math:`\\text{score} > 19`;
-        * B if :math:`9 < \\text{score} \le 19`;
-        * C if :math:`\\text{score} \le 9`.
+        * A if :math:`\text{score} > 19`;
+        * B if :math:`9 < \text{score} \le 19`;
+        * C if :math:`\text{score} \le 9`.
     '''
     return chr(65 + (9 - score >= 0) + (19 - score >= 0))

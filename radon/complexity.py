@@ -31,8 +31,8 @@ def cc_rank(cc):
 
     .. math::
 
-        \\text{rank} = \left \lceil \dfrac{\\text{score}}{10} \\right \\rceil
-        - H(5 - \\text{score})
+        \text{rank} = \left \lceil \dfrac{\text{score}}{10} \right \rceil
+        - H(5 - \text{score})
 
     where ``H(s)`` stands for the Heaviside Step Function.
     The rank is then associated to a letter (0 = A, 5 = F).
@@ -74,15 +74,14 @@ def sorted_results(blocks, order=SCORE):
 
 
 def cc_visit(code, **kwargs):
-    '''Visit the given code with :class:`~radon.visitors.ComplexityVisitor` and
-    then pass the result to the :func:`~radon.complexity.sorted_results`
-    function.
+    '''Visit the given code with :class:`~radon.visitors.ComplexityVisitor`.
+    All the keyword arguments are directly passed to the visitor.
     '''
     return cc_visit_ast(code2ast(code), **kwargs)
 
 
 def cc_visit_ast(ast_node, **kwargs):
-    '''Visit the AST node with :class:`~radon.visitors.ComplexityVisitor` and
-    pass the resulting blocks to :func:`~radon.complexity.sorted_results`.
+    '''Visit the AST node with :class:`~radon.visitors.ComplexityVisitor`. All
+    the keyword arguments are directly passed to the visitor.
     '''
     return ComplexityVisitor.from_ast(ast_node, **kwargs).blocks

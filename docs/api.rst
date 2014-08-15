@@ -16,7 +16,7 @@ Cyclomatic Complexity
 
 .. autofunction:: cc_rank
 
-.. autofunction:: sorted_results
+.. autofunction:: sorted_results(blocks, order=SCORE)
 
 Raw metrics
 -----------
@@ -54,3 +54,21 @@ Visitors
 .. autoclass:: ComplexityVisitor
 
 .. autoclass:: HalsteadVisitor
+
+
+Harvesters
+----------
+
+.. py:module:: radon.cli.harvest
+   :synopsis: Direct interface to Radon's CLI capabilities
+
+.. autoclass:: Harvester
+   :members:
+
+   .. automethod:: __init__
+
+.. autoclass:: CCHarvester
+
+.. autoclass:: RawHarvester
+
+.. autoclass:: MIHarvester

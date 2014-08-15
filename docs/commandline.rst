@@ -50,17 +50,17 @@ Options
 
 .. option:: -x, --max
 
-    Set the maximum complexity rank to display.
+   Set the maximum complexity rank to display.
 
 .. option:: -n, --min
 
-    Set the minimum complexity rank to display.
+   Set the minimum complexity rank to display.
 
 .. option:: -a, --average
 
-    If given, at the end of the analysis show the average Cyclomatic
-    Complexity. This option is influenced by :option:`-x, --max` and
-    :option:`-n, --min` options.
+   If given, at the end of the analysis show the average Cyclomatic
+   Complexity. This option is influenced by :option:`-x, --max` and
+   :option:`-n, --min` options.
 
 .. option:: --total-average
 
@@ -69,17 +69,18 @@ Options
 
 .. option:: -s, --show_complexity
 
-    If given, show the complexity score along with its rank.
+   If given, show the complexity score along with its rank.
 
 .. option:: -e, --exclude
 
-    A comma-separated list of patterns which indicate which paths to exclude
-    from the analysis.
+   Exclude files only when their path matches one of these glob patterns.
+   Usually needs quoting at the command line.
 
 .. option:: -i, --ignore
 
-   A comma-separated list of names to ignore. If they are directories, radon
-   won't even descend into them.
+   Ignore directories when their name matches one of these glob patterns: radon
+   won't even descend into them. By default, hidden directories (starting with
+   '.') are ignored.
 
 .. option:: -o, --order
 
@@ -91,8 +92,13 @@ Options
 
 .. option:: -j, --json
 
-    If given, the results will be converted into JSON. Output can be filtered
-    with the :option:`-n, --min` and :option:`-x, --max` options.
+   If given, the results will be converted into JSON. This is useful in case
+   you need to export the results to another application.
+
+.. option:: --xml
+
+   If given, the results will be converted into XML. Note that not all the
+   information is kept. This is specifically targeted to Jenkin's plugin CCM.
 
 .. option:: --no-assert
 
@@ -117,7 +123,12 @@ As in the above example, Radon will walk the directories, excluding paths
 matching ``path/tests/*`` and ``path/docs/*``.
 
 .. warning::
-    Remember to quote the patterns, otherwise your shell might expand them!
+
+   Remember to quote the patterns, otherwise your shell might expand them!
+
+Depending on the single cases, a more suitable alternative might be this::
+
+    $ radon cc -i "docs,tests" path
 
 ::
 
@@ -138,7 +149,7 @@ The :command:`mi` command
 
 .. program:: mi
 
-The command analyzes Python source code files and compute the Maintainability
+This command analyzes Python source code files and compute the Maintainability
 Index score.
 Every positional argument is treated as a starting point from which to walk
 looking for Python files (as in the :command:`cc` command). Paths can be
@@ -158,17 +169,39 @@ follows:
 Options
 +++++++
 
+.. option:: -x, --max
+
+   Set the maximum MI to display.
+
+.. option:: -n, --min
+
+   Set the minimum MI to display.
+
 .. option:: -e, --exclude
 
-    A comma-separated list of patterns which indicate which paths to exclude
-    from the analysis.
+   Exclude files only when their path matches one of these glob patterns.
+   Usually needs quoting at the command line.
+
+.. option:: -i, --ignore
+
+   Ignore directories when their name matches one of these glob patterns: radon
+   won't even descend into them. By default, hidden directories (starting with
+   '.') are ignored.
 
 .. option:: -m, --multi
 
-    Whether or not to count multiline strings as comments (default to yes).
-    Most of the time this is safe since multiline strings are used as
-    functions docstrings, but one should be aware that their use is not
-    limited to that and sometimes it would be wrong to count them as comment lines.
+   If given, Radon will not count multiline strings as comments.
+   Most of the time this is safe since multiline strings are used as functions
+   docstrings, but one should be aware that their use is not limited to that
+   and sometimes it would be wrong to count them as comment lines.
+
+.. option:: -s, --show
+
+   If given, the actual MI value is shown in results, alongside the rank.
+
+.. option:: -j, --json
+
+   Format results in JSON.
 
 
 Examples
@@ -223,17 +256,23 @@ Options
 
 .. option:: -e, --exclude
 
-    A comma-separated list of patterns which indicate which paths to exclude
-    from the analysis.
+   Exclude files only when their path matches one of these glob patterns.
+   Usually needs quoting at the command line.
+
+.. option:: -i, --ignore
+
+   Ignore directories when their name matches one of these glob patterns: radon
+   won't even descend into them. By default, hidden directories (starting with
+   '.') are ignored.
 
 .. option:: -s, --summary
 
-    If given, at the end of the analysis a summary of the gathered
-    metrics will be shown.
+   If given, at the end of the analysis a summary of the gathered
+   metrics will be shown.
 
 .. option:: -j, --json
 
-    If given, the results will be converted into JSON.
+   If given, the results will be converted into JSON.
 
 Examples
 ++++++++

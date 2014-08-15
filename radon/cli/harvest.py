@@ -15,20 +15,20 @@ class Harvester(object):
 
     A Harvester has the following lifecycle:
 
-        1. **Initialization**: `h = Harvester(paths, config)`
+    1. **Initialization**: `h = Harvester(paths, config)`
 
-        2. **Execution**: `r = h.results`. `results` holds an iterable object.
-        The first time `results` is accessed, `h.run()` is called. This method
-        should not be subclassed. Instead, the :meth:`gobble` method should be
-        implemented.
+    2. **Execution**: `r = h.results`. `results` holds an iterable object.
+       The first time `results` is accessed, `h.run()` is called. This method
+       should not be subclassed. Instead, the :meth:`gobble` method should be
+       implemented.
 
-        3. **Reporting**: the methods *as_json* and *as_xml* return a string
-        with the corrisponding format. The method *to_terminal* is a generator
-        that yields the lines to be printed in the terminal.
+    3. **Reporting**: the methods *as_json* and *as_xml* return a string
+       with the corrisponding format. The method *to_terminal* is a generator
+       that yields the lines to be printed in the terminal.
 
-        This class is meant to be subclasses and cannot be used directly, since
-        the methods :meth:`gobble`, :meth:`as_xml` and :meth:`to_terminal` are
-        not implemented.
+    This class is meant to be subclasses and cannot be used directly, since
+    the methods :meth:`gobble`, :meth:`as_xml` and :meth:`to_terminal` are
+    not implemented.
     '''
 
     def __init__(self, paths, config):
