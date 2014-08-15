@@ -1,3 +1,5 @@
+'''This module holds the base Harvester class and all its subclassess.'''
+
 import json
 import collections
 from radon.raw import analyze
