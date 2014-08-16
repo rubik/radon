@@ -24,6 +24,7 @@ test-deps:
 
 publish:
 	python setup.py sdist bdist_wheel register upload
+	python setup.py develop
 
 coveralls: test-deps cov
 	coveralls
