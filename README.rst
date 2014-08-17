@@ -1,5 +1,5 @@
 Radon
-#####
+=====
 
 .. image:: http://img.shields.io/travis/rubik/radon/master.svg?style=flat
     :alt: Travis-CI badge
