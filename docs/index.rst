@@ -30,6 +30,9 @@ Welcome to Radon's documentation!
     :alt: Radon license
     :target: https://pypi.python.org/pypi/radon
 
+
+----
+
 Radon is a Python tool which computes various code metrics. Supported metrics are:
 
     * raw metrics: SLOC, comment lines, blank lines, &c.

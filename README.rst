@@ -25,6 +25,9 @@ Radon
     :alt: Radon license
     :target: https://pypi.python.org/pypi/radon
 
+
+----
+
 Radon is a Python tool that computes various metrics from the source code.
 Radon can compute:
 
