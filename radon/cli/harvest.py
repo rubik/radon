@@ -116,6 +116,9 @@ class CCHarvester(Harvester):
         '''Format the results as a dictionary of dictionaries.'''
         result = {}
         for key, data in self.results:
+            if 'error' in data:
+                result[key] = data
+                continue
             result[key] = list(map(cc_to_dict, data))
         return result
 

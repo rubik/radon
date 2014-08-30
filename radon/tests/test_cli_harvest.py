@@ -116,7 +116,8 @@ class TestCCHarvester(unittest.TestCase):
     def test_to_dicts(self, c2d_mock):
         c2d_mock.side_effect = lambda i: i
         h = harvest.CCHarvester([], CC_CONFIG)
-        sample_results = [('a', [{'rank': 'A'}]), ('b', [{'rank': 'B'}])]
+        sample_results = [('a', [{'rank': 'A'}]), ('b', [{'rank': 'B'}]),
+                          ('c', {'error': 'An ERROR!'})]
         h._results = sample_results
 
         self.assertEqual(h._to_dicts(), dict(sample_results))
