@@ -145,6 +145,9 @@ class ComplexityVisitor(CodeVisitor):
     def functions_complexity(self):
         '''The total complexity from all functions (i.e. the total number of
         decision points + 1).
+
+        This is *not* the sum of all the complexity from the functions. Rather,
+        it's the complexity of the code *inside* all the functions.
         '''
         return sum(map(GET_COMPLEXITY, self.functions)) - len(self.functions)
 
