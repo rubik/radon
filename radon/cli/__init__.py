@@ -1,6 +1,7 @@
 '''In this module the CLI interface is created.'''
 
 import sys
+import inspect
 from mando import Program
 
 import radon.complexity as cc_mod
@@ -9,32 +10,6 @@ from radon.cli.harvest import CCHarvester, RawHarvester, MIHarvester
 
 
 program = Program(version=sys.modules['radon'].__version__)
-
-
-class Config(object):
-    '''An object holding config values.'''
-
-    def __init__(self, **kwargs):
-        '''Configuration values are passed as keyword parameters.'''
-        self.config_values = kwargs
-
-    def __getattr__(self, attr):
-        '''If an attribute is not found inside the config values, the request
-        is handed to `__getattribute__`.
-        '''
-        if attr in self.config_values:
-            return self.config_values[attr]
-        return self.__getattribute__(attr)
-
-    def __str__(self):
-        '''The string representation of the Config object is just the one of
-        the dictionary holding the configuration values.
-        '''
-        return str(self.config_values)
-
-    def __eq__(self, other):
-        '''Two Config objects are equals if their contents are equal.'''
-        return self.config_values == other.config_values
 
 
 @program.command
@@ -146,6 +121,41 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
 
     harvester = MIHarvester(paths, config)
     log_result(harvester, json=json)
+
+
+class Config(object):
+    '''An object holding config values.'''
+
+    def __init__(self, **kwargs):
+        '''Configuration values are passed as keyword parameters.'''
+        self.config_values = kwargs
+
+    def __getattr__(self, attr):
+        '''If an attribute is not found inside the config values, the request
+        is handed to `__getattribute__`.
+        '''
+        if attr in self.config_values:
+            return self.config_values[attr]
+        return self.__getattribute__(attr)
+
+    def __repr__(self):
+        '''The string representation of the Config object is just the one of
+        the dictionary holding the configuration values.
+        '''
+        return repr(self.config_values)
+
+    def __eq__(self, other):
+        '''Two Config objects are equals if their contents are equal.'''
+        return self.config_values == other.config_values
+
+    @classmethod
+    def from_function(cls, func):
+        '''Construct a Config object from a function's defaults.'''
+        argspec = inspect.getfullargspec(func)
+        args, _, _, defaults = argspec[:4]
+        values = dict(zip(reversed(args), reversed(defaults or [])))
+        values.update(argspec.kwonlydefaults or {})
+        return cls(**values)
 
 
 def log_result(harvester, **kwargs):

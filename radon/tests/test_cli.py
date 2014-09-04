@@ -8,6 +8,18 @@ except ImportError:
     import mock
 
 
+def func(a, b=2, c=[], d=None):
+    pass
+
+
+def func2(*args, **kwargs):
+    pass
+
+
+def func3(*args, b=3):
+    pass
+
+
 def fake_to_terminal():
     yield ('a', ('mystr',), {'error': True})
     yield ('b', (), {})
@@ -35,6 +47,12 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(cli.Config(), cli.Config())
         self.assertEqual(cli.Config(a=2), cli.Config(a=2))
         self.assertNotEqual(cli.Config(a=2), cli.Config(b=2))
+
+    def test_for(self):
+        self.assertEqual(cli.Config.from_function(func),
+                         cli.Config(b=2, c=[], d=None))
+        self.assertEqual(cli.Config.from_function(func2), cli.Config())
+        self.assertEqual(cli.Config.from_function(func3), cli.Config(b=3))
 
 
 class TestCommands(unittest.TestCase):
