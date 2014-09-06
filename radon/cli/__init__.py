@@ -151,10 +151,15 @@ class Config(object):
     @classmethod
     def from_function(cls, func):
         '''Construct a Config object from a function's defaults.'''
-        argspec = inspect.getfullargspec(func)
+        kwonlydefaults = {}
+        try:
+            argspec = inspect.getfullargspec(func)
+            kwonlydefaults = argspec.kwonlydefaults or {}
+        except AttributeError:
+            argspec = inspect.getargspec(func)
         args, _, _, defaults = argspec[:4]
         values = dict(zip(reversed(args), reversed(defaults or [])))
-        values.update(argspec.kwonlydefaults or {})
+        values.update(kwonlydefaults)
         return cls(**values)
 
 

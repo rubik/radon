@@ -16,7 +16,7 @@ def func2(*args, **kwargs):
     pass
 
 
-def func3(*args, b=3):
+def func3(b=3, *args):
     pass
 
 
