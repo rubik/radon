@@ -33,17 +33,15 @@ load-plugins=
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once).
-disable=W0141,E1101,C0103,W0231,W0232,E0213,E1102,F0401,W0212
+disable=W0141,W0142,E1101,C0103,W0231,W0232,E0213,E1102,F0401,W0212
 
 
 [REPORTS]
+msg-template={msg_id}:{line:3d},{column}: {obj}: {msg}
 
 # Set the output format. Available formats are text, parseable, colorized, msvs
 # (visual studio) and html
 output-format=colorized
-
-# Include message's id in output
-include-ids=yes
 
 # Put messages in a separate file for each module / package specified on the
 # command line instead of printing them on stdout. Reports (if any) will be
