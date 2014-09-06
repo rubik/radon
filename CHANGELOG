@@ -1,3 +1,13 @@
+1.1 (Sep 6, 2014)
+-----------------
+
+- Make `-n, --min` and `-x, --max` effective everywhere (in JSON and XML
+  exporting too): #62.
+- Fix the bug that prevented JSON/XML export when one file had errors during
+  the analysis: #63.
+- Add an explanations and various examples to the docs so that programmatical
+  use of Radon is easier: #64.
+
 1.0 (Aug 15, 2014)
 ------------------
 
