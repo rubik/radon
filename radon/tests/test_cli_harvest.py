@@ -48,30 +48,38 @@ def fake_run():
         yield {'file-{0}'.format(i): i**2}
 
 
-class TestBaseHarvester(unittest.TestCase):
+class ConfigMixin(object):
+
+    def setUp(self):
+        self.config = Config(**self.CONFIG_CLASS.config_values.copy())
+
+
+class TestBaseHarvester(ConfigMixin, unittest.TestCase):
+
+    CONFIG_CLASS = BASE_CONFIG
 
     @mock.patch('radon.cli.harvest.iter_filenames')
     def test_iter_filenames(self, iter_mock):
-        h = harvest.Harvester([], BASE_CONFIG)
+        h = harvest.Harvester([], self.config)
         h._iter_filenames()
 
-        iter_mock.assert_called_with([], BASE_CONFIG.exclude,
-                                     BASE_CONFIG.ignore)
+        iter_mock.assert_called_with([], self.config.exclude,
+                                     self.config.ignore)
 
     def test_gobble_not_implemented(self):
-        h = harvest.Harvester([], BASE_CONFIG)
+        h = harvest.Harvester([], self.config)
         self.assertRaises(NotImplementedError, h.gobble, None)
 
     def test_as_xml_not_implemented(self):
-        h = harvest.Harvester([], BASE_CONFIG)
+        h = harvest.Harvester([], self.config)
         self.assertRaises(NotImplementedError, h.as_xml)
 
     def test_to_terminal_not_implemented(self):
-        h = harvest.Harvester([], BASE_CONFIG)
+        h = harvest.Harvester([], self.config)
         self.assertRaises(NotImplementedError, h.to_terminal)
 
     def test_run(self):
-        h = harvest.Harvester(['-'], BASE_CONFIG)
+        h = harvest.Harvester(['-'], self.config)
         h.gobble = fake_gobble
         self.assertTrue(isinstance(h.run(), collections.Iterator))
         self.assertEqual(list(h.run()), [('-', 42)])
@@ -79,7 +87,7 @@ class TestBaseHarvester(unittest.TestCase):
         self.assertEqual(list(h.run()), [('-', {'error': 'mystr'})])
 
     def test_results(self):
-        h = harvest.Harvester([], BASE_CONFIG)
+        h = harvest.Harvester([], self.config)
         h.run = fake_run
         results = h.results
         self.assertTrue(isinstance(results, collections.Iterator))
@@ -90,12 +98,14 @@ class TestBaseHarvester(unittest.TestCase):
         self.assertTrue(isinstance(h.results, list))
 
     def test_as_json(self):
-        h = harvest.Harvester([], BASE_CONFIG)
+        h = harvest.Harvester([], self.config)
         h._results = {'filename': {'complexity': 2}}
         self.assertEqual(h.as_json(), '{"filename": {"complexity": 2}}')
 
 
-class TestCCHarvester(unittest.TestCase):
+class TestCCHarvester(ConfigMixin, unittest.TestCase):
+
+    CONFIG_CLASS = CC_CONFIG
 
     @mock.patch('radon.cli.harvest.sorted_results')
     @mock.patch('radon.cli.harvest.cc_visit')
@@ -104,18 +114,18 @@ class TestCCHarvester(unittest.TestCase):
         fobj = mock.MagicMock()
         fobj.read.return_value = mock.sentinel.two
 
-        h = harvest.CCHarvester([], CC_CONFIG)
+        h = harvest.CCHarvester([], self.config)
         h.gobble(fobj)
 
         self.assertTrue(fobj.read.called)
         cc_mock.assert_called_with(mock.sentinel.two,
-                                   no_assert=CC_CONFIG.no_assert)
-        sr_mock.assert_called_with(mock.sentinel.one, order=CC_CONFIG.order)
+                                   no_assert=self.config.no_assert)
+        sr_mock.assert_called_with(mock.sentinel.one, order=self.config.order)
 
     @mock.patch('radon.cli.harvest.cc_to_dict')
     def test_to_dicts(self, c2d_mock):
         c2d_mock.side_effect = lambda i: i
-        h = harvest.CCHarvester([], CC_CONFIG)
+        h = harvest.CCHarvester([], self.config)
         sample_results = [('a', [{'rank': 'A'}]), ('b', [{'rank': 'B'}]),
                           ('c', {'error': 'An ERROR!'})]
         h._results = sample_results
@@ -126,14 +136,13 @@ class TestCCHarvester(unittest.TestCase):
         h.config.min = 'B'
         h._results = sample_results[1:]
         self.assertEqual(h._to_dicts(), dict(sample_results[1:]))
-        h.config.min = 'A'
 
     @mock.patch('radon.cli.harvest.dict_to_xml')
     def test_as_json_xml(self, d2x_mock):
         to_dicts_mock = mock.MagicMock()
         to_dicts_mock.return_value = {'a': {'rank': 'A'}}
 
-        h = harvest.CCHarvester([], CC_CONFIG)
+        h = harvest.CCHarvester([], self.config)
         h._to_dicts = to_dicts_mock
         self.assertEqual(h.as_json(), '{"a": {"rank": "A"}}')
 
@@ -146,7 +155,7 @@ class TestCCHarvester(unittest.TestCase):
     @mock.patch('radon.cli.harvest.RANKS_COLORS')
     @mock.patch('radon.cli.harvest.cc_to_terminal')
     def test_to_terminal(self, c2t_mock, ranks_mock, reset_mock):
-        h = harvest.CCHarvester([], CC_CONFIG)
+        h = harvest.CCHarvester([], self.config)
         h._results = [
             ('a', {'error': 'mystr'}), ('b', {})
         ]
@@ -155,9 +164,9 @@ class TestCCHarvester(unittest.TestCase):
         reset_mock.__eq__.side_effect = lambda o: o == '__R__'
 
         results = list(h.to_terminal())
-        c2t_mock.assert_called_once_with({}, CC_CONFIG.show_complexity,
-                                         CC_CONFIG.min, CC_CONFIG.max,
-                                         CC_CONFIG.total_average)
+        c2t_mock.assert_called_once_with({}, self.config.show_complexity,
+                                         self.config.min, self.config.max,
+                                         self.config.total_average)
         self.assertEqual(results, [
             ('a', ('mystr',), {'error': True}),
             ('b', (), {}),
@@ -168,7 +177,9 @@ class TestCCHarvester(unittest.TestCase):
         ])
 
 
-class TestRawHarvester(unittest.TestCase):
+class TestRawHarvester(ConfigMixin, unittest.TestCase):
+
+    CONFIG_CLASS = RAW_CONFIG
 
     @mock.patch('radon.cli.harvest.raw_to_dict')
     @mock.patch('radon.cli.harvest.analyze')
@@ -177,7 +188,7 @@ class TestRawHarvester(unittest.TestCase):
         fobj.read.return_value = mock.sentinel.one
         analyze_mock.return_value = mock.sentinel.two
 
-        h = harvest.RawHarvester([], RAW_CONFIG)
+        h = harvest.RawHarvester([], self.config)
         h.gobble(fobj)
 
         self.assertEqual(fobj.read.call_count, 1)
@@ -185,11 +196,11 @@ class TestRawHarvester(unittest.TestCase):
         r2d_mock.assert_called_once_with(mock.sentinel.two)
 
     def test_as_xml(self):
-        h = harvest.RawHarvester([], RAW_CONFIG)
+        h = harvest.RawHarvester([], self.config)
         self.assertRaises(NotImplementedError, h.as_xml)
 
     def test_to_terminal(self):
-        h = harvest.RawHarvester([], RAW_CONFIG)
+        h = harvest.RawHarvester([], self.config)
         h._results = [
             ('a', {'error': 'mystr'}),
             ('b', {'loc': 24, 'lloc': 27, 'sloc': 15, 'comments': 3,
@@ -232,7 +243,9 @@ class TestRawHarvester(unittest.TestCase):
         ])
 
 
-class TestMIHarvester(unittest.TestCase):
+class TestMIHarvester(ConfigMixin, unittest.TestCase):
+
+    CONFIG_CLASS = MI_CONFIG
 
     @mock.patch('radon.cli.harvest.mi_visit')
     def test_gobble(self, mv_mock):
@@ -240,16 +253,16 @@ class TestMIHarvester(unittest.TestCase):
         fobj.read.return_value = mock.sentinel.one
         mv_mock.return_value = 23.5
 
-        h = harvest.MIHarvester([], MI_CONFIG)
+        h = harvest.MIHarvester([], self.config)
         result = h.gobble(fobj)
 
         self.assertEqual(fobj.read.call_count, 1)
-        mv_mock.assert_called_once_with(mock.sentinel.one, MI_CONFIG.multi)
+        mv_mock.assert_called_once_with(mock.sentinel.one, self.config.multi)
         self.assertEqual(result, {'mi': 23.5, 'rank': 'A'})
 
     @mock.patch('radon.cli.harvest.json.dumps')
     def test_as_json(self, d_mock):
-        h = harvest.MIHarvester([], MI_CONFIG)
+        h = harvest.MIHarvester([], self.config)
         h.config.min = 'C'
         h._results = [
             ('a', {'error': 'mystr'}),
@@ -262,7 +275,7 @@ class TestMIHarvester(unittest.TestCase):
         d_mock.assert_called_with(dict([h._results[0], h._results[-1]]))
 
     def test_as_xml(self):
-        h = harvest.MIHarvester([], MI_CONFIG)
+        h = harvest.MIHarvester([], self.config)
         self.assertRaises(NotImplementedError, h.as_xml)
 
     @mock.patch('radon.cli.harvest.RESET')
@@ -271,8 +284,7 @@ class TestMIHarvester(unittest.TestCase):
         ranks_mock.__getitem__.side_effect = lambda j: '<|{0}|>'.format(j)
         reset_mock.__eq__.side_effect = lambda o: o == '__R__'
 
-        h = harvest.MIHarvester([], MI_CONFIG)
-        h.config.min = 'B'
+        h = harvest.MIHarvester([], self.config)
         h._results = [
             ('a', {'error': 'mystr'}),
             ('b', {'mi': 25, 'rank': 'A'}),
