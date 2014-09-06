@@ -155,7 +155,7 @@ class Config(object):
         try:
             argspec = inspect.getfullargspec(func)
             kwonlydefaults = argspec.kwonlydefaults or {}
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             argspec = inspect.getargspec(func)
         args, _, _, defaults = argspec[:4]
         values = dict(zip(reversed(args), reversed(defaults or [])))
