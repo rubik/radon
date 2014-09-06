@@ -87,16 +87,9 @@ class Harvester(object):
             return self._results
         return caching_iterator(self.run(), self._results)
 
-    @property
-    def filtered_results(self):
-        '''A proxy around :attr:`results`. Subclasses must implement correct
-        behavior.
-        '''
-        return self.results
-
     def as_json(self):
         '''Format the results as JSON.'''
-        return json.dumps(dict(self.filtered_results))
+        return json.dumps(dict(self.results))
 
     def as_xml(self):
         '''Format the results as XML.'''
@@ -122,7 +115,7 @@ class CCHarvester(Harvester):
     def _to_dicts(self):
         '''Format the results as a dictionary of dictionaries.'''
         result = {}
-        for key, data in self.filtered_results:
+        for key, data in self.results:
             if 'error' in data:
                 result[key] = data
                 continue
@@ -225,6 +218,9 @@ class MIHarvester(Harvester):
             if ('error' in value or
                self.config.min <= value['rank'] <= self.config.max):
                 yield (key, value)
+
+    def as_json(self):
+        return json.dumps(dict(self.filtered_results))
 
     def as_xml(self):
         '''Placeholder method. Currently not implemented.'''
