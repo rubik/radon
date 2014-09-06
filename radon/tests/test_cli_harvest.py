@@ -15,7 +15,7 @@ BASE_CONFIG = Config(
 CC_CONFIG = Config(
     order='SCORE',
     no_assert=False,
-    min='B',
+    min='A',
     max='F',
     show_complexity=False,
     average=True,
@@ -122,6 +122,11 @@ class TestCCHarvester(unittest.TestCase):
 
         self.assertEqual(h._to_dicts(), dict(sample_results))
         self.assertEqual(c2d_mock.call_count, 2)
+
+        h.config.min = 'B'
+        h._results = sample_results[1:]
+        self.assertEqual(h._to_dicts(), dict(sample_results[1:]))
+        h.config.min = 'A'
 
     @mock.patch('radon.cli.harvest.dict_to_xml')
     def test_as_json_xml(self, d2x_mock):
@@ -233,14 +238,28 @@ class TestMIHarvester(unittest.TestCase):
     def test_gobble(self, mv_mock):
         fobj = mock.MagicMock()
         fobj.read.return_value = mock.sentinel.one
-        mv_mock.return_value = mock.sentinel.two
+        mv_mock.return_value = 23.5
 
         h = harvest.MIHarvester([], MI_CONFIG)
         result = h.gobble(fobj)
 
         self.assertEqual(fobj.read.call_count, 1)
         mv_mock.assert_called_once_with(mock.sentinel.one, MI_CONFIG.multi)
-        self.assertEqual(result, {'mi': mock.sentinel.two})
+        self.assertEqual(result, {'mi': 23.5, 'rank': 'A'})
+
+    @mock.patch('radon.cli.harvest.json.dumps')
+    def test_as_json(self, d_mock):
+        h = harvest.MIHarvester([], MI_CONFIG)
+        h.config.min = 'C'
+        h._results = [
+            ('a', {'error': 'mystr'}),
+            ('b', {'mi': 25, 'rank': 'A'}),
+            ('c', {'mi': 15, 'rank': 'B'}),
+            ('d', {'mi': 0, 'rank': 'C'}),
+        ]
+
+        h.as_json()
+        d_mock.assert_called_with(dict([h._results[0], h._results[-1]]))
 
     def test_as_xml(self):
         h = harvest.MIHarvester([], MI_CONFIG)
@@ -253,11 +272,12 @@ class TestMIHarvester(unittest.TestCase):
         reset_mock.__eq__.side_effect = lambda o: o == '__R__'
 
         h = harvest.MIHarvester([], MI_CONFIG)
+        h.config.min = 'B'
         h._results = [
             ('a', {'error': 'mystr'}),
-            ('b', {'mi': 25}),
-            ('c', {'mi': 15}),
-            ('d', {'mi': 0}),
+            ('b', {'mi': 25, 'rank': 'A'}),
+            ('c', {'mi': 15, 'rank': 'B'}),
+            ('d', {'mi': 0, 'rank': 'C'}),
         ]
 
         self.assertEqual(list(h.to_terminal()), [

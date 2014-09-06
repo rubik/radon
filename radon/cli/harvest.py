@@ -87,9 +87,16 @@ class Harvester(object):
             return self._results
         return caching_iterator(self.run(), self._results)
 
+    @property
+    def filtered_results(self):
+        '''A proxy around :attr:`results`. Subclasses must implement correct
+        behavior.
+        '''
+        return self.results
+
     def as_json(self):
         '''Format the results as JSON.'''
-        return json.dumps(dict(self.results))
+        return json.dumps(dict(self.filtered_results))
 
     def as_xml(self):
         '''Format the results as XML.'''
@@ -115,11 +122,14 @@ class CCHarvester(Harvester):
     def _to_dicts(self):
         '''Format the results as a dictionary of dictionaries.'''
         result = {}
-        for key, data in self.results:
+        for key, data in self.filtered_results:
             if 'error' in data:
                 result[key] = data
                 continue
-            result[key] = list(map(cc_to_dict, data))
+            values = [v for v in map(cc_to_dict, data)
+                      if self.config.min <= v['rank'] <= self.config.max]
+            if values:
+                result[key] = values
         return result
 
     def as_json(self):
@@ -204,7 +214,17 @@ class MIHarvester(Harvester):
 
     def gobble(self, fobj):
         '''Analyze the content of the file object.'''
-        return {'mi': mi_visit(fobj.read(), self.config.multi)}
+        mi = mi_visit(fobj.read(), self.config.multi)
+        rank = mi_rank(mi)
+        return {'mi': mi, 'rank': rank}
+
+    @property
+    def filtered_results(self):
+        '''Filter results with respect with their rank.'''
+        for key, value in self.results:
+            if ('error' in value or
+               self.config.min <= value['rank'] <= self.config.max):
+                yield (key, value)
 
     def as_xml(self):
         '''Placeholder method. Currently not implemented.'''
@@ -212,13 +232,11 @@ class MIHarvester(Harvester):
 
     def to_terminal(self):
         '''Yield lines to be printed to a terminal.'''
-        for name, mi in self.results:
+        for name, mi in self.filtered_results:
             if 'error' in mi:
                 yield name, (mi['error'],), {'error': True}
                 continue
-            rank = mi_rank(mi['mi'])
-            if not self.config.min <= rank <= self.config.max:
-                continue
+            rank = mi['rank']
             color = MI_RANKS[rank]
             to_show = ''
             if self.config.show:
