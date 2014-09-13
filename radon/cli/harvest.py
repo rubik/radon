@@ -194,7 +194,8 @@ class RawHarvester(Harvester):
             yield ('(C % S): {0:.0%}', (comments / (float(mod['sloc']) or 1),),
                    {'indent': 2})
             yield ('(C + M % L): {0:.0%}',
-                   ((comments + mod['multi']) / float(loc),), {'indent': 2})
+                   ((comments + mod['multi']) / (float(loc) or 1),),
+                    {'indent': 2})
 
         if self.config.summary:
             yield '** Total **', (), {}

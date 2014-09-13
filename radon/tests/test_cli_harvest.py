@@ -207,6 +207,8 @@ class TestRawHarvester(ConfigMixin, unittest.TestCase):
                    'multi': 3, 'blank': 9}),
             ('c', {'loc': 24, 'lloc': 27, 'sloc': 15, 'comments': 3,
                    'multi': 3, 'blank': 9}),
+            ('e', {'loc': 0, 'lloc': 0, 'sloc': 0, 'comments': 0, 'multi': 0,
+                   'blank': 0}),
         ]
 
         self.assertEqual(list(h.to_terminal()), [
@@ -233,6 +235,17 @@ class TestRawHarvester(ConfigMixin, unittest.TestCase):
             ('(C % L): {0:.0%}', (0.125,), {'indent': 2}),
             ('(C % S): {0:.0%}', (0.2,), {'indent': 2}),
             ('(C + M % L): {0:.0%}', (0.25,), {'indent': 2}),
+            ('e', (), {}),
+            ('{0}: {1}', ('LOC', 0), {'indent': 1}),
+            ('{0}: {1}', ('LLOC', 0), {'indent': 1}),
+            ('{0}: {1}', ('SLOC', 0), {'indent': 1}),
+            ('{0}: {1}', ('Comments', 0), {'indent': 1}),
+            ('{0}: {1}', ('Multi', 0), {'indent': 1}),
+            ('{0}: {1}', ('Blank', 0), {'indent': 1}),
+            ('- Comment Stats', (), {'indent': 1}),
+            ('(C % L): {0:.0%}', (0,), {'indent': 2}),
+            ('(C % S): {0:.0%}', (0,), {'indent': 2}),
+            ('(C + M % L): {0:.0%}', (0,), {'indent': 2}),
             ('** Total **', (), {}),
             ('{0}: {1}', ('LOC', 48), {'indent': 1}),
             ('{0}: {1}', ('LLOC', 54), {'indent': 1}),
