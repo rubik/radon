@@ -68,7 +68,6 @@ def filter_out(strings, patterns):
 def cc_to_dict(obj):
     '''Convert an object holding CC results into a dictionary. This is meant
     for JSON dumping.'''
-
     def get_type(obj):
         '''The object can be of type *method*, *function* or *class*.'''
         if isinstance(obj, Function):
@@ -140,7 +139,6 @@ def cc_to_terminal(results, show_complexity, min, max, total_average):
     If *total_average* is `True`, the `total_cc` and `counted` count every
     block, regardless of the fact that they are formatted in `res` or not.
     '''
-
     res = []
     counted = 0
     total_cc = .0
@@ -158,10 +156,10 @@ def cc_to_terminal(results, show_complexity, min, max, total_average):
 
 def _format_line(block, ranked, show_complexity=False):
     '''Format a single block as a line.
+
     *ranked* is the rank given by the `~radon.complexity.rank` function. If
     *show_complexity* is True, then the complexity score is added alongside.
     '''
-
     letter_colored = LETTERS_COLORS[block.letter] + block.letter
     rank_colored = RANKS_COLORS[ranked] + ranked
     compl = '' if not show_complexity else ' ({0})'.format(block.complexity)
