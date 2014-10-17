@@ -106,6 +106,8 @@ def dict_to_xml(results):
     ccm = et.Element('ccm')
     for filename, blocks in results.items():
         for block in blocks:
+            if block == 'error':
+                continue
             metric = et.SubElement(ccm, 'metric')
             complexity = et.SubElement(metric, 'complexity')
             complexity.text = str(block['complexity'])
