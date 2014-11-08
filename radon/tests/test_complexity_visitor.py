@@ -472,7 +472,7 @@ CLOJURES_CASES = [
          def h(i):
              return i ** 5 + 1 if i & 1 else 2
          return sum(g(u + 4) / float(h(u)) for u in range(2, n))
-     ''', ('g', 'h'), (1, 2, 3)),
+     ''', ('g', 'h'), (1, 2, 2)),
 
     ('''
      # will it work? :D
@@ -485,7 +485,7 @@ CLOJURES_CASES = [
              cache[key] = res = func(*args, **kwargs)
              return res
          return aux
-     ''', ('aux',), (2, 2)),
+     ''', ('aux',), (2, 1)),
 ]
 
 

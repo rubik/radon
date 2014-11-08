@@ -238,8 +238,7 @@ class ComplexityVisitor(CodeVisitor):
             visitor.visit(child)
             clojures.extend(visitor.functions)
             # Add general complexity and clojures' complexity
-            body_complexity += (visitor.complexity +
-                                visitor.functions_complexity)
+            body_complexity += visitor.complexity
 
         func = Function(node.name, node.lineno, node.col_offset,
                         max(node.lineno, visitor.max_line), self.to_method,
