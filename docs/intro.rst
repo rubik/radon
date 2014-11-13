@@ -10,8 +10,8 @@ Cyclomatic Complexity
 
 Cyclomatic Complexity corresponds to the number of decisions a block of code
 contains plus 1. This number (also called McCabe number) is equal to the number
-of possible paths through the code. It is therefore equivalent to the number of
-test cases it should take to completely cover the block.
+of linearly indipendent paths through the code. This number can be used as a
+guide when testing conditional logic in blocks.
 
 Radon analyzes the AST tree of a Python program to compute Cyclomatic
 Complexity. Statements have the following effects on Cyclomatic Complexity:
@@ -32,6 +32,7 @@ Complexity. Statements have the following effects on Cyclomatic Complexity:
  Lambda             +1             A lambda function is a regular function.
  Boolean Operator   +1             Every boolean operator (and, or) adds a decision point.
 ================== ============== ===========================================================================================
+
 
 Maintainability Index
 ---------------------
