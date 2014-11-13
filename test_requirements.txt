@@ -4,3 +4,4 @@ coveralls
 tox
 nose
 mock
+mando
