@@ -204,8 +204,9 @@ class ComplexityVisitor(CodeVisitor):
             self.complexity += len(node.handlers) + len(node.orelse)
         elif name == 'BoolOp':
             self.complexity += len(node.values) - 1
-        # Lambda functions, ifs, with and assert statements count all as 1.
-        elif name in ('Lambda', 'With', 'If', 'IfExp'):
+        # Ifs, with and assert statements count all as 1.
+        # Note: Lambda functions are not counted anymore, see #68
+        elif name in ('With', 'If', 'IfExp'):
             self.complexity += 1
         # The For and While blocks count as 1 plus the `else` block.
         elif name in ('For', 'While'):
@@ -237,7 +238,7 @@ class ComplexityVisitor(CodeVisitor):
             visitor = ComplexityVisitor(off=False, no_assert=self.no_assert)
             visitor.visit(child)
             clojures.extend(visitor.functions)
-            # Add general complexity and clojures' complexity
+            # Add general complexity but not clojures' complexity, see #68
             body_complexity += visitor.complexity
 
         func = Function(node.name, node.lineno, node.col_offset,

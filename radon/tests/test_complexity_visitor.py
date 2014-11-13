@@ -137,8 +137,13 @@ SIMPLE_BLOCKS = [
      finally: pass
      ''', 3),
 
+    # Lambda are not counted anymore as per #68
     ('''
      k = lambda a, b: k(b, a)
+     ''', 1),
+
+    ('''
+     k = lambda a, b, c: c if a else b
      ''', 2),
 
     ('''
