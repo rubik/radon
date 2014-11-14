@@ -238,7 +238,7 @@ class TestBlocks(ParametrizedTestCase):
         self.expected_complexity = expected_complexity
         self.kwargs = kwargs
 
-    def testComplexityVisitor(self):
+    def test_ComplexityVisitor(self):
         visitor = ComplexityVisitor.from_code(self.code, **self.kwargs)
         self.assertEqual(visitor.complexity, self.expected_complexity)
 
@@ -288,7 +288,7 @@ class TestSingleFunctions(ParametrizedTestCase):
         self.code = dedent(code)
         self.expected_complexity = expected_complexity
 
-    def testComplexityVisitor(self):
+    def test_ComplexityVisitor(self):
         visitor = ComplexityVisitor.from_code(self.code)
         self.assertEqual(len(visitor.functions), 1)
         self.assertEqual((visitor.complexity, visitor.functions[0].complexity),
@@ -344,7 +344,7 @@ class TestFunctions(ParametrizedTestCase):
         self.code = dedent(code)
         self.expected_complexity = expected_complexity
 
-    def testComplexityVisitor(self):
+    def test_ComplexityVisitor(self):
         visitor = ComplexityVisitor.from_code(self.code)
         self.assertEqual(len(visitor.functions), len(self.expected_complexity))
         self.assertEqual(tuple(map(GET_COMPLEXITY, visitor.functions)),
@@ -400,7 +400,7 @@ class TestClasses(ParametrizedTestCase):
         self.total_class_complexity = expected_complexity[0]
         self.methods_complexity = expected_complexity[1:]
 
-    def testComplexityVisitor(self):
+    def test_ComplexityVisitor(self):
         visitor = ComplexityVisitor.from_code(self.code)
         self.assertEqual(len(visitor.classes), 1)
         self.assertEqual(len(visitor.functions), 0)
@@ -419,13 +419,16 @@ GENERAL_CASES = [
      a = sum(i for i in range(1000) if i % 3 == 0 and i % 5 == 0)
 
      def f(n):
+         def inner(n):
+             return n ** 2
+
          if n == 0:
              return 1
          elif n == 1:
              return n
          elif n < 5:
              return (n - 1) ** 2
-         return n * pow(n, f(n - 1), n - 3)
+         return n * pow(inner(n), f(n - 1), n - 3)
      ''', (6, 3, 0, 9)),
 
     ('''
@@ -444,8 +447,10 @@ GENERAL_CASES = [
              return w - 1 + sum(self.aux(w - 3 - i) for i in range(2))
 
      def f(a, b):
+         def inner(n):
+             return n ** 2
          if a < b:
-             b, a = a, b
+             b, a = a, inner(b)
          return a, b
      ''', (3, 1, 2, 6)),
 ]
@@ -460,7 +465,7 @@ class TestModules(ParametrizedTestCase):
             self.classes_complexity, \
             self.total_complexity = expected_complexity
 
-    def testModule(self):
+    def test_module(self):
         visitor = ComplexityVisitor.from_code(self.code)
         self.assertEqual(visitor.complexity, self.module_complexity)
         self.assertEqual(visitor.functions_complexity,
@@ -469,7 +474,7 @@ class TestModules(ParametrizedTestCase):
         self.assertEqual(visitor.total_complexity, self.total_complexity)
 
 
-CLOJURES_CASES = [
+CLOSURES_CASES = [
     ('''
      def f(n):
          def g(l):
@@ -494,31 +499,31 @@ CLOJURES_CASES = [
 ]
 
 
-@parametrized(*CLOJURES_CASES)
-class TestClojures(ParametrizedTestCase):
+@parametrized(*CLOSURES_CASES)
+class TestClosures(ParametrizedTestCase):
 
-    def setParameters(self, code, clojure_names, expected_cc):
+    def setParameters(self, code, closure_names, expected_cc):
         self.visitor = ComplexityVisitor.from_code(dedent(code))
         self.func = self.visitor.functions[0]
-        self.clojure_names = clojure_names
-        self.expected_cj_cc = expected_cc[:-1]
+        self.closure_names = closure_names
+        self.expected_cs_cc = expected_cc[:-1]
         self.expected_total_cc = expected_cc[-1]
 
-    def testOneFunction(self):
+    def test_one_function(self):
         self.assertEqual(len(self.visitor.functions), 1)
 
-    def testClojureNames(self):
-        names = tuple(cj.name for cj in self.func.clojures)
-        self.assertEqual(names, self.clojure_names)
+    def test_closure_names(self):
+        names = tuple(cs.name for cs in self.func.closures)
+        self.assertEqual(names, self.closure_names)
 
-    def testClojuresComplexity(self):
-        cj_complexity = tuple(cj.complexity for cj in self.func.clojures)
-        self.assertEqual(cj_complexity, self.expected_cj_cc)
+    def test_closures_complexity(self):
+        cs_complexity = tuple(cs.complexity for cs in self.func.closures)
+        self.assertEqual(cs_complexity, self.expected_cs_cc)
 
-    def testTotalComplexity(self):
+    def test_total_complexity(self):
         self.assertEqual(self.func.complexity, self.expected_total_cc)
 
-    def testMutableBlocks(self):
+    def test_mutable_blocks(self):
         # There was a bug for which `blocks` increased while it got accessed
         v = self.visitor
         self.assertTrue(v.blocks == v.blocks == v.blocks)
@@ -548,7 +553,7 @@ class TestContainers(ParametrizedTestCase):
         self.expected_name = expected[1]
         self.expected_str = expected[2]
 
-    def testContainers(self):
+    def test_containers(self):
         cls = Function if len(self.values) == 8 else Class
         obj = cls(*self.values)
         self.assertEqual(obj.letter, self.expected_letter)

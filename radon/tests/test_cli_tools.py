@@ -94,7 +94,7 @@ CC_RESULTS_CASES = [
         Function('name', 12, 0, 16, False, None, [], 6),
     ], {
         'type': 'function', 'name': 'name', 'lineno': 12, 'col_offset': 0,
-        'endline': 16, 'clojures': [], 'complexity': 6, 'rank': 'B',
+        'endline': 16, 'closures': [], 'complexity': 6, 'rank': 'B',
     }),
     ([
         Class('Classname', 17, 0, 29, [
@@ -105,7 +105,7 @@ CC_RESULTS_CASES = [
         'endline': 29, 'complexity': 8, 'rank': 'B', 'methods': [
             {
                 'type': 'method', 'lineno': 19, 'col_offset': 4, 'endline': 26,
-                'clojures': [], 'complexity': 7, 'rank': 'B', 'classname':
+                'closures': [], 'complexity': 7, 'rank': 'B', 'classname':
                 'Classname', 'name': 'name',
             }
         ],
@@ -116,10 +116,10 @@ CC_RESULTS_CASES = [
         ], 10),
     ], {
         'type': 'function', 'name': 'name', 'lineno': 12, 'col_offset': 0,
-        'endline': 16, 'complexity': 10, 'rank': 'B', 'clojures': [
+        'endline': 16, 'complexity': 10, 'rank': 'B', 'closures': [
             {
                 'name': 'aux', 'lineno': 13, 'col_offset': 4, 'endline': 17,
-                'clojures': [], 'complexity': 4, 'rank': 'A', 'type':
+                'closures': [], 'complexity': 4, 'rank': 'A', 'type':
                 'function',
             }
         ]
@@ -139,17 +139,17 @@ class TestCCToDict(unittest.TestCase):
 
 
 CC_TO_XML_CASE = [
-    {'clojures': [], 'endline': 16, 'complexity': 6, 'lineno': 12, 'is_method':
+    {'closures': [], 'endline': 16, 'complexity': 6, 'lineno': 12, 'is_method':
      False, 'name': 'name', 'col_offset': 0, 'rank': 'B'},
 
     {'complexity': 8, 'endline': 29, 'rank': 'B', 'lineno': 17, 'name':
      'Classname', 'col_offset': 0},
 
-    {'classname': 'Classname', 'clojures': [], 'endline': 26, 'complexity': 7,
+    {'classname': 'Classname', 'closures': [], 'endline': 26, 'complexity': 7,
      'lineno': 19, 'is_method': True, 'name': 'name', 'col_offset': 4,
      'rank': 'B'},
 
-    {'clojures': [], 'endline': 17, 'complexity': 4, 'lineno': 13, 'is_method':
+    {'closures': [], 'endline': 17, 'complexity': 4, 'lineno': 13, 'is_method':
      False, 'name': 'aux', 'col_offset': 4, 'rank': 'A'},
 
     {'endline': 16, 'complexity': 10, 'lineno': 12, 'is_method': False, 'name':
@@ -203,18 +203,18 @@ class TestDictConversion(unittest.TestCase):
 CC_TO_TERMINAL_CASES = [
     Class(name='Classname', lineno=17, col_offset=0, endline=29,
           methods=[Function(name='meth', lineno=19, col_offset=4, endline=26,
-                            is_method=True, classname='Classname', clojures=[],
+                            is_method=True, classname='Classname', closures=[],
                             complexity=3)], real_complexity=3),
     Function(name='meth', lineno=19, col_offset=4, endline=26, is_method=True,
-             classname='Classname', clojures=[], complexity=7),
+             classname='Classname', closures=[], complexity=7),
     Function(name='f1', lineno=12, col_offset=0, endline=16, is_method=False,
-             classname=None, clojures=[], complexity=14),
+             classname=None, closures=[], complexity=14),
     Function(name='f2', lineno=12, col_offset=0, endline=16, is_method=False,
-             classname=None, clojures=[], complexity=22),
+             classname=None, closures=[], complexity=22),
     Function(name='f3', lineno=12, col_offset=0, endline=16, is_method=False,
-             classname=None, clojures=[], complexity=32),
+             classname=None, closures=[], complexity=32),
     Function(name='f4', lineno=12, col_offset=0, endline=16, is_method=False,
-             classname=None, clojures=[], complexity=41),
+             classname=None, closures=[], complexity=41),
 ]
 
 

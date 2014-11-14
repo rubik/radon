@@ -28,9 +28,9 @@ Radon's API is composed of three layers:
       ''')
       >>> v.functions
       [Function(name='factorial', lineno=2, col_offset=0, endline=4, is_method=False,
-      classname=None, clojures=[], complexity=2),
+      classname=None, closures=[], complexity=2),
       Function(name='foo', lineno=6, col_offset=0, endline=7, is_method=False, classname=None,
-      clojures=[], complexity=3)]
+      closures=[], complexity=3)]
 
 * at a higher level, there are helper functions residing in separate modules.
   For cyclomatic complexity, one can use those inside :mod:`radon.complexity`.
@@ -57,11 +57,11 @@ Radon's API is composed of three layers:
       ''')
 
       [Function(name='fib', lineno=6, col_offset=0, endline=8, is_method=False, classname=None,
-      clojures=[], complexity=2), Class(name='A', lineno=2, col_offset=0, endline=4,
+      closures=[], complexity=2), Class(name='A', lineno=2, col_offset=0, endline=4,
       methods=[Function(name='meth', lineno=3, col_offset=4, endline=4, is_method=True,
-      classname='A', clojures=[], complexity=3)], real_complexity=3),
+      classname='A', closures=[], complexity=3)], real_complexity=3),
       Function(name='meth', lineno=3, col_offset=4, endline=4, is_method=True, classname='A',
-      clojures=[], complexity=3)]
+      closures=[], complexity=3)]
 
       >>> from radon.raw import analyze
       >>> analyze("""def _split_tokens(tokens, token, value):

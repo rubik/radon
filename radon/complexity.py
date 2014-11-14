@@ -73,6 +73,19 @@ def sorted_results(blocks, order=SCORE):
     return sorted(blocks, key=order)
 
 
+def add_closures(blocks):
+    '''Process a list of blocks by adding all closures as top-level blocks.'''
+    new_blocks = []
+    for block in blocks:
+        new_blocks.append(block)
+        if 'closures' not in block._fields:
+            continue
+        for closure in block.closures:
+            named = closure._replace(name=block.name + '.' + closure.name)
+            new_blocks.append(named)
+    return new_blocks
+
+
 def cc_visit(code, **kwargs):
     '''Visit the given code with :class:`~radon.visitors.ComplexityVisitor`.
     All the keyword arguments are directly passed to the visitor.
