@@ -70,7 +70,7 @@ class TestHalsteadVisitor(ParametrizedTestCase):
         self.code = dedent(code)
         self.expected_result = expected_result
 
-    def testHalsteadVisitor(self):
+    def test_HalsteadVisitor(self):
         visitor = HalsteadVisitor.from_code(self.code)
         result = visitor.operators, visitor.operands, \
             visitor.distinct_operators, visitor.distinct_operands

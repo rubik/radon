@@ -37,7 +37,7 @@ class TestFind(ParametrizedTestCase):
         self.code = _generate(dedent(code))
         self.result = result
 
-    def testFind(self):
+    def test_find(self):
         if self.result is None:
             self.assertRaises(ValueError, _find, self.code, OP, ':')
         else:
@@ -135,7 +135,7 @@ class TestLogicalLines(ParametrizedTestCase):
         self.code = _generate(dedent(code))
         self.expected_number_of_lines = expected_number_of_lines
 
-    def testLogical(self):
+    def test_logical(self):
         self.assertEqual(_logical(self.code), self.expected_number_of_lines)
 
 
@@ -209,7 +209,7 @@ class TestAnalyze(ParametrizedTestCase):
         self.code = dedent(code)
         self.expected = expected
 
-    def testAnalyze(self):
+    def test_analyze(self):
         try:
             len(self.expected)
         except:
