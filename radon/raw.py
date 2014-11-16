@@ -148,6 +148,129 @@ def _logical(tokens):
     return sum(aux(sub) for sub in _split_tokens(tokens, OP, ';'))
 
 
+def remove_lines(doc, lines_to_remove):
+    '''
+    Removes lines from a document.
+
+    @param doc: [str], document cast into an array.
+    @param lines_to_remove: [int], list of lines to remove from the doc.
+    @return: [str], doc with specified lines removed.
+    '''
+    for line_number in lines_to_remove:
+        doc[line_number] = []
+    return [line.strip() for line in doc if line]
+
+
+def is_multiline_string(doc, line_count, quote_type):
+    '''
+    Cases to catch multiline_strings.
+
+    @param doc: [str], a document cast into an array.
+    @param line_count: int, zero based index that points to the current line
+                 in an docuement.
+    @param quote_type: str, one of the two multiline quotes available in python.
+    @return: bool, True if the triple quoted line is a multiline string.
+    '''
+
+    line = doc[line_count]
+    previous_line = doc[line_count-1]
+
+    if line.count('=') and line.index('=') < line.index(quote_type)\
+            or line_count != 0 and '=' in previous_line:
+        return True
+
+    else:
+        return False
+
+
+def find_multiline_comments(lines_to_remove, end, doc, line_count, quote_type):
+    '''
+    @param lines_to_remove: [int], a zero based index that represents lines to
+                            to be removed from a document.
+    @param end: bool, if True then the first of the two multiline comments has
+                been found.
+    @param doc: [str], a document cast into an array.
+    @param line_count: int, zero based index that points to the current line
+                 in an docuement.
+    @param quote_type: str, one of the two multiline quotes available in python.
+    @return lines_to_remove: same as that passed in, with additions.
+    @return end: bool, updated version of end paramater.
+    '''
+
+    # Exceptions: Quote type needs to exist, to get the first line of a
+    # multine comment it cannot be the last.
+    if quote_type and end is False and line_count < len(doc) - 1:
+        quote_type = quote_type[0]
+        end = True
+
+        if is_multiline_string(doc, line_count, quote_type):
+            return lines_to_remove, False
+
+        lines_to_remove.append(line_count)
+        return lines_to_remove, end
+
+    elif end and not quote_type:
+        lines_to_remove.append(line_count)
+
+    elif end and quote_type:
+        lines_to_remove.append(line_count)
+        end = False
+
+    return lines_to_remove, end
+
+
+def find_comments(lines_to_remove, line_count, line):
+    '''
+    Find single line comments in a python file.
+
+    @param lines_to_remove: [int], a zero based index that represents lines to
+                            to be removed from a document.
+    @param line_count: int, zero based index that points to the current line
+                       in an docuement.
+    @param line: str, the current line in a document being examined.
+    @return lines_to_remove: [int], same as parameter with additional indices
+                             that were found.
+    '''
+    if not line:
+        return lines_to_remove
+
+    if line[0] == "#" or line.count("'''") == 2 or line.count('"""') == 2:
+        lines_to_remove.append(line_count)
+
+    return lines_to_remove
+
+
+def remove_python_documentation(doc):
+    '''
+    Removes all the documentation from python code.
+
+    @param doc: [str], each line of a code recasted as an array
+    @return [str], doc that was passed in, excluding lines of documentation.
+    '''
+
+    multi_quos = ["'''", '"""']
+    lines_to_remove = []
+    end = False
+
+    for line_count, line in enumerate(doc):
+
+        lines_to_remove = find_comments(lines_to_remove, line_count, line)
+
+        quote_type = [multi_quo for multi_quo in multi_quos\
+                if multi_quo in doc[line_count]]
+
+        # end is True if the first of a pair of multiline comments is found and
+        # end will revert back to False when both pairs are found.
+        lines_to_remove, end = find_multiline_comments(
+            lines_to_remove=lines_to_remove,
+            end=end,
+            doc=doc,
+            line_count=line_count,
+            quote_type=quote_type)
+
+    return remove_lines(doc, lines_to_remove)
+
+
 def analyze(source):
     '''Analyze the source code and return a namedtuple with the following
     fields:
@@ -164,10 +287,11 @@ def analyze(source):
     Multiline strings are not counted as comments, since, to the Python
     interpreter, they are not comments but strings.
     '''
-    loc = sloc = lloc = comments = multi = blank = 0
+    sloc = lloc = comments = multi = blank = 0
+    loc = len(remove_python_documentation([line.strip() for line in source\
+            if line]))
     lines = iter(source.splitlines())
     for lineno, line in enumerate(lines, 1):
-        loc += 1
         line = line.strip()
         if not line:
             blank += 1
@@ -181,7 +305,6 @@ def analyze(source):
         except StopIteration:
             raise SyntaxError('SyntaxError at line: {0}'.format(lineno))
         # Update tracked metrics
-        loc += sloc_incr  # LOC and SLOC increments are the same
         sloc += sloc_incr
         multi += multi_incr
         # Add the comments
