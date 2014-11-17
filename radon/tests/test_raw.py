@@ -147,7 +147,7 @@ ANALYZE_CASES = [
      """
      doc?
      """
-     ''', (3, 1, 3, 0, 3, 0)),
+     ''', (0, 1, 3, 0, 3, 0)),
 
     ('''
      # just a comment
@@ -156,13 +156,13 @@ ANALYZE_CASES = [
      else:
          # you'll never get here
          print('ven')
-     ''', (6, 4, 6, 2, 0, 0)),
+     ''', (4, 4, 6, 2, 0, 0)),
 
     ('''
      #
      #
      #
-     ''', (3, 0, 3, 3, 0, 0)),
+     ''', (0, 0, 3, 3, 0, 0)),
 
     ('''
      if a:
@@ -171,7 +171,7 @@ ANALYZE_CASES = [
 
      else:
          print
-     ''', (6, 4, 4, 0, 0, 2)),
+     ''', (4, 4, 4, 0, 0, 2)),
 
     # In this case the docstring is not counted as a multi-line string
     # because in fact it is on one line!
@@ -179,7 +179,7 @@ ANALYZE_CASES = [
      def f(n):
          """here"""
          return n * f(n - 1)
-     ''', (3, 3, 3, 0, 0, 0)),
+     ''', (2, 3, 3, 0, 0, 0)),
 
     ('''
      def hip(a, k):

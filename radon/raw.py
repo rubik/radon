@@ -149,27 +149,24 @@ def _logical(tokens):
 
 
 def remove_lines(doc, lines_to_remove):
+    '''Removes lines from a document.
+    :param doc: [str], document cast into an array.
+    :param lines_to_remove: [int], list of lines to remove from the doc.
+    :return: [str], doc with specified lines removed.
     '''
-    Removes lines from a document.
 
-    @param doc: [str], document cast into an array.
-    @param lines_to_remove: [int], list of lines to remove from the doc.
-    @return: [str], doc with specified lines removed.
-    '''
     for line_number in lines_to_remove:
         doc[line_number] = []
     return [line.strip() for line in doc if line]
 
 
 def is_multiline_string(doc, line_count, quote_type):
-    '''
-    Cases to catch multiline_strings.
-
-    @param doc: [str], a document cast into an array.
-    @param line_count: int, zero based index that points to the current line
+    '''Cases to catch multiline_strings.
+    :param doc: [str], a document cast into an array.
+    :param line_count: int, zero based index that points to the current line
                  in an docuement.
-    @param quote_type: str, one of the two multiline quotes available in python.
-    @return: bool, True if the triple quoted line is a multiline string.
+    :param quote_type: str, one of the two multiline quotes available in python.
+    :return: bool, True if the triple quoted line is a multiline string.
     '''
 
     line = doc[line_count]
@@ -185,16 +182,16 @@ def is_multiline_string(doc, line_count, quote_type):
 
 def find_multiline_comments(lines_to_remove, end, doc, line_count, quote_type):
     '''
-    @param lines_to_remove: [int], a zero based index that represents lines to
+    :param lines_to_remove: [int], a zero based index that represents lines to
                             to be removed from a document.
-    @param end: bool, if True then the first of the two multiline comments has
+    :param end: bool, if True then the first of the two multiline comments has
                 been found.
-    @param doc: [str], a document cast into an array.
-    @param line_count: int, zero based index that points to the current line
+    :param doc: [str], a document cast into an array.
+    :param line_count: int, zero based index that points to the current line
                  in an docuement.
-    @param quote_type: str, one of the two multiline quotes available in python.
-    @return lines_to_remove: same as that passed in, with additions.
-    @return end: bool, updated version of end paramater.
+    :param quote_type: str, one of the two multiline quotes available in python.
+    :return: tuple, lines_to_remove = same as that passed in, with additions.
+                    end = bool, updated version of end paramater.
     '''
 
     # Exceptions: Quote type needs to exist, to get the first line of a
@@ -220,17 +217,15 @@ def find_multiline_comments(lines_to_remove, end, doc, line_count, quote_type):
 
 
 def find_comments(lines_to_remove, line_count, line):
-    '''
-    Find single line comments in a python file.
-
-    @param lines_to_remove: [int], a zero based index that represents lines to
+    '''Find single line comments in a python file.
+    :param lines_to_remove: [int], a zero based index that represents lines to
                             to be removed from a document.
-    @param line_count: int, zero based index that points to the current line
+    :param line_count: int, zero based index that points to the current line
                        in an docuement.
-    @param line: str, the current line in a document being examined.
-    @return lines_to_remove: [int], same as parameter with additional indices
-                             that were found.
+    :param line: str, the current line in a document being examined.
+    :return: [int], same as parameter with additional indices that were found.
     '''
+
     if not line:
         return lines_to_remove
 
@@ -241,11 +236,9 @@ def find_comments(lines_to_remove, line_count, line):
 
 
 def remove_python_documentation(doc):
-    '''
-    Removes all the documentation from python code.
-
-    @param doc: [str], each line of a code recasted as an array
-    @return [str], doc that was passed in, excluding lines of documentation.
+    '''Removes all the documentation from python code.
+    :param doc: [str], each line of a code recasted as an array
+    :return: [str], doc that was passed in, excluding lines of documentation.
     '''
 
     multi_quos = ["'''", '"""']
