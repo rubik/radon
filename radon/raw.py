@@ -30,7 +30,8 @@ TOKEN_NUMBER = operator.itemgetter(0)
 #   comments = Comments lines
 #   blank = Blank lines (or whitespace-only lines)
 Module = collections.namedtuple('Module', ['loc', 'lloc', 'sloc',
-                                           'comments', 'multi', 'blank', 'single_comments'])
+                                           'comments', 'multi', 'blank',
+                                           'single_comments'])
 
 
 def _generate(code):
@@ -249,7 +250,9 @@ def remove_python_documentation(doc):
     multi = 1
     for line_count, line in enumerate(doc):
 
-        lines_to_remove, removed = find_comments(lines_to_remove, line_count, line)
+        lines_to_remove, removed = find_comments(lines_to_remove,
+                                                 line_count,
+                                                 line)
         if removed:
             comments += 1
             continue
@@ -290,9 +293,11 @@ def analyze(source):
     interpreter, they are not comments but strings.
     '''
     lloc = comments = multi = blank = 0
-    sloc = len([line.strip() for line in source.split('\n') if line])
-    loc, single_comments, multi = remove_python_documentation([line.strip() for line in source.split('\n')\
-            if line])
+
+    # Cast source code into an array, devoid of blank lines
+    source_array = [line.strip() for line in source.split('\n') if line]
+    sloc = len(source_array)
+    loc, single_comments, multi = remove_python_documentation(source_array)
     lines = iter(source.splitlines())
     for lineno, line in enumerate(lines, 1):
         line = line.strip()
@@ -301,7 +306,7 @@ def analyze(source):
             continue
         try:
             # Process a logical line that spans on multiple lines
-            tokens, sloc_incr, multi_incr = _get_all_tokens(line, lines)
+            tokens, _, _ = _get_all_tokens(line, lines)
         except StopIteration:
             raise SyntaxError('SyntaxError at line: {0}'.format(lineno))
         # Add the comments

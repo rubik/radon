@@ -5,5 +5,5 @@ if __name__ == '__main__':
     except ImportError:
         argv = None
     else:
-        argv = ['nosetests', '--rednose', '--nocapture', '--pdb']
+        argv = ['nosetests', '--rednose']
     nose.main(argv=argv)
