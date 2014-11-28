@@ -141,13 +141,13 @@ class TestLogicalLines(ParametrizedTestCase):
 
 ANALYZE_CASES = [
     ('''
-     ''', (0, 0, 0, 0, 0, 0)),
+     ''', (0, 0, 0, 0, 0, 0, 0)),
 
     ('''
      """
      doc?
      """
-     ''', (0, 1, 3, 0, 3, 0)),
+     ''', (0, 1, 3, 0, 3, 0, 0)),
 
     ('''
      # just a comment
@@ -156,13 +156,13 @@ ANALYZE_CASES = [
      else:
          # you'll never get here
          print('ven')
-     ''', (4, 4, 6, 2, 0, 0)),
+     ''', (4, 4, 6, 2, 0, 0, 2)),
 
     ('''
      #
      #
      #
-     ''', (0, 0, 3, 3, 0, 0)),
+     ''', (0, 0, 3, 3, 0, 0, 3)),
 
     ('''
      if a:
@@ -171,7 +171,7 @@ ANALYZE_CASES = [
 
      else:
          print
-     ''', (4, 4, 4, 0, 0, 2)),
+     ''', (4, 4, 4, 0, 0, 2, 0)),
 
     # In this case the docstring is not counted as a multi-line string
     # because in fact it is on one line!
@@ -179,7 +179,7 @@ ANALYZE_CASES = [
      def f(n):
          """here"""
          return n * f(n - 1)
-     ''', (2, 3, 3, 0, 0, 0)),
+     ''', (2, 3, 3, 0, 0, 0, 1)),
 
     ('''
      def hip(a, k):
@@ -194,7 +194,7 @@ ANALYZE_CASES = [
          """
          if n <= 1: return 1  # otherwise it will melt the cpu
          return fib(n - 2) + fib(n - 1)
-     ''', (12, 9, 11, 2, 4, 1)),
+     ''', (6, 9, 10, 2, 3, 1, 1)),
 
     ('''
      a = [1, 2, 3,
@@ -217,5 +217,5 @@ class TestAnalyze(ParametrizedTestCase):
         else:
             result = analyze(self.code)
             self.assertEqual(result, self.expected)
-            # blank + sloc = loc
-            self.assertTrue(result[0] == result[2] + result[5])
+            # sloc - single_comments - multi  = loc
+            self.assertTrue(result[0] == result[2] - result[6] - result[4])

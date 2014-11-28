@@ -30,7 +30,7 @@ TOKEN_NUMBER = operator.itemgetter(0)
 #   comments = Comments lines
 #   blank = Blank lines (or whitespace-only lines)
 Module = collections.namedtuple('Module', ['loc', 'lloc', 'sloc',
-                                           'comments', 'multi', 'blank'])
+                                           'comments', 'multi', 'blank', 'single_comments'])
 
 
 def _generate(code):
@@ -227,12 +227,13 @@ def find_comments(lines_to_remove, line_count, line):
     '''
 
     if not line:
-        return lines_to_remove
+        return (lines_to_remove, True)
 
     if line[0] == "#" or line.count("'''") == 2 or line.count('"""') == 2:
         lines_to_remove.append(line_count)
+        return (lines_to_remove, True)
 
-    return lines_to_remove
+    return (lines_to_remove, False)
 
 
 def remove_python_documentation(doc):
@@ -244,10 +245,14 @@ def remove_python_documentation(doc):
     multi_quos = ["'''", '"""']
     lines_to_remove = []
     end = False
-
+    comments = 0
+    multi = 1
     for line_count, line in enumerate(doc):
 
-        lines_to_remove = find_comments(lines_to_remove, line_count, line)
+        lines_to_remove, removed = find_comments(lines_to_remove, line_count, line)
+        if removed:
+            comments += 1
+            continue
 
         quote_type = [multi_quo for multi_quo in multi_quos\
                 if multi_quo in doc[line_count]]
@@ -260,8 +265,12 @@ def remove_python_documentation(doc):
             doc=doc,
             line_count=line_count,
             quote_type=quote_type)
-
-    return remove_lines(doc, lines_to_remove)
+        if end:
+            multi += 1
+    # Set multi equal to 0 if no multi strings were found
+    if multi == 1:
+        multi = 0
+    return len(remove_lines(doc, lines_to_remove)), comments, multi
 
 
 def analyze(source):
@@ -280,26 +289,21 @@ def analyze(source):
     Multiline strings are not counted as comments, since, to the Python
     interpreter, they are not comments but strings.
     '''
-    sloc = lloc = comments = multi = blank = 0
-    loc = len(remove_python_documentation([line.strip() for line in source\
-            if line]))
+    lloc = comments = multi = blank = 0
+    sloc = len([line.strip() for line in source.split('\n') if line])
+    loc, single_comments, multi = remove_python_documentation([line.strip() for line in source.split('\n')\
+            if line])
     lines = iter(source.splitlines())
     for lineno, line in enumerate(lines, 1):
         line = line.strip()
         if not line:
             blank += 1
             continue
-        # If this is not a blank line, then it counts as a
-        # source line of code
-        sloc += 1
         try:
             # Process a logical line that spans on multiple lines
             tokens, sloc_incr, multi_incr = _get_all_tokens(line, lines)
         except StopIteration:
             raise SyntaxError('SyntaxError at line: {0}'.format(lineno))
-        # Update tracked metrics
-        sloc += sloc_incr
-        multi += multi_incr
         # Add the comments
         comments += list(map(TOKEN_NUMBER, tokens)).count(COMMENT)
         # Process a logical line
@@ -307,4 +311,4 @@ def analyze(source):
         # lines
         for sub_tokens in _split_tokens(tokens, OP, ';'):
             lloc += _logical(sub_tokens)
-    return Module(loc, lloc, sloc, comments, multi, blank)
+    return Module(loc, lloc, sloc, comments, multi, blank, single_comments)
