@@ -199,6 +199,77 @@ ANALYZE_CASES = [
     ('''
      a = [1, 2, 3,
      ''', SyntaxError),
+
+    # Test that handling of parameters with a value passed in.
+    ('''
+     def foo(n=1):
+        """
+        Try it with n = 294942: it will take a fairly long time.
+        """
+        if n <= 1: return 1  # otherwise it will melt the cpu
+    ''', (2, 4, 5, 1, 3, 0, 0)),
+
+    ('''
+     def foo(n=1):
+        """
+        Try it with n = 294942: it will take a fairly long time.
+        """
+        if n <= 1: return 1  # otherwise it will melt the cpu
+        string = """This is a string not a comment"""
+    ''', (3, 5, 6, 1, 3, 0, 0)),
+
+    ('''
+     def foo(n=1):
+        """
+        Try it with n = 294942: it will take a fairly long time.
+        """
+        if n <= 1: return 1  # otherwise it will melt the cpu
+        string = """
+                 This is a string not a comment
+                 """
+    ''', (5, 5, 8, 1, 3, 0, 0)),
+
+    ('''
+     def foo(n=1):
+        """
+        Try it with n = 294942: it will take a fairly long time.
+        """
+        if n <= 1: return 1  # otherwise it will melt the cpu
+        string ="""
+                This is a string not a comment
+                """
+        test = 0
+    ''', (6, 6, 9, 1, 3, 0, 0)),
+
+    # Breaking lines still treated as single line of code.
+    ('''
+     def foo(n=1):
+        """
+        Try it with n = 294942: it will take a fairly long time.
+        """
+        if n <= 1: return 1  # otherwise it will melt the cpu
+        string =\
+                """
+                This is a string not a comment
+                """
+        test = 0
+    ''', (6, 6, 9, 1, 3, 0, 0)),
+
+    # Test handling of last line comment.
+    ('''
+     def foo(n=1):
+        """
+        Try it with n = 294942: it will take a fairly long time.
+        """
+        if n <= 1: return 1  # otherwise it will melt the cpu
+        string =\
+                """
+                This is a string not a comment
+                """
+        test = 0
+        # Comment
+    ''', (6, 6, 10, 2, 3, 0, 1)),
+
 ]
 
 

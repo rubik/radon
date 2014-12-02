@@ -173,8 +173,8 @@ def is_multiline_string(doc, line_count, quote_type):
     line = doc[line_count]
     previous_line = doc[line_count-1]
 
-    if line.count('=') and line.index('=') < line.index(quote_type)\
-            or line_count != 0 and '=' in previous_line:
+    if line.count('=') > 0 and line.index('=') < line.index(quote_type)\
+            or line_count != 0 and '=' in previous_line[-3]:
         return True
 
     else:
@@ -202,10 +202,18 @@ def find_multiline_comments(lines_to_remove, end, doc, line_count, quote_type):
         end = True
 
         if is_multiline_string(doc, line_count, quote_type):
-            return lines_to_remove, False
+            # If a multiline string is found move the cursor until the end
+            # of the multiline string.
+            line_count += 1
+            while quote_type not in doc[line_count]:
+                line_count += 1
+                if quote_type in doc[line_count]:
+                    line_count += 1
+                    break
+            return lines_to_remove, False, line_count
 
         lines_to_remove.append(line_count)
-        return lines_to_remove, end
+        return lines_to_remove, end, line_count
 
     elif end and not quote_type:
         lines_to_remove.append(line_count)
@@ -214,7 +222,7 @@ def find_multiline_comments(lines_to_remove, end, doc, line_count, quote_type):
         lines_to_remove.append(line_count)
         end = False
 
-    return lines_to_remove, end
+    return lines_to_remove, end, line_count
 
 
 def find_comments(lines_to_remove, line_count, line):
@@ -230,7 +238,8 @@ def find_comments(lines_to_remove, line_count, line):
     if not line:
         return (lines_to_remove, True)
 
-    if line[0] == "#" or line.count("'''") == 2 or line.count('"""') == 2:
+    if line[0] == "#" or line.count("'''") == 2 and '=' not in line or\
+            line.count('"""') == 2 and '=' not in line:
         lines_to_remove.append(line_count)
         return (lines_to_remove, True)
 
@@ -248,8 +257,11 @@ def remove_python_documentation(doc):
     end = False
     comments = 0
     multi = 1
+    new_count = 0
     for line_count, line in enumerate(doc):
 
+        if new_count > line_count:
+            continue
         lines_to_remove, removed = find_comments(lines_to_remove,
                                                  line_count,
                                                  line)
@@ -262,7 +274,7 @@ def remove_python_documentation(doc):
 
         # end is True if the first of a pair of multiline comments is found and
         # end will revert back to False when both pairs are found.
-        lines_to_remove, end = find_multiline_comments(
+        lines_to_remove, end, new_count = find_multiline_comments(
             lines_to_remove=lines_to_remove,
             end=end,
             doc=doc,
