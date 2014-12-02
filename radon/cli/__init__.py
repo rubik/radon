@@ -16,7 +16,7 @@ program = Program(version=sys.modules['radon'].__version__)
 @program.arg('paths', nargs='+')
 def cc(paths, min='A', max='F', show_complexity=False, average=False,
        exclude=None, ignore=None, order='SCORE', json=False, no_assert=False,
-       total_average=False, xml=False):
+       show_closures=False, total_average=False, xml=False):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -45,6 +45,7 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
     :param --xml: Format results in XML (compatible with CCM).
     :param --no-assert: Do not count `assert` statements when computing
         complexity.
+    :param --show-closures: Add closures to the output.
     '''
     config = Config(
         min=min.upper(),
@@ -56,6 +57,7 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
         total_average=total_average,
         order=getattr(cc_mod, order.upper(), getattr(cc_mod, 'SCORE')),
         no_assert=no_assert,
+        show_closures=show_closures,
     )
     harvester = CCHarvester(paths, config)
     log_result(harvester, json=json, xml=xml)

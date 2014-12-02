@@ -38,7 +38,7 @@ class TestRank(ParametrizedTestCase):
         self.score = score
         self.expected_rank = expected_rank
 
-    def testRank(self):
+    def test_rank(self):
         if (hasattr(self.expected_rank, '__call__') and
             isinstance(self.expected_rank(), Exception)):
             self.assertRaises(self.expected_rank, cc_rank, self.score)
@@ -64,7 +64,7 @@ class TestSortedResults(ParametrizedTestCase):
         self.blocks = blocks
         self.expected_result = list(map(get_index(blocks), indices))
 
-    def testSortedResults(self):
+    def test_sorted_results(self):
         self.assertEqual(sorted_results(self.blocks), self.expected_result)
 
 
@@ -75,7 +75,7 @@ class TestAverageComplexity(ParametrizedTestCase):
         self.blocks = blocks
         self.expected_average = expected_average
 
-    def testAverageComplexity(self):
+    def test_average_complexity(self):
         self.assertEqual(average_complexity(self.blocks),
                          self.expected_average)
 
@@ -93,7 +93,14 @@ class TestCCVisit(ParametrizedTestCase):
         self.code = dedent(code)
         self.number_of_blocks = blocks
 
-    def testCCVisit(self):
+    def test_cc_visit(self):
         results = cc_visit(self.code)
         self.assertTrue(isinstance(results, list))
         self.assertEqual(len(results), self.number_of_blocks)
+
+    def test_add_closures(self):
+        blocks = cc_visit(self.code)
+        with_closures = add_closures(blocks)
+        names = set(map(operator.attrgetter('name'), with_closures))
+        self.assertEqual(len(with_closures) - len(blocks), 1)
+        self.assertTrue('f.inner' in names)

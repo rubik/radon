@@ -15,7 +15,7 @@ GET_ENDLINE = operator.attrgetter('endline')
 
 BaseFunc = collections.namedtuple('Function', ['name', 'lineno', 'col_offset',
                                                'endline', 'is_method',
-                                               'classname', 'clojures',
+                                               'classname', 'closures',
                                                'complexity'])
 BaseClass = collections.namedtuple('Class', ['name', 'lineno', 'col_offset',
                                              'endline', 'methods',
@@ -204,8 +204,9 @@ class ComplexityVisitor(CodeVisitor):
             self.complexity += len(node.handlers) + len(node.orelse)
         elif name == 'BoolOp':
             self.complexity += len(node.values) - 1
-        # Lambda functions, ifs, with and assert statements count all as 1.
-        elif name in ('Lambda', 'With', 'If', 'IfExp'):
+        # Ifs, with and assert statements count all as 1.
+        # Note: Lambda functions are not counted anymore, see #68
+        elif name in ('With', 'If', 'IfExp'):
             self.complexity += 1
         # The For and While blocks count as 1 plus the `else` block.
         elif name in ('For', 'While'):
@@ -229,21 +230,20 @@ class ComplexityVisitor(CodeVisitor):
         '''
         # The complexity of a function is computed taking into account
         # the following factors: number of decorators, the complexity
-        # the function's body and the number of clojures (which count
+        # the function's body and the number of closures (which count
         # double).
-        clojures = []
+        closures = []
         body_complexity = 1
         for child in node.body:
             visitor = ComplexityVisitor(off=False, no_assert=self.no_assert)
             visitor.visit(child)
-            clojures.extend(visitor.functions)
-            # Add general complexity and clojures' complexity
-            body_complexity += (visitor.complexity +
-                                visitor.functions_complexity)
+            closures.extend(visitor.functions)
+            # Add general complexity but not closures' complexity, see #68
+            body_complexity += visitor.complexity
 
         func = Function(node.name, node.lineno, node.col_offset,
                         max(node.lineno, visitor.max_line), self.to_method,
-                        self.classname, clojures, body_complexity)
+                        self.classname, closures, body_complexity)
         self.functions.append(func)
 
     def visit_ClassDef(self, node):

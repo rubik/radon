@@ -78,12 +78,12 @@ def cc_to_dict(obj):
         'type': get_type(obj),
         'rank': cc_rank(obj.complexity),
     }
-    attrs = set(Function._fields) - set(('is_method', 'clojures'))
+    attrs = set(Function._fields) - set(('is_method', 'closures'))
     for a in attrs:
         v = getattr(obj, a, None)
         if v is not None:
             result[a] = v
-    for key in ('methods', 'clojures'):
+    for key in ('methods', 'closures'):
         if hasattr(obj, key):
             result[key] = list(map(cc_to_dict, getattr(obj, key)))
     return result

@@ -18,6 +18,7 @@ CC_CONFIG = Config(
     min='A',
     max='F',
     show_complexity=False,
+    show_closures=False,
     average=True,
     total_average=False,
     **BASE_CONFIG.config_values
@@ -110,17 +111,18 @@ class TestCCHarvester(ConfigMixin, unittest.TestCase):
     @mock.patch('radon.cli.harvest.sorted_results')
     @mock.patch('radon.cli.harvest.cc_visit')
     def test_gobble(self, cc_mock, sr_mock):
-        cc_mock.return_value = mock.sentinel.one
+        cc_mock.return_value = []
         fobj = mock.MagicMock()
-        fobj.read.return_value = mock.sentinel.two
+        fobj.read.return_value = mock.sentinel.one
 
         h = harvest.CCHarvester([], self.config)
+        h.config.show_closures = True
         h.gobble(fobj)
 
         self.assertTrue(fobj.read.called)
-        cc_mock.assert_called_with(mock.sentinel.two,
+        cc_mock.assert_called_with(mock.sentinel.one,
                                    no_assert=self.config.no_assert)
-        sr_mock.assert_called_with(mock.sentinel.one, order=self.config.order)
+        sr_mock.assert_called_with([], order=self.config.order)
 
     @mock.patch('radon.cli.harvest.cc_to_dict')
     def test_to_dicts(self, c2d_mock):
