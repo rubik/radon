@@ -270,6 +270,18 @@ ANALYZE_CASES = [
         # Comment
     ''', (6, 6, 10, 2, 3, 0, 1)),
 
+    ('''
+     def foo(n=1):
+        """
+        Try it with n = 294942: it will take a fairly long time.
+        """
+        if n <= 1: return 1  # otherwise it will melt the cpu
+        test = 0
+        string =\
+                """
+                This is a string not a comment
+                """
+    ''', (6, 6, 9, 1, 3, 0, 0)),
 ]
 
 
