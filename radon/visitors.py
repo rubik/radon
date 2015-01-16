@@ -82,7 +82,8 @@ class Class(BaseClass):
         '''
         if not self.methods:
             return self.real_complexity
-        return int(self.real_complexity / float(len(self.methods))) + 1
+        methods = len(self.methods)
+        return int(self.real_complexity / float(methods)) + (methods > 1)
 
     def __str__(self):
         '''String representation of a class block.'''
