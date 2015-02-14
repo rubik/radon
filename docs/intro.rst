@@ -10,7 +10,7 @@ Cyclomatic Complexity
 
 Cyclomatic Complexity corresponds to the number of decisions a block of code
 contains plus 1. This number (also called McCabe number) is equal to the number
-of linearly indipendent paths through the code. This number can be used as a
+of linearly independent paths through the code. This number can be used as a
 guide when testing conditional logic in blocks.
 
 Radon analyzes the AST tree of a Python program to compute Cyclomatic
