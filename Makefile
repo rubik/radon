@@ -11,7 +11,7 @@ htmlcov: cov
 	coverage html
 
 pep8:
-	pep8 radon --exclude "radon/tests"
+	pep8 radon --exclude "radon/tests" --ignore "E731"
 
 pylint:
 	pylint --rcfile pylintrc radon

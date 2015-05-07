@@ -117,7 +117,8 @@ def dict_to_xml(results):
 
             et.SubElement(metric, 'classification').text = block['rank']
             et.SubElement(metric, 'file').text = filename
-            et.SubElement(metric, 'startLineNumber').text = str(block['lineno'])
+            et.SubElement(metric, 'startLineNumber').text = \
+                str(block['lineno'])
             et.SubElement(metric, 'endLineNumber').text = str(block['endline'])
     return et.tostring(ccm).decode('utf-8')
 
