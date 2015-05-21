@@ -223,6 +223,7 @@ class MIHarvester(Harvester):
                 yield (key, value)
 
     def as_json(self):
+        '''Format the results as JSON.'''
         return json.dumps(dict(self.filtered_results))
 
     def as_xml(self):
