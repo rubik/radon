@@ -36,7 +36,6 @@ Complexity. Statements have the following effects on Cyclomatic Complexity:
 
 Maintainability Index
 ---------------------
-
 Maintainability Index is a software metric which measures how maintainable
 (easy to support and change) the source code is. The maintainability index is
 calculated as a factored formula consisting of SLOC (Source Lines Of Code),
@@ -62,20 +61,23 @@ Common formulas are:
 
   .. math::
 
-    MI = max \left [ 0, 100\dfrac{171 - 5.2\ln V - 0.23 G - 16.2 \ln L}{171} \right ].
+    MI = \max \left [ 0, 100\dfrac{171 - 5.2\ln V - 0.23 G - 16.2 \ln L}{171} \right ].
 
 Radon uses another derivative, computed from both SEI derivative and Visual
 Studio one:
 
 .. math::
 
-    MI = max \left [ 0, 100\dfrac{171 - 5.2\ln V - 0.23 G - 16.2 \ln L + 50 \sin(\sqrt{2.4 C}))}{171} \right ]
+    MI = \max \left [ 0, 100\dfrac{171 - 5.2\ln V - 0.23 G - 16.2 \ln L + 50 \sin(\sqrt{2.4 C}))}{171} \right ]
 
 Where:
     * ``V`` is the Halstead Volume (see below);
     * ``G`` is the total Cyclomatic Complexity;
     * ``L`` is the number of Source Lines of Code (SLOC);
     * ``C`` is the percent of comment lines (important: converted to radians).
+
+.. note:: Maintainability Index is still a very experimental metric, and
+   should not be taken into account as seriously as the other metrics.
 
 Raw Metrics
 -----------
@@ -116,3 +118,18 @@ From these numbers several measures can be calculated:
     * Effort: :math:`E = D \cdot V`
     * Time required to program: :math:`T = \dfrac{E}{18}` seconds
     * Number of delivered bugs: :math:`B = \dfrac{V}{3000}`.
+
+Further Reading
+---------------
+
+1. Paul Omand and Jack Hagemeister. “Metrics for assessing a software system’s
+   maintainability”. Proceedings International Conference on Software
+   Mainatenance (ICSM), 1992. (`doi <http://dx.doi.org/10.1109/ICSM.1992.242525>`_)
+
+2. Don M. Coleman, Dan Ash, Bruce Lowther, Paul W. Oman. Using Metrics to
+   Evaluate Software System Maintainability. IEEE Computer 27(8), 1994. (`doi
+   <http://doi.ieeecomputersociety.org/10.1109/2.303623>`_, `postprint
+   <http://www.ecs.csun.edu/~rlingard/comp589/ColemanPaper.pdf>`_)
+
+3. `Maintainability Index Range and Meaning <http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx`_.
+   Code Analysis Team Blog, blogs.msdn, 20 November 2007.
