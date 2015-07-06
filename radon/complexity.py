@@ -106,7 +106,8 @@ class Flake8Checker(object):
     name = 'radon'
     _code = 'R701'
     _error_tmpl = 'R701: %r is too complex (%d)'
-    max_cc = 10
+    no_assert = False
+    max_cc = -1
 
     def __init__(self, tree, filename):
         self.tree = tree
@@ -115,18 +116,25 @@ class Flake8Checker(object):
 
     @classmethod
     def add_options(cls, parser):  # pragma: no cover
-        parser.add_option('--radon-max-cc', default=10, action='store',
+        parser.add_option('--radon-max-cc', default=-1, action='store',
                           type='int', help='Radon complexity threshold')
+        parser.add_option('--radon-no-assert', dest='no_assert',
+                          action='store_true', default=False,
+                          help='Radon will ignore assert statements')
         parser.config_options.append('radon-max-cc')
+        parser.config_options.append('radon-no-assert')
 
     @classmethod
     def parse_options(cls, options):  # pragma: no cover
         cls.max_cc = options.radon_max_cc
+        cls.no_assert = options.no_assert
 
     def run(self):
         if self.max_cc < 0:
             return
-        for block in ComplexityVisitor.from_ast(self.tree).blocks:
+        visitor = ComplexityVisitor.from_ast(self.tree,
+                                             no_assert=self.no_assert)
+        for block in visitor.blocks:
             if block.complexity > self.max_cc:
                 text = self._error_tmpl % (block.name, block.complexity)
                 yield block.lineno, 0, text, type(self)
