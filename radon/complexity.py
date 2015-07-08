@@ -110,12 +110,14 @@ class Flake8Checker(object):
     max_cc = -1
 
     def __init__(self, tree, filename):
+        '''Accept the AST tree and a filename (unused).'''
         self.tree = tree
 
     version = property(lambda self: __import__('radon').__version__)
 
     @classmethod
     def add_options(cls, parser):  # pragma: no cover
+        '''Add custom options to the global parser.'''
         parser.add_option('--radon-max-cc', default=-1, action='store',
                           type='int', help='Radon complexity threshold')
         parser.add_option('--radon-no-assert', dest='no_assert',
@@ -126,10 +128,12 @@ class Flake8Checker(object):
 
     @classmethod
     def parse_options(cls, options):  # pragma: no cover
+        '''Save actual options as class attributes.'''
         cls.max_cc = options.radon_max_cc
         cls.no_assert = options.no_assert
 
     def run(self):
+        '''Run the ComplexityVisitor over the AST tree.'''
         if self.max_cc < 0:
             return
         visitor = ComplexityVisitor.from_ast(self.tree,
