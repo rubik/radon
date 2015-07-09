@@ -135,7 +135,9 @@ class Flake8Checker(object):
     def run(self):
         '''Run the ComplexityVisitor over the AST tree.'''
         if self.max_cc < 0:
-            return
+            if not self.no_assert:
+                return
+            self.max_cc = 10
         visitor = ComplexityVisitor.from_ast(self.tree,
                                              no_assert=self.no_assert)
         for block in visitor.blocks:
