@@ -19,7 +19,12 @@ setup(name='radon',
       packages=find_packages(),
       tests_require=['tox'],
       install_requires=['mando', 'colorama'],
-      entry_points={'console_scripts': ['radon = radon:main']},
+      entry_points={
+          'console_scripts': ['radon = radon:main'],
+          'flake8.extension': [
+              'R70 = radon.complexity:Flake8Checker',
+          ],
+      },
       keywords='static analysis code complexity metrics',
       classifiers=[
           'Development Status :: 5 - Production/Stable',

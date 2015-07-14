@@ -98,3 +98,49 @@ def cc_visit_ast(ast_node, **kwargs):
     the keyword arguments are directly passed to the visitor.
     '''
     return ComplexityVisitor.from_ast(ast_node, **kwargs).blocks
+
+
+class Flake8Checker(object):
+    '''Entry point for the Flake8 tool.'''
+
+    name = 'radon'
+    _code = 'R701'
+    _error_tmpl = 'R701: %r is too complex (%d)'
+    no_assert = False
+    max_cc = -1
+
+    def __init__(self, tree, filename):
+        '''Accept the AST tree and a filename (unused).'''
+        self.tree = tree
+
+    version = property(lambda self: __import__('radon').__version__)
+
+    @classmethod
+    def add_options(cls, parser):  # pragma: no cover
+        '''Add custom options to the global parser.'''
+        parser.add_option('--radon-max-cc', default=-1, action='store',
+                          type='int', help='Radon complexity threshold')
+        parser.add_option('--radon-no-assert', dest='no_assert',
+                          action='store_true', default=False,
+                          help='Radon will ignore assert statements')
+        parser.config_options.append('radon-max-cc')
+        parser.config_options.append('radon-no-assert')
+
+    @classmethod
+    def parse_options(cls, options):  # pragma: no cover
+        '''Save actual options as class attributes.'''
+        cls.max_cc = options.radon_max_cc
+        cls.no_assert = options.no_assert
+
+    def run(self):
+        '''Run the ComplexityVisitor over the AST tree.'''
+        if self.max_cc < 0:
+            if not self.no_assert:
+                return
+            self.max_cc = 10
+        visitor = ComplexityVisitor.from_ast(self.tree,
+                                             no_assert=self.no_assert)
+        for block in visitor.blocks:
+            if block.complexity > self.max_cc:
+                text = self._error_tmpl % (block.name, block.complexity)
+                yield block.lineno, 0, text, type(self)

@@ -131,5 +131,9 @@ Further Reading
    <http://doi.ieeecomputersociety.org/10.1109/2.303623>`_, `postprint
    <http://www.ecs.csun.edu/~rlingard/comp589/ColemanPaper.pdf>`_)
 
-3. `Maintainability Index Range and Meaning <http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx`_.
+3. `Maintainability Index Range and Meaning
+   <http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx>`_.
    Code Analysis Team Blog, blogs.msdn, 20 November 2007.
+
+4. Arie van Deursen, `Think Twice Before Using the “Maintainability Index”
+   <http://avandeursen.com/2014/08/29/think-twice-before-using-the-maintainability-index/>`_.

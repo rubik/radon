@@ -1,4 +1,6 @@
+import ast
 import operator
+import unittest
 from paramunittest import *
 from radon.complexity import *
 from radon.visitors import Class, Function
@@ -104,3 +106,15 @@ class TestCCVisit(ParametrizedTestCase):
         names = set(map(operator.attrgetter('name'), with_closures))
         self.assertEqual(len(with_closures) - len(blocks), 1)
         self.assertTrue('f.inner' in names)
+
+
+class TestFlake8Checker(unittest.TestCase):
+
+    def test_run(self):
+        c = Flake8Checker(ast.parse(dedent(GENERAL_CASES[0][0])), 'test case')
+        self.assertEqual(c.max_cc, -1)
+        self.assertEqual(c.no_assert, False)
+        self.assertEqual(list(c.run()), [])
+        c.max_cc = 3
+        self.assertEqual(list(c.run()), [(7, 0, "R701: 'f' is too complex (4)",
+                                          type(c))])

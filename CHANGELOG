@@ -1,3 +1,8 @@
+1.2.2 (Jul 09, 2015)
+--------------------
+
+- Add plugin for flake8 tool: #76.
+
 1.2.1 (May 07, 2015)
 --------------------
 
@@ -6,8 +11,9 @@
 1.2 (Jan 16, 2015)
 ------------------
 
-- Breaking change regarding to CC of lambda functions and nested functions: #68
-- Fix the bug that caused classes with only one method have a CC of 2: #70
+- **Backwards incompatible** change regarding to CC of lambda functions and
+  nested functions: #68.
+- Fix the bug that caused classes with only one method have a CC of 2: #70.
 
 1.1 (Sep 6, 2014)
 -----------------
