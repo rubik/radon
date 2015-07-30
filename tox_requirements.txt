@@ -1,4 +1,5 @@
 paramunittest==0.2
 mando==0.3.2
 colorama==0.3.3
-nose==1.3.6
+nose==1.3.7
+mock==1.3.0

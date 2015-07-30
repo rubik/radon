@@ -1,27 +1,27 @@
 Radon
 =====
 
-.. image:: http://img.shields.io/travis/rubik/radon/master.svg?style=flat
+.. image:: https://img.shields.io/travis/rubik/radon/master.svg
     :alt: Travis-CI badge
     :target: https://travis-ci.org/rubik/radon
 
-.. image:: http://img.shields.io/coveralls/rubik/radon/master.svg?style=flat
+.. image:: https://img.shields.io/coveralls/rubik/radon/master.svg
     :alt: Coveralls badge
     :target: https://coveralls.io/r/rubik/radon?branch=master
 
-.. image:: https://pypip.in/v/radon/badge.png?style=flat
+.. image:: https://img.shields.io/pypi/v/radon.svg
     :alt: PyPI latest version badge
     :target: https://pypi.python.org/pypi/radon
 
-.. image:: https://pypip.in/d/radon/badge.png?style=flat
+.. image:: https://img.shields.io/pypi/dm/radon.svg
     :alt: PyPI downloads badge
     :target: https://pypi.python.org/pypi/radon
 
-.. image:: https://pypip.in/format/radon/badge.svg?style=flat
-    :target: http://pythonwheels.com/
+.. image:: https://img.shields.io/pypi/format/radon.svg
     :alt: Download format
+    :target: http://pythonwheels.com/
 
-.. image:: https://pypip.in/license/radon/badge.png?style=flat
+.. image:: https://img.shields.io/pypi/l/radon.svg
     :alt: Radon license
     :target: https://pypi.python.org/pypi/radon
 
