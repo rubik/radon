@@ -143,8 +143,9 @@ class TestLogging(unittest.TestCase):
         cli.log_result(h, json=True)
         h.as_json.assert_called_once_with()
 
+        h.as_json.reset_mock()
         cli.log_result(h, json=True, xml=True)
-        h.as_json.assert_called_twice_with()
+        h.as_json.assert_called_once_with()
         self.assertEqual(h.as_xml.call_count, 0)
 
         cli.log_result(h, xml=True)
