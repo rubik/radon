@@ -1,6 +1,10 @@
 Radon
 =====
 
+.. image:: https://img.shields.io/codacy/623b84f5f6e6708c486f371e10da3610.svg
+   :alt: Codacy badge
+   :target: https://www.codacy.com/app/rubik/radon/dashboard
+
 .. image:: https://img.shields.io/travis/rubik/radon/master.svg
     :alt: Travis-CI badge
     :target: https://travis-ci.org/rubik/radon
