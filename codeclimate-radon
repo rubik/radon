@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+
+import json
+import os.path
+
+threshold = "b"
+include_paths = ["."]
+
+if os.path.exists("/config.json"):
+    contents = open("/config.json").read()
+    config = json.loads(contents)
+
+    if config.get("config") and config["config"].get("threshold"):
+        threshold = config["config"]["threshold"].lower()
+
+    if config.get("include_paths"):
+        config_paths = config.get("include_paths")
+        python_paths = []
+        for i in config_paths:
+            ext = os.path.splitext(i)[1]
+            if os.path.isdir(i) or "py" in ext:
+                python_paths.append(i)
+        include_paths = python_paths
+
+if len(include_paths) > 0:
+    args = " ".join(include_paths)
+    os.system("radon cc {0} -n{1} --codeclimate".format(args, threshold))
