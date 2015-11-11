@@ -160,9 +160,9 @@ CC_TO_XML_CASE = [
 class TestDictConversion(unittest.TestCase):
 
     def test_raw_to_dict(self):
-        self.assertEqual(tools.raw_to_dict(Module(103, 123, 98, 8, 19, 5)),
+        self.assertEqual(tools.raw_to_dict(Module(103, 123, 98, 8, 19, 5, 3)),
                          {'loc': 103, 'lloc': 123, 'sloc': 98, 'comments': 8,
-                          'multi': 19, 'blank': 5})
+                             'multi': 19, 'blank': 5, 'single_comments': 3})
 
     def test_cc_to_xml(self):
         self.assertEqual(tools.dict_to_xml({'filename': CC_TO_XML_CASE}),
