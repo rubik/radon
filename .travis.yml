@@ -9,8 +9,8 @@ python:
     - "3.5"
     - "pypy"
 install:
-    - pip install -e . --use-mirrors
-    - pip install -r test_requirements.txt --use-mirrors
+    - pip install .
+    - pip install -r test_requirements.txt
     - ls
     - python travis-additional-deps.py
 script:
