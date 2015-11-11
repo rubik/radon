@@ -166,7 +166,8 @@ class CCHarvester(Harvester):
 class RawHarvester(Harvester):
     '''A class that analyzes Python modules' raw metrics.'''
 
-    headers = ['LOC', 'LLOC', 'SLOC', 'Comments', 'Multi', 'Blank']
+    headers = ['LOC', 'LLOC', 'SLOC', 'Comments', 'Single comments', 'Multi',
+               'Blank']
 
     def gobble(self, fobj):
         '''Analyze the content of the file object.'''
@@ -185,7 +186,7 @@ class RawHarvester(Harvester):
                 continue
             yield path, (), {}
             for header in self.headers:
-                value = mod[header.lower()]
+                value = mod[header.lower().replace(' ', '_')]
                 yield '{0}: {1}', (header, value), {'indent': 1}
                 sum_metrics[header] += value
 

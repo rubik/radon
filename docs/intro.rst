@@ -84,9 +84,8 @@ Raw Metrics
 
 The following are the definitions employed by Radon:
 
-    * **LOC**: The total number of lines of code. It is the sum of the **SLOC**
-      and the number of blank lines: the equation `LOC = SLOC + Blanks` should
-      always hold.
+    * **LOC**: The total number of lines of code. It does not necessarily
+      correspond to the number of lines in the file.
     * **LLOC**: The number of logical lines of code. Every logical line of code
       contains exactly one statement.
     * **SLOC**: The number of source lines of code - not necessarily
@@ -95,6 +94,8 @@ The following are the definitions employed by Radon:
       as comment since, to the Python interpreter, they are just strings.
     * Multi: The number of lines which represent multi-line strings.
     * Blanks: The number of blank lines (or whitespace-only ones).
+
+The equation ``SLOC - Single comments - Multi = LOC`` should always hold.
 
 Halstead Metrics
 ----------------

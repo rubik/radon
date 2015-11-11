@@ -166,12 +166,13 @@ def is_multiline_string(doc, line_count, quote_type):
     :param doc: [str], a document cast into an array.
     :param line_count: int, zero based index that points to the current line
                  in an docuement.
-    :param quote_type: str, one of the two multiline quotes available in python.
+    :param quote_type: str, one of the two multiline quotes available in
+                       Python.
     :return: bool, True if the triple quoted line is a multiline string.
     '''
 
     line = doc[line_count]
-    previous_line = doc[line_count-1]
+    previous_line = doc[line_count - 1]
 
     if line.count('=') > 0 and line.index('=') < line.index(quote_type)\
             or line_count != 0 and '=' in previous_line[-3]:
@@ -190,7 +191,8 @@ def find_multiline_comments(lines_to_remove, end, doc, line_count, quote_type):
     :param doc: [str], a document cast into an array.
     :param line_count: int, zero based index that points to the current line
                  in an docuement.
-    :param quote_type: str, one of the two multiline quotes available in python.
+    :param quote_type: str, one of the two multiline quotes available in
+                       Python.
     :return: tuple, lines_to_remove = same as that passed in, with additions.
                     end = bool, updated version of end paramater.
     '''
@@ -269,8 +271,8 @@ def remove_python_documentation(doc):
             comments += 1
             continue
 
-        quote_type = [multi_quo for multi_quo in multi_quos\
-                if multi_quo in doc[line_count]]
+        quote_type = [multi_quo for multi_quo in multi_quos
+                      if multi_quo in doc[line_count]]
 
         # end is True if the first of a pair of multiline comments is found and
         # end will revert back to False when both pairs are found.
