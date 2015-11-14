@@ -135,7 +135,7 @@ def dict_to_codeclimate_issues(results, threshold='B'):
     for path in results:
         info = results[path]
         if type(info) is dict and info.get('error'):
-            description = "Error: {0}".format(info.get('error', error_content))
+            description = 'Error: {0}'.format(info.get('error', error_content))
             beginline = re.search(r'\d+', description)
             error_category = 'Bug Risk'
 
@@ -245,11 +245,11 @@ def get_remediation_points(complexity, grade_threshold):
     '''Calculate quantity of remediation work needed to reduce complexity to grade
     threshold permitted.'''
     grade_to_max_permitted_cc = {
-        "B": 5,
-        "C": 10,
-        "D": 20,
-        "E": 30,
-        "F": 40,
+        'B': 5,
+        'C': 10,
+        'D': 20,
+        'E': 30,
+        'F': 40,
     }
 
     threshold = grade_to_max_permitted_cc.get(grade_threshold, 5)
