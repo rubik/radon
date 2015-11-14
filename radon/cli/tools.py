@@ -148,21 +148,26 @@ def dict_to_codeclimate_issues(results, threshold='B'):
             remediation_points = 1000000
             codeclimate_issues.append(
                 format_cc_issue(path, description, error_content,
-                                error_category, beginline, endline, remediation_points))
+                                error_category, beginline, endline,
+                                remediation_points))
         else:
             for offender in info:
                 beginline = offender['lineno']
                 endline = offender['endline']
                 complexity = offender['complexity']
                 category = 'Complexity'
-                description = 'Cyclomatic complexity is too high in {0} {1}. ({2})'.format(
-                    offender['type'], offender['name'], complexity)
-                remediation_points = get_remediation_points(complexity, threshold)
+                description = ('Cyclomatic complexity is too high in {0} {1}. '
+                               '({2})'.format(offender['type'],
+                                              offender['name'],
+                                              complexity))
+                remediation_points = get_remediation_points(
+                    complexity, threshold)
 
                 if remediation_points > 0:
                     codeclimate_issues.append(
                         format_cc_issue(path, description, content, category,
-                                        beginline, endline, remediation_points))
+                                        beginline, endline,
+                                        remediation_points))
     return codeclimate_issues
 
 
@@ -213,11 +218,12 @@ def _format_line(block, ranked, show_complexity=False):
                            compl, reset=RESET)
 
 
-def format_cc_issue(path, description, content, category, beginline, endline, remediation_points):
+def format_cc_issue(path, description, content, category, beginline, endline,
+                    remediation_points):
     '''Return properly formatted Code Climate issue json.'''
     issue = {
-        'type':'issue',
-        'check_name':'Complexity',
+        'type': 'issue',
+        'check_name': 'Complexity',
         'description': description,
         'content': {
             'body': content,
@@ -239,11 +245,11 @@ def get_remediation_points(complexity, grade_threshold):
     '''Calculate quantity of remediation work needed to reduce complexity to grade
     threshold permitted.'''
     grade_to_max_permitted_cc = {
-        "B":5,
-        "C":10,
-        "D":20,
-        "E":30,
-        "F":40,
+        "B": 5,
+        "C": 10,
+        "D": 20,
+        "E": 30,
+        "F": 40,
     }
 
     threshold = grade_to_max_permitted_cc.get(grade_threshold, 5)
@@ -256,31 +262,35 @@ def get_remediation_points(complexity, grade_threshold):
 
 def get_content():
     '''Return explanation string for Code Climate issue document.'''
-    content = """##Cyclomatic Complexity
-Cyclomatic Complexity corresponds to the number of decisions a block of code
-contains plus 1. This number (also called McCabe number) is equal to the number
-of linearly independent paths through the code. This number can be used as a
-guide when testing conditional logic in blocks.
-
-Radon analyzes the AST tree of a Python program to compute Cyclomatic
-Complexity. Statements have the following effects on Cyclomatic Complexity:\n
-
-| Construct | Effect on CC | Reasoning |
-| --------- | ------------------------------- | ---- |
-| if | +1 | An *if* statement is a single decision. |
-| elif| +1| The *elif* statement adds another decision. |
-| else| +0| The *else* statement does not cause a new decision. The decision is at the *if*. |
-| for| +1| There is a decision at the start of the loop. |
-| while| +1| There is a decision at the *while* statement. |
-| except| +1| Each *except* branch adds a new conditional path of execution. |
-| finally| +0| The finally block is unconditionally executed. |
-| with| +1| The *with* statement roughly corresponds to a try/except block (see PEP 343 for details). |
-| assert| +1| The *assert* statement internally roughly equals a conditional statement. |
-| Comprehension| +1| A list/set/dict comprehension of generator expression is equivalent to a for loop. |
-| Lambda| +1| A lambda function is a regular function. |
-| Boolean Operator| +1| Every boolean operator (and, or) adds a decision point. |
-
-Source: http://radon.readthedocs.org/en/latest/intro.html"""
-    return content
-
-
+    content = ['##Cyclomatic Complexity',
+               'Cyclomatic Complexity corresponds to the number of decisions '
+               'a block of code contains plus 1. This number (also called '
+               'McCabe number) is equal to the number of linearly independent '
+               'paths through the code. This number can be used as a guide '
+               'when testing conditional logic in blocks.\n',
+               'Radon analyzes the AST tree of a Python program to compute '
+               'Cyclomatic Complexity. Statements have the following effects '
+               'on Cyclomatic Complexity:\n\n',
+               '| Construct | Effect on CC | Reasoning |',
+               '| --------- | ------------ | --------- |',
+               '| if | +1 | An *if* statement is a single decision. |',
+               '| elif| +1| The *elif* statement adds another decision. |',
+               '| else| +0| The *else* statement does not cause a new '
+               'decision. The decision is at the *if*. |',
+               '| for| +1| There is a decision at the start of the loop. |',
+               '| while| +1| There is a decision at the *while* statement. |',
+               '| except| +1| Each *except* branch adds a new conditional '
+               'path of execution. |',
+               '| finally| +0| The finally block is unconditionally '
+               'executed. |',
+               '| with| +1| The *with* statement roughly corresponds to a '
+               'try/except block (see PEP 343 for details). |',
+               '| assert| +1| The *assert* statement internally roughly '
+               'equals a conditional statement. |',
+               '| Comprehension| +1| A list/set/dict comprehension of '
+               'generator expression is equivalent to a for loop. |',
+               '| Lambda| +1| A lambda function is a regular function. |',
+               '| Boolean Operator| +1| Every boolean operator (and, or) '
+               'adds a decision point. |\n',
+               'Source: http://radon.readthedocs.org/en/latest/intro.html']
+    return '\n'.join(content)

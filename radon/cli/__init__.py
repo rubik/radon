@@ -181,7 +181,8 @@ def log_result(harvester, **kwargs):
     elif kwargs.get('xml'):
         log(harvester.as_xml(), noformat=True)
     elif kwargs.get('codeclimate'):
-        log_list(harvester.as_codeclimate_issues(), delimiter='\0', noformat=True)
+        log_list(harvester.as_codeclimate_issues(), delimiter='\0',
+                 noformat=True)
     else:
         for msg, args, kwargs in harvester.to_terminal():
             if kwargs.get('error', False):
