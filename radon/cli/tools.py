@@ -289,7 +289,6 @@ def get_content():
                'equals a conditional statement. |',
                '| Comprehension| +1| A list/set/dict comprehension of '
                'generator expression is equivalent to a for loop. |',
-               '| Lambda| +1| A lambda function is a regular function. |',
                '| Boolean Operator| +1| Every boolean operator (and, or) '
                'adds a decision point. |\n',
                'Source: http://radon.readthedocs.org/en/latest/intro.html']
