@@ -68,7 +68,7 @@ class TestCommands(unittest.TestCase):
             min='A', max='F', exclude=None, ignore=None, show_complexity=False,
             average=False, order=getattr(cc_mod, 'SCORE'), no_assert=False,
             total_average=False, show_closures=False))
-        log_mock.assert_called_once_with(mock.sentinel.harvester, json=True,
+        log_mock.assert_called_once_with(mock.sentinel.harvester, codeclimate=False, json=True,
                                          xml=False)
 
     @mock.patch('radon.cli.log_result')
