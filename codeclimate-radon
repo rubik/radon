@@ -2,16 +2,26 @@
 
 import json
 import os.path
+import sys
 
 threshold = "b"
+binstub = "radon3"
 include_paths = ["."]
 
 if os.path.exists("/config.json"):
     contents = open("/config.json").read()
     config = json.loads(contents)
 
-    if config.get("config") and config["config"].get("threshold"):
-        threshold = config["config"]["threshold"].lower()
+    if config.get("config"):
+        if config["config"].get("threshold"):
+            threshold = config["config"]["threshold"].lower()
+
+        if config["config"].get("python_version"):
+            version = config["config"].get("python_version")
+            if version == "2":
+                binstub = "radon2"
+            elif version != "3":
+                sys.exit("Invalid python_version; must be either 2 or 3")
 
     if config.get("include_paths"):
         config_paths = config.get("include_paths")
@@ -24,4 +34,4 @@ if os.path.exists("/config.json"):
 
 if len(include_paths) > 0:
     args = " ".join(include_paths)
-    os.system("radon cc {0} -n{1} --codeclimate".format(args, threshold))
+    os.system("{0} cc {1} -n{2} --codeclimate".format(binstub, args, threshold))
