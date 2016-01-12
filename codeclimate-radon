@@ -33,8 +33,14 @@ if os.path.exists("/config.json"):
                 python_paths.append(i)
         include_paths = python_paths
 
+    include_paths = config.get("include_paths", ["."])
+    include_paths = [shlex.quote(path) for path in include_paths
+                     if os.path.isdir(path) or path.endswith(".py")]
+
 if len(include_paths) > 0:
-    paths = " ".join(shlex.quote(path) for path in include_paths)
+    paths = " ".join(include_paths)
 
     print("Running {0}...".format(binstub), file = sys.stderr)
     os.system("{0} cc {1} -n{2} --codeclimate".format(binstub, paths, threshold))
+else:
+    print("Empty workspace; skipping...", file = sys.stderr)
