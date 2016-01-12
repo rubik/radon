@@ -35,4 +35,6 @@ if os.path.exists("/config.json"):
 
 if len(include_paths) > 0:
     paths = " ".join(shlex.quote(path) for path in include_paths)
+
+    print("Running {0}...".format(binstub), file = sys.stderr)
     os.system("{0} cc {1} -n{2} --codeclimate".format(binstub, paths, threshold))
