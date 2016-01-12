@@ -2,6 +2,7 @@
 
 import json
 import os.path
+import shlex
 import sys
 
 threshold = "b"
@@ -33,5 +34,5 @@ if os.path.exists("/config.json"):
         include_paths = python_paths
 
 if len(include_paths) > 0:
-    args = " ".join(include_paths)
-    os.system("{0} cc {1} -n{2} --codeclimate".format(binstub, args, threshold))
+    paths = " ".join(shlex.quote(path) for path in include_paths)
+    os.system("{0} cc {1} -n{2} --codeclimate".format(binstub, paths, threshold))
