@@ -1,5 +1,13 @@
-languages:
-    Python: true
+engines:
+    radon:
+        enabled: true
+        config:
+            threshold: 'B'
+    pep8:
+        enabled: true
+ratings:
+    paths:
+    - "**.py"
 exclude_paths:
-    - "docs/*"
-    - "radon/tests/*"
+- "docs/*"
+- "radon/tests/*"

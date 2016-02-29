@@ -1,5 +1,0 @@
-strictness: high
-ignore_paths:
-    - tests
-    - docs
-    - setup.py

@@ -16,7 +16,7 @@ program = Program(version=sys.modules['radon'].__version__)
 @program.arg('paths', nargs='+')
 def cc(paths, min='A', max='F', show_complexity=False, average=False,
        exclude=None, ignore=None, order='SCORE', json=False, no_assert=False,
-       show_closures=False, total_average=False, xml=False):
+       show_closures=False, total_average=False, xml=False, codeclimate=False):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -43,6 +43,7 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
         ALPHA.
     :param -j, --json: Format results in JSON.
     :param --xml: Format results in XML (compatible with CCM).
+    :param --codeclimate: Format results for Code Climate.
     :param --no-assert: Do not count `assert` statements when computing
         complexity.
     :param --show-closures: Add closures to the output.
@@ -60,7 +61,7 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
         show_closures=show_closures,
     )
     harvester = CCHarvester(paths, config)
-    log_result(harvester, json=json, xml=xml)
+    log_result(harvester, json=json, xml=xml, codeclimate=codeclimate)
 
 
 @program.command
@@ -170,7 +171,8 @@ def log_result(harvester, **kwargs):
 
     Keywords parameters determine how the results are formatted. If *json* is
     `True`, then `harvester.as_json()` is called. If *xml* is `True`, then
-    `harvester.as_xml()` is called.
+    `harvester.as_xml()` is called. If *codeclimate* is True, then
+    `harvester.as_codeclimate_issues()` is called.
     Otherwise, `harvester.to_terminal()` is executed and `kwargs` is directly
     passed to the :func:`~radon.cli.log` function.
     '''
@@ -178,6 +180,9 @@ def log_result(harvester, **kwargs):
         log(harvester.as_json(), noformat=True)
     elif kwargs.get('xml'):
         log(harvester.as_xml(), noformat=True)
+    elif kwargs.get('codeclimate'):
+        log_list(harvester.as_codeclimate_issues(), delimiter='\0',
+                 noformat=True)
     else:
         for msg, args, kwargs in harvester.to_terminal():
             if kwargs.get('error', False):
@@ -198,8 +203,9 @@ def log(msg, *args, **kwargs):
     in any way.
     '''
     indent = 4 * kwargs.get('indent', 0)
+    delimiter = kwargs.get('delimiter', '\n')
     m = msg if kwargs.get('noformat', False) else msg.format(*args)
-    sys.stdout.write(' ' * indent + m + '\n')
+    sys.stdout.write(' ' * indent + m + delimiter)
 
 
 def log_list(lst, *args, **kwargs):

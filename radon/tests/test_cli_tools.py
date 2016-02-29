@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import unittest
 import radon.cli.tools as tools
 from radon.visitors import Function, Class
@@ -157,6 +158,17 @@ CC_TO_XML_CASE = [
 ]
 
 
+CC_TO_CODECLIMATE_CASE = [
+    {'closures': [], 'endline': 16, 'complexity': 6, 'lineno': 12, 'type':
+     'function', 'name': 'foo', 'col_offset': 0, 'rank': 'B'},
+
+    {'complexity': 8, 'endline': 29, 'rank': 'B', 'lineno': 17, 'type': 'class',
+    'name': 'Classname', 'col_offset': 0},
+
+    {'closures': [], 'endline': 17, 'complexity': 4, 'lineno': 13, 'type':
+     'method', 'name': 'bar', 'col_offset': 4, 'rank': 'A'},
+]
+
 class TestDictConversion(unittest.TestCase):
 
     def test_raw_to_dict(self):
@@ -208,6 +220,39 @@ class TestDictConversion(unittest.TestCase):
                                 <endLineNumber>16</endLineNumber>
                               </metric>
                             </ccm>'''.replace('\n', '').replace(' ', ''))
+
+    def test_cc_to_codeclimate(self):
+        actual_results = tools.dict_to_codeclimate_issues({'filename': CC_TO_CODECLIMATE_CASE})
+        expected_results = [
+                            json.dumps({
+                                "description":"Cyclomatic complexity is too high in function foo. (6)",
+                                "check_name":"Complexity",
+                                "content": { "body": tools.get_content()},
+                                "location": { "path": "filename", "lines": {"begin": 12, "end": 16}},
+                                "type":"issue",
+                                "categories": ["Complexity"],
+                                "remediation_points": 1100000
+                                }),
+                            json.dumps({
+                                "description":"Cyclomatic complexity is too high in class Classname. (8)",
+                                "check_name":"Complexity",
+                                "content": {"body": tools.get_content()},
+                                "location": {"path": "filename", "lines": {"begin": 17, "end": 29}},
+                                "type":"issue",
+                                "categories": ["Complexity"],
+                                "remediation_points": 1300000
+                                }),
+                            ]
+
+        actual_sorted = []
+        for i in actual_results:
+             actual_sorted.append(json.loads(i))
+
+        expected_sorted = []
+        for i in expected_results:
+             expected_sorted.append(json.loads(i))
+
+        self.assertEqual(actual_sorted, expected_sorted)
 
 
 CC_TO_TERMINAL_CASES = [

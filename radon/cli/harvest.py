@@ -7,7 +7,8 @@ from radon.metrics import mi_visit, mi_rank
 from radon.complexity import cc_visit, sorted_results, cc_rank, add_closures
 from radon.cli.colors import RANKS_COLORS, MI_RANKS, RESET
 from radon.cli.tools import (iter_filenames, _open, cc_to_dict, dict_to_xml,
-                             cc_to_terminal, raw_to_dict)
+                             dict_to_codeclimate_issues, cc_to_terminal,
+                             raw_to_dict)
 
 
 class Harvester(object):
@@ -95,6 +96,10 @@ class Harvester(object):
         '''Format the results as XML.'''
         raise NotImplementedError
 
+    def as_codeclimate_issues(self):
+        '''Format the results as Code Climate issues.'''
+        raise NotImplementedError
+
     def to_terminal(self):
         '''Yields tuples representing lines to be printed to a terminal.
 
@@ -136,6 +141,10 @@ class CCHarvester(Harvester):
         Jenkin's CCM plugin. Therefore not all the fields are kept.
         '''
         return dict_to_xml(self._to_dicts())
+
+    def as_codeclimate_issues(self):
+        '''Format the result as Code Climate issues.'''
+        return dict_to_codeclimate_issues(self._to_dicts(), self.config.min)
 
     def to_terminal(self):
         '''Yield lines to be printed in a terminal.'''

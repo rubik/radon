@@ -1,0 +1,46 @@
+#!/usr/bin/env python3.5
+
+import json
+import os.path
+import shlex
+import sys
+
+threshold = "b"
+binstub = "radon3"
+include_paths = ["."]
+
+if os.path.exists("/config.json"):
+    contents = open("/config.json").read()
+    config = json.loads(contents)
+
+    if config.get("config"):
+        if config["config"].get("threshold"):
+            threshold = config["config"]["threshold"].lower()
+
+        if config["config"].get("python_version"):
+            version = config["config"].get("python_version")
+            if version == "2":
+                binstub = "radon2"
+            elif version != "3":
+                sys.exit("Invalid python_version; must be either 2 or 3")
+
+    if config.get("include_paths"):
+        config_paths = config.get("include_paths")
+        python_paths = []
+        for i in config_paths:
+            ext = os.path.splitext(i)[1]
+            if os.path.isdir(i) or "py" in ext:
+                python_paths.append(i)
+        include_paths = python_paths
+
+    include_paths = config.get("include_paths", ["."])
+    include_paths = [shlex.quote(path) for path in include_paths
+                     if os.path.isdir(path) or path.endswith(".py")]
+
+if len(include_paths) > 0:
+    paths = " ".join(include_paths)
+
+    print("Running {0}...".format(binstub), file = sys.stderr)
+    os.system("{0} cc {1} -n{2} --codeclimate".format(binstub, paths, threshold))
+else:
+    print("Empty workspace; skipping...", file = sys.stderr)
