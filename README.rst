@@ -137,8 +137,8 @@ https://docs.codeclimate.com/v1.0/docs/radon
 Coala Analyzer
 ++++++++++++++
 
-Radon is also supported in `Coala <http://coala-analyzer.org/>`_. To add Radon's
-checks to Coala, simply add the ``RadonBear`` to the ``[python]`` section in
+Radon is also supported in `coala <http://coala-analyzer.org/>`_. To add Radon's
+checks to coala, simply add the ``RadonBear`` to one of the sections in
 your ``.coafile``.
 
 
