@@ -174,12 +174,12 @@ def is_multiline_string(doc, line_count, quote_type):
     line = doc[line_count]
     previous_line = doc[line_count - 1]
 
-    if line.count('=') > 0 and line.index('=') < line.index(quote_type)\
-            or line_count != 0 and '=' in previous_line[-3]:
+    if line.count('=') > 0 and line.index('=') < line.index(quote_type) \
+            or line_count != 0 and len(previous_line) > 2 \
+            and '=' in previous_line[-3]:
         return True
 
-    else:
-        return False
+    return False
 
 
 def find_multiline_comments(lines_to_remove, end, doc, line_count, quote_type):

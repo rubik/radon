@@ -282,6 +282,16 @@ ANALYZE_CASES = [
                 This is a string not a comment
                 """
     ''', (6, 6, 9, 1, 3, 0, 0)),
+
+    ('''
+    def function(
+        args
+    ):
+        """This is a multi-line docstring
+        for the function
+        """
+        pass
+    ''', (4, 3, 7, 0, 3, 0, 0)),
 ]
 
 
