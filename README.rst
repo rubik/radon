@@ -124,6 +124,24 @@ fail (that means exiting with a non-zero exit code) when various thresholds are
 surpassed. `radon` is more of a reporting tool, while `xenon` is a monitoring
 one.
 
+If you are looking for more complete solutions, read the following sections.
+
+Code Climate
+++++++++++++
+
+Radon is available as a [Code Climate Engine](https://docs.codeclimate.com/docs/list-of-engines).
+To understand how to add Radon's checks to your Code Climate Platform, head
+over to their documentation:
+https://docs.codeclimate.com/v1.0/docs/radon
+
+Coala Analyzer
+++++++++++++++
+
+Radon is also supported in [Coala](http://coala-analyzer.org/). To add Radon's
+checks to Coala, simply add the `RadonBear` to the `[python]` section in your
+`.coafile`.
+
+
 Links
 -----
 
