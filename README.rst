@@ -129,7 +129,7 @@ If you are looking for more complete solutions, read the following sections.
 Code Climate
 ++++++++++++
 
-Radon is available as a [Code Climate Engine](https://docs.codeclimate.com/docs/list-of-engines).
+Radon is available as a `Code Climate Engine <https://docs.codeclimate.com/docs/list-of-engines>`_.
 To understand how to add Radon's checks to your Code Climate Platform, head
 over to their documentation:
 https://docs.codeclimate.com/v1.0/docs/radon
@@ -137,9 +137,9 @@ https://docs.codeclimate.com/v1.0/docs/radon
 Coala Analyzer
 ++++++++++++++
 
-Radon is also supported in [Coala](http://coala-analyzer.org/). To add Radon's
-checks to Coala, simply add the `RadonBear` to the `[python]` section in your
-`.coafile`.
+Radon is also supported in `Coala <http://coala-analyzer.org/>`_. To add Radon's
+checks to Coala, simply add the ``RadonBear`` to the ``[python]`` section in
+your ``.coafile``.
 
 
 Links
