@@ -73,16 +73,22 @@ def sorted_results(blocks, order=SCORE):
     return sorted(blocks, key=order)
 
 
-def add_closures(blocks):
-    '''Process a list of blocks by adding all closures as top-level blocks.'''
+def add_inner_blocks(blocks):
+    '''Process a list of blocks by adding all closures and inner classes as
+    top-level blocks.
+    '''
     new_blocks = []
-    for block in blocks:
+    all_blocks = blocks[:]
+    while all_blocks:
+        block = all_blocks.pop()
         new_blocks.append(block)
-        if 'closures' not in block._fields:
-            continue
-        for closure in block.closures:
-            named = closure._replace(name=block.name + '.' + closure.name)
-            new_blocks.append(named)
+        for inner_block in ('closures', 'inner_classes'):
+            for i_block in getattr(block, inner_block, ()):
+                named = i_block._replace(name=block.name + '.' + i_block.name)
+                all_blocks.append(named)
+                for meth in getattr(named, 'methods', ()):
+                    m_named = meth._replace(classname=named.name)
+                    all_blocks.append(m_named)
     return new_blocks
 
 
@@ -143,4 +149,4 @@ class Flake8Checker(object):
         for block in visitor.blocks:
             if block.complexity > self.max_cc:
                 text = self._error_tmpl % (block.name, block.complexity)
-                yield block.lineno, 0, text, type(self)
+                yield block.lineno, block.col_offset, text, type(self)

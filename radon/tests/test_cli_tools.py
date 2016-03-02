@@ -100,7 +100,7 @@ CC_RESULTS_CASES = [
     ([
         Class('Classname', 17, 0, 29, [
             Function('name', 19, 4, 26, True, 'Classname', [], 7),
-        ], 7),
+        ], [], 7),
     ], {
         'type': 'class', 'name': 'Classname', 'lineno': 17, 'col_offset': 0,
         'endline': 29, 'complexity': 7, 'rank': 'B', 'methods': [
@@ -259,7 +259,8 @@ CC_TO_TERMINAL_CASES = [
     Class(name='Classname', lineno=17, col_offset=0, endline=29,
           methods=[Function(name='meth', lineno=19, col_offset=4, endline=26,
                             is_method=True, classname='Classname', closures=[],
-                            complexity=4)], real_complexity=4),
+                            complexity=4)],
+          inner_classes=[], real_complexity=4),
     Function(name='meth', lineno=19, col_offset=4, endline=26, is_method=True,
              classname='Classname', closures=[], complexity=7),
     Function(name='f1', lineno=12, col_offset=0, endline=16, is_method=False,

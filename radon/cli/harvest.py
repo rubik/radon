@@ -4,7 +4,8 @@ import json
 import collections
 from radon.raw import analyze
 from radon.metrics import mi_visit, mi_rank
-from radon.complexity import cc_visit, sorted_results, cc_rank, add_closures
+from radon.complexity import (cc_visit, sorted_results, cc_rank,
+                              add_inner_blocks)
 from radon.cli.colors import RANKS_COLORS, MI_RANKS, RESET
 from radon.cli.tools import (iter_filenames, _open, cc_to_dict, dict_to_xml,
                              dict_to_codeclimate_issues, cc_to_terminal,
@@ -116,7 +117,7 @@ class CCHarvester(Harvester):
         '''Analyze the content of the file object.'''
         r = cc_visit(fobj.read(), no_assert=self.config.no_assert)
         if self.config.show_closures:
-            r = add_closures(r)
+            r = add_inner_blocks(r)
         return sorted_results(r, order=self.config.order)
 
     def _to_dicts(self):

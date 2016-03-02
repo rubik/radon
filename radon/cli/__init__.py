@@ -46,7 +46,7 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
     :param --codeclimate: Format results for Code Climate.
     :param --no-assert: Do not count `assert` statements when computing
         complexity.
-    :param --show-closures: Add closures to the output.
+    :param --show-closures: Add closures/inner classes to the output.
     '''
     config = Config(
         min=min.upper(),

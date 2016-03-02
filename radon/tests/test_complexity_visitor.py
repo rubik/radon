@@ -453,6 +453,12 @@ GENERAL_CASES = [
              b, a = a, inner(b)
          return a, b
      ''', (3, 1, 2, 6)),
+
+    ('''
+     class f(object):
+         class inner(object):
+             pass
+     ''', (1, 0, 0, 1)),
 ]
 
 
@@ -536,10 +542,10 @@ CONTAINERS_CASES = [
     (('meth', 12, 0, 21, True, 'cls', [], 5),
      ('M', 'cls.meth', 'M 12:0->21 cls.meth - 5')),
 
-    (('cls', 12, 0, 15, [], 5),
+    (('cls', 12, 0, 15, [], [], 5),
      ('C', 'cls', 'C 12:0->15 cls - 5')),
 
-    (('cls', 12, 0, 19, [object, object, object, object], 30),
+    (('cls', 12, 0, 19, [object, object, object, object], [], 30),
      ('C', 'cls', 'C 12:0->19 cls - 8')),
 ]
 

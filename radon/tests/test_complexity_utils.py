@@ -49,7 +49,7 @@ class TestRank(ParametrizedTestCase):
 
 
 fun = lambda complexity: Function('randomname', 1, 4, 23, False, None, [], complexity)
-cls = lambda complexity: Class('randomname_', 3, 21, 18, [], complexity)
+cls = lambda complexity: Class('randomname_', 3, 21, 18, [], [], complexity)
 
 # This works with both the next two tests
 SIMPLE_BLOCKS = [
@@ -85,27 +85,43 @@ class TestAverageComplexity(ParametrizedTestCase):
 CC_VISIT_CASES = [
     (GENERAL_CASES[0][0], 1),
     (GENERAL_CASES[1][0], 3),
+    ('''
+    class joe1:
+        i = 1
+        def doit1(self):
+            pass
+        class joe2:
+            ii = 2
+            def doit2(self):
+                pass
+            class joe3:
+                iii = 3
+                def doit3(self):
+                    pass
+     ''', 2, 4, 'joe1.joe2.joe3'),
 ]
 
 
 @parametrized(*CC_VISIT_CASES)
 class TestCCVisit(ParametrizedTestCase):
 
-    def setParameters(self, code, blocks):
+    def setParameters(self, code, blocks, diff=1, lookfor='f.inner'):
         self.code = dedent(code)
         self.number_of_blocks = blocks
+        self.diff = diff
+        self.lookfor = lookfor
 
     def test_cc_visit(self):
         results = cc_visit(self.code)
         self.assertTrue(isinstance(results, list))
         self.assertEqual(len(results), self.number_of_blocks)
 
-    def test_add_closures(self):
+    def test_add_inner_blocks(self):
         blocks = cc_visit(self.code)
-        with_closures = add_closures(blocks)
-        names = set(map(operator.attrgetter('name'), with_closures))
-        self.assertEqual(len(with_closures) - len(blocks), 1)
-        self.assertTrue('f.inner' in names)
+        with_inner_blocks = add_inner_blocks(blocks)
+        names = set(map(operator.attrgetter('name'), with_inner_blocks))
+        self.assertEqual(len(with_inner_blocks) - len(blocks), self.diff)
+        self.assertTrue(self.lookfor in names)
 
 
 class TestFlake8Checker(unittest.TestCase):

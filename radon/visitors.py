@@ -19,6 +19,7 @@ BaseFunc = collections.namedtuple('Function', ['name', 'lineno', 'col_offset',
                                                'complexity'])
 BaseClass = collections.namedtuple('Class', ['name', 'lineno', 'col_offset',
                                              'endline', 'methods',
+                                             'inner_classes',
                                              'real_complexity'])
 
 
@@ -260,6 +261,7 @@ class ComplexityVisitor(CodeVisitor):
         body_complexity = 1
         classname = node.name
         visitors_max_lines = [node.lineno]
+        inner_classes = []
         for child in node.body:
             visitor = ComplexityVisitor(True, classname, off=False,
                                         no_assert=self.no_assert)
@@ -268,10 +270,11 @@ class ComplexityVisitor(CodeVisitor):
             body_complexity += (visitor.complexity +
                                 visitor.functions_complexity)
             visitors_max_lines.append(visitor.max_line)
+            inner_classes.extend(visitor.classes)
 
         cls = Class(classname, node.lineno, node.col_offset,
                     max(visitors_max_lines + list(map(GET_ENDLINE, methods))),
-                    methods, body_complexity)
+                    methods, inner_classes, body_complexity)
         self.classes.append(cls)
 
 
