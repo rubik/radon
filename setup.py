@@ -18,7 +18,7 @@ setup(name='radon',
       long_description=readme,
       packages=find_packages(),
       tests_require=['tox'],
-      install_requires=['mando~=0.3', 'colorama~=0.3'],
+      install_requires=['mando>=0.3,<0.4', 'colorama>=0.3,<0.4'],
       entry_points={
           'console_scripts': ['radon = radon:main'],
           'flake8.extension': [
