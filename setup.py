@@ -21,6 +21,9 @@ setup(name='radon',
       install_requires=['mando>=0.3,<0.4', 'colorama>=0.3,<0.4'],
       entry_points={
           'console_scripts': ['radon = radon:main'],
+          'setuptools.installation': [
+              'eggsecutable = radon:main',
+          ],
           'flake8.extension': [
               'R70 = radon.complexity:Flake8Checker',
           ],
