@@ -1,5 +1,6 @@
 '''This module contains various utility functions used in the CLI interface.'''
 
+import hashlib
 import os
 import re
 import sys
@@ -146,10 +147,11 @@ def dict_to_codeclimate_issues(results, threshold='B'):
 
             endline = beginline
             remediation_points = 1000000
+            fingerprint = get_fingerprint(path, ['error'])
             codeclimate_issues.append(
                 format_cc_issue(path, description, error_content,
                                 error_category, beginline, endline,
-                                remediation_points))
+                                remediation_points, fingerprint))
         else:
             for offender in info:
                 beginline = offender['lineno']
@@ -162,12 +164,14 @@ def dict_to_codeclimate_issues(results, threshold='B'):
                                               complexity))
                 remediation_points = get_remediation_points(
                     complexity, threshold)
+                fingerprint = get_fingerprint(path, [offender['type'],
+                                                     offender['name']])
 
                 if remediation_points > 0:
                     codeclimate_issues.append(
                         format_cc_issue(path, description, content, category,
                                         beginline, endline,
-                                        remediation_points))
+                                        remediation_points, fingerprint))
     return codeclimate_issues
 
 
@@ -219,7 +223,7 @@ def _format_line(block, ranked, show_complexity=False):
 
 
 def format_cc_issue(path, description, content, category, beginline, endline,
-                    remediation_points):
+                    remediation_points, fingerprint):
     '''Return properly formatted Code Climate issue json.'''
     issue = {
         'type': 'issue',
@@ -229,6 +233,7 @@ def format_cc_issue(path, description, content, category, beginline, endline,
             'body': content,
         },
         'categories': [category],
+        'fingerprint': fingerprint,
         'location': {
             'path': path,
             'lines': {
@@ -293,3 +298,11 @@ def get_content():
                'adds a decision point. |\n',
                'Source: http://radon.readthedocs.org/en/latest/intro.html']
     return '\n'.join(content)
+
+def get_fingerprint(path, additional_parts):
+    '''Return fingerprint string for Code Climate issue document.'''
+    m = hashlib.md5()
+    parts = [path, 'Complexity'] + additional_parts
+    key = '|'.join(parts)
+    m.update(key.encode('utf-8'))
+    return m.hexdigest()
