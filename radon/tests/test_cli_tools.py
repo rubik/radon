@@ -231,7 +231,8 @@ class TestDictConversion(unittest.TestCase):
                                 "location": { "path": "filename", "lines": {"begin": 12, "end": 16}},
                                 "type":"issue",
                                 "categories": ["Complexity"],
-                                "remediation_points": 1100000
+                                "remediation_points": 1100000,
+                                "fingerprint": "afbe2b8d9a57fde5f3235ec97e7a22e1"
                                 }),
                             json.dumps({
                                 "description":"Cyclomatic complexity is too high in class Classname. (8)",
@@ -240,7 +241,8 @@ class TestDictConversion(unittest.TestCase):
                                 "location": {"path": "filename", "lines": {"begin": 17, "end": 29}},
                                 "type":"issue",
                                 "categories": ["Complexity"],
-                                "remediation_points": 1300000
+                                "remediation_points": 1300000,
+                                "fingerprint": "8caecbb525375d825b95c23bc8f881d7"
                                 }),
                             ]
 
