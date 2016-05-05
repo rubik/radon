@@ -141,7 +141,7 @@ def dict_to_codeclimate_issues(results, threshold='B'):
             error_category = 'Bug Risk'
 
             if beginline:
-                beginline = beginline.group()
+                beginline = int(beginline.group())
             else:
                 beginline = 1
 
