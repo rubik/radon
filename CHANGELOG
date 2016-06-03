@@ -1,3 +1,10 @@
+1.4.0 (Jun 03, 2016)
+--------------------
+
+- Add fingerprint to Code Climate issues: #88.
+- Ensure the Code Climate issues have integer location values: #89.
+- Count ``async def``, ``async for`` and ``async with`` towards CC: #90.
+
 1.3.0 (Mar 02, 2016)
 --------------------
 
