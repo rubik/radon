@@ -1,9 +1,5 @@
 import sys
 import textwrap
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 from paramunittest import *
 from radon.visitors import *
 
@@ -229,6 +225,7 @@ BLOCKS = SIMPLE_BLOCKS[:]
 if sys.version_info[:2] >= (2, 7):
     BLOCKS.extend(ADDITIONAL_BLOCKS)
 
+
 @parametrized(*BLOCKS)
 class TestBlocks(ParametrizedTestCase):
     '''Test blocks.'''
@@ -241,7 +238,6 @@ class TestBlocks(ParametrizedTestCase):
     def test_ComplexityVisitor(self):
         visitor = ComplexityVisitor.from_code(self.code, **self.kwargs)
         self.assertEqual(visitor.complexity, self.expected_complexity)
-
 
 
 SINGLE_FUNCTIONS_CASES = [
@@ -279,6 +275,16 @@ SINGLE_FUNCTIONS_CASES = [
         return sum(i for i in range(b))
      ''', (1, 5)),
 ]
+
+if sys.version_info[:2] >= (3, 5):
+    SINGLE_FUNCTIONS_CASES.append(
+        ('''
+         async def f(a, b):
+            async with open('blabla.log', 'w') as f:
+                async for i in range(100):
+                    f.write(str(i) + '\\n')
+         ''', (1, 3)),
+    )
 
 
 @parametrized(*SINGLE_FUNCTIONS_CASES)

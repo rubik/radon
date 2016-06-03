@@ -208,10 +208,10 @@ class ComplexityVisitor(CodeVisitor):
             self.complexity += len(node.values) - 1
         # Ifs, with and assert statements count all as 1.
         # Note: Lambda functions are not counted anymore, see #68
-        elif name in ('With', 'If', 'IfExp'):
+        elif name in ('With', 'If', 'IfExp', 'AsyncWith'):
             self.complexity += 1
         # The For and While blocks count as 1 plus the `else` block.
-        elif name in ('For', 'While'):
+        elif name in ('For', 'While', 'AsyncFor'):
             self.complexity += bool(node.orelse) + 1
         # List, set, dict comprehensions and generator exps count as 1 plus
         # the `if` statement.
@@ -225,6 +225,9 @@ class ComplexityVisitor(CodeVisitor):
         if the `no_assert` attribute is `False`.
         '''
         self.complexity += not self.no_assert
+
+    def visit_AsyncFunctionDef(self, node):
+        self.visit_FunctionDef(node)
 
     def visit_FunctionDef(self, node):
         '''When visiting functions a new visitor is created to recursively
