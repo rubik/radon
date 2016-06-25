@@ -95,6 +95,14 @@ The following are the definitions employed by Radon:
     * Blanks: The number of blank lines (or whitespace-only ones).
 
 The equation ``SLOC - Single comments - Multi = LOC`` should always hold.
+Additionally, comment stats are calculated
+
+    * `C % L`: the ratio between number of comment lines and **LOC**,
+      expressed as a percentage;
+    * `C % S`: the ratio between number of comment lines and **SLOC**,
+      expressed as a percentage;
+    * `C + M % L`: the ratio between number of comment and multiline strings
+      lines and **LOC**, expressed as a percentage.
 
 Halstead Metrics
 ----------------
@@ -112,7 +120,8 @@ From these numbers several measures can be calculated:
 
     * Program vocabulary: :math:`\eta = \eta_1 + \eta_2`
     * Program length: :math:`N = N_1 + N_2`
-    * Calculated program length: :math:`\widehat{N} = \eta_1 \log_2 \eta_1 + \eta_2 \log_2 \eta_2`
+    * Calculated program length: :math:`\widehat{N} = \eta_1 \log_2 \eta_1 +
+      \eta_2 \log_2 \eta_2`
     * Volume: :math:`V = N \log_2 \eta`
     * Difficulty: :math:`D = \dfrac{\eta_1}{2} \cdot \dfrac{N_2}{\eta_2}`
     * Effort: :math:`E = D \cdot V`
