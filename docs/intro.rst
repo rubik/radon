@@ -95,7 +95,7 @@ The following are the definitions employed by Radon:
     * Blanks: The number of blank lines (or whitespace-only ones).
 
 The equation ``SLOC - Single comments - Multi = LOC`` should always hold.
-Additionally, comment stats are calculated
+Additionally, comment stats are calculated:
 
     * `C % L`: the ratio between number of comment lines and **LOC**,
       expressed as a percentage;
