@@ -18,7 +18,11 @@ setup(name='radon',
       long_description=readme,
       packages=find_packages(),
       tests_require=['tox'],
-      install_requires=['mando>=0.3,<0.4', 'colorama>=0.3,<0.4'],
+      install_requires=[
+          'mando>=0.3,<0.4',
+          'colorama>=0.3,<0.4',
+          'flake8-polyfill',
+      ],
       entry_points={
           'console_scripts': ['radon = radon:main'],
           'setuptools.installation': [

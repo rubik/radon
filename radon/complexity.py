@@ -3,6 +3,7 @@ Cyclomatic Complexity
 '''
 
 import math
+from flake8_polyfill import options
 from radon.visitors import GET_COMPLEXITY, ComplexityVisitor, code2ast
 
 
@@ -124,13 +125,18 @@ class Flake8Checker(object):
     @classmethod
     def add_options(cls, parser):  # pragma: no cover
         '''Add custom options to the global parser.'''
-        parser.add_option('--radon-max-cc', default=-1, action='store',
-                          type='int', help='Radon complexity threshold')
-        parser.add_option('--radon-no-assert', dest='no_assert',
-                          action='store_true', default=False,
-                          help='Radon will ignore assert statements')
-        parser.config_options.append('radon-max-cc')
-        parser.config_options.append('radon-no-assert')
+        options.register(
+                parser,
+                '--radon-max-cc', default=-1, action='store',
+                type='int', help='Radon complexity threshold',
+                parse_from_config=True
+        )
+        options.register(
+                parser,
+                '--radon-no-assert', dest='no_assert', action='store_true',
+                default=False, help='Radon will ignore assert statements',
+                parse_from_config=True,
+        )
 
     @classmethod
     def parse_options(cls, options):  # pragma: no cover
