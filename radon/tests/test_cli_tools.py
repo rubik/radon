@@ -39,7 +39,7 @@ class TestGenericTools(unittest.TestCase):
         with mock.patch('radon.cli.tools.open', m, create=True):
             tools._open('randomfile.py').__enter__()
 
-        if platform.python_implementation() == "PyPy":
+        if platform.python_implementation() == 'PyPy':
             m.assert_called_with('randomfile.py')
         else:
             except_encoding = os.getenv('RADONFILESENCODING',

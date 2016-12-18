@@ -1,6 +1,8 @@
 '''This module contains various utility functions used in the CLI interface.
 Attributes:
-    _encoding (str): encoding with all files will be opened. Configurate by envinronemt variable RADONFILESENCODING'''
+    _encoding (str): encoding with all files will be opened. Configured by
+    environment variable RADONFILESENCODING
+'''
 
 import hashlib
 import locale
@@ -18,9 +20,9 @@ from radon.cli.colors import (LETTERS_COLORS, RANKS_COLORS, TEMPLATE, BRIGHT,
                               RESET)
 
 
-# PyPy platform doesn't support encoding parameter in `open()` function
-# and work with 'utf-8' encoding by default
-if platform.python_implementation() == "PyPy":
+# PyPy doesn't support encoding parameter in `open()` function and works with
+# UTF-8 encoding by default
+if platform.python_implementation() == 'PyPy':
     @contextmanager
     def _open(path):
         '''Mock of the built-in `open()` function. If `path` is `-` then
@@ -32,12 +34,13 @@ if platform.python_implementation() == "PyPy":
             with open(path) as f:
                 yield f
 else:
-    # Add customize file encoding to fix https://github.com/rubik/radon/issues/86
-    # By default `open()` function using `locale.getpreferredencoding(False)`
-    # encdoing (see https://docs.python.org/3/library/functions.html#open).
-    # This code allow to change `open()` encoding by setting it in envinronment
+    # Add customized file encoding to fix #86.
+    # By default `open()` function uses `locale.getpreferredencoding(False)`
+    # encoding (see https://docs.python.org/3/library/functions.html#open).
+    # This code allows to change `open()` encoding by setting an environment
     # variable.
-    _encoding = os.getenv('RADONFILESENCODING', locale.getpreferredencoding(False))
+    _encoding = os.getenv('RADONFILESENCODING',
+                          locale.getpreferredencoding(False))
 
     @contextmanager
     def _open(path):
@@ -323,6 +326,7 @@ def get_content():
                'adds a decision point. |\n',
                'Source: http://radon.readthedocs.org/en/latest/intro.html']
     return '\n'.join(content)
+
 
 def get_fingerprint(path, additional_parts):
     '''Return fingerprint string for Code Climate issue document.'''

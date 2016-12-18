@@ -126,16 +126,16 @@ class Flake8Checker(object):
     def add_options(cls, parser):  # pragma: no cover
         '''Add custom options to the global parser.'''
         options.register(
-                parser,
-                '--radon-max-cc', default=-1, action='store',
-                type='int', help='Radon complexity threshold',
-                parse_from_config=True
+            parser,
+            '--radon-max-cc', default=-1, action='store',
+            type='int', help='Radon complexity threshold',
+            parse_from_config=True
         )
         options.register(
-                parser,
-                '--radon-no-assert', dest='no_assert', action='store_true',
-                default=False, help='Radon will ignore assert statements',
-                parse_from_config=True,
+            parser,
+            '--radon-no-assert', dest='no_assert', action='store_true',
+            default=False, help='Radon will ignore assert statements',
+            parse_from_config=True,
         )
 
     @classmethod
