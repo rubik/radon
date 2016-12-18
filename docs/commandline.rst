@@ -7,6 +7,11 @@ Radon currently has three commands:
     * :command:`raw`: compute raw metrics
     * :command:`mi`: compute Maintainability Index
 
+.. note::
+    On some systems, such as Windows, the default encoding is not UTF-8. If you
+    are using Unicode characters in your Python file and want to analyze it
+    with Radon, you'll have to set the `RADONFILESENCODING` to `UTF-8`.
+
 The :command:`cc` command
 -------------------------
 
