@@ -1,7 +1,11 @@
-'''This module contains various utility functions used in the CLI interface.'''
+'''This module contains various utility functions used in the CLI interface.
+Attributes:
+    _encoding (str): encoding with all files will be opened. Configurate by envinronemt variable RADONFILESENCODING'''
 
 import hashlib
+import locale
 import os
+import platform
 import re
 import sys
 import json
@@ -14,16 +18,37 @@ from radon.cli.colors import (LETTERS_COLORS, RANKS_COLORS, TEMPLATE, BRIGHT,
                               RESET)
 
 
-@contextmanager
-def _open(path):
-    '''Mock of the built-in `open()` function. If `path` is `-` then
-    `sys.stdin` is returned.
-    '''
-    if path == '-':
-        yield sys.stdin
-    else:
-        with open(path) as f:
-            yield f
+# PyPy platform doesn't support encoding parameter in `open()` function
+# and work with 'utf-8' encoding by default
+if platform.python_implementation() == "PyPy":
+    @contextmanager
+    def _open(path):
+        '''Mock of the built-in `open()` function. If `path` is `-` then
+        `sys.stdin` is returned.
+        '''
+        if path == '-':
+            yield sys.stdin
+        else:
+            with open(path) as f:
+                yield f
+else:
+    # Add customize file encoding to fix https://github.com/rubik/radon/issues/86
+    # By default `open()` function using `locale.getpreferredencoding(False)`
+    # encdoing (see https://docs.python.org/3/library/functions.html#open).
+    # This code allow to change `open()` encoding by setting it in envinronment
+    # variable.
+    _encoding = os.getenv('RADONFILESENCODING', locale.getpreferredencoding(False))
+
+    @contextmanager
+    def _open(path):
+        '''Mock of the built-in `open()` function. If `path` is `-` then
+        `sys.stdin` is returned.
+        '''
+        if path == '-':
+            yield sys.stdin
+        else:
+            with open(path, encoding=_encoding) as f:
+                yield f
 
 
 def iter_filenames(paths, exclude=None, ignore=None):

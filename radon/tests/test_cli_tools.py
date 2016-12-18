@@ -1,4 +1,6 @@
+import locale
 import os
+import platform
 import sys
 import json
 import unittest
@@ -36,7 +38,13 @@ class TestGenericTools(unittest.TestCase):
         m = mock.mock_open()
         with mock.patch('radon.cli.tools.open', m, create=True):
             tools._open('randomfile.py').__enter__()
-        m.assert_called_with('randomfile.py')
+
+        if platform.python_implementation() == "PyPy":
+            m.assert_called_with('randomfile.py')
+        else:
+            except_encoding = os.getenv('RADONFILESENCODING',
+                                        locale.getpreferredencoding(False))
+            m.assert_called_with('randomfile.py', encoding=except_encoding)
 
 
 class TestIterFilenames(unittest.TestCase):
