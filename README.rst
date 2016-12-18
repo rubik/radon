@@ -115,10 +115,11 @@ Actually it's even better: it's got colors!
     :alt: A screen of Radon's cc command
 
 
-.. note::
-    On some systems, such as Windows, the default encoding is not UTF-8. If you
-    are using Unicode characters in your Python file and want to analyze it
-    with Radon, you'll have to set the `RADONFILESENCODING` to `UTF-8`.
+**Note about file encoding**
+
+On some systems, such as Windows, the default encoding is not UTF-8. If you are
+using Unicode characters in your Python file and want to analyze it with Radon,
+you'll have to set the `RADONFILESENCODING` to `UTF-8`.
 
 
 On a Continuous Integration server
