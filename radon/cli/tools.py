@@ -4,14 +4,14 @@ Attributes:
     environment variable RADONFILESENCODING
 '''
 
-import hashlib
-import locale
 import os
-import platform
 import re
 import sys
 import json
+import locale
+import hashlib
 import fnmatch
+import platform
 import xml.etree.cElementTree as et
 from contextlib import contextmanager
 from radon.visitors import Function
@@ -42,6 +42,18 @@ else:
     _encoding = os.getenv('RADONFILESENCODING',
                           locale.getpreferredencoding(False))
 
+    if sys.version_info[:1] < (2, 7):
+        # This open function treats line-endings slighly differently than
+        # io.open. But the latter is implemented in pure Python in version 2.6,
+        # so we'll live with the differences instead of taking a hit on the
+        # speed. Radon does a lot of file reading, so the difference in speed
+        # is significant.
+        from codecs import open as _open_function
+    elif sys.version_info[:1] < (3, 0):
+        from io import open as _open_function
+    else:
+        _open_function = open
+
     @contextmanager
     def _open(path):
         '''Mock of the built-in `open()` function. If `path` is `-` then
@@ -50,7 +62,7 @@ else:
         if path == '-':
             yield sys.stdin
         else:
-            with open(path, encoding=_encoding) as f:
+            with _open_function(path, encoding=_encoding) as f:
                 yield f
 
 

@@ -35,13 +35,21 @@ class TestGenericTools(unittest.TestCase):
         with tools._open('-') as fobj:
             self.assertTrue(fobj is sys.stdin)
 
+        try:
+            with tools._open(__file__) as fobj:
+                self.assertTrue(True)
+        except TypeError:  # issue 101
+            self.fail('tools._open raised TypeError')
+
         m = mock.mock_open()
-        with mock.patch('radon.cli.tools.open', m, create=True):
-            tools._open('randomfile.py').__enter__()
 
         if platform.python_implementation() == 'PyPy':
+            with mock.patch('radon.cli.tools.open', m, create=True):
+                tools._open('randomfile.py').__enter__()
             m.assert_called_with('randomfile.py')
         else:
+            with mock.patch('radon.cli.tools._open_function', m, create=True):
+                tools._open('randomfile.py').__enter__()
             except_encoding = os.getenv('RADONFILESENCODING',
                                         locale.getpreferredencoding(False))
             m.assert_called_with('randomfile.py', encoding=except_encoding)
