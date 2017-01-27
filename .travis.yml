@@ -12,7 +12,6 @@ install:
     - pip install .
     - pip install -r test_requirements.txt
     - ls
-    - python travis-additional-deps.py
 script:
     - make cov
 after_success:
