@@ -1,3 +1,5 @@
+.cache
+.venv
 *.pyc
 *~
 *.sw[op]
