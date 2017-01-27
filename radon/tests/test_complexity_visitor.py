@@ -1,6 +1,8 @@
 import sys
 import textwrap
-from paramunittest import *
+
+import pytest
+
 from radon.visitors import *
 
 
@@ -10,153 +12,153 @@ dedent = lambda code: textwrap.dedent(code).strip()
 SIMPLE_BLOCKS = [
     ('''
      if a: pass
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      if a: pass
      else: pass
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      if a: pass
      elif b: pass
-     ''', 3),
+     ''', 3, {}),
 
     ('''
      if a: pass
      elif b: pass
      else: pass
-     ''', 3),
+     ''', 3, {}),
 
     ('''
     if a and b: pass
-    ''', 3),
+    ''', 3, {}),
 
     ('''
     if a and b: pass
     else: pass
-    ''', 3),
+    ''', 3, {}),
 
     ('''
      if a and b: pass
      elif c and d: pass
      else: pass
-     ''', 5),
+     ''', 5, {}),
 
     ('''
      if a and b or c and d: pass
      else: pass
-     ''', 5),
+     ''', 5, {}),
 
     ('''
      if a and b or c: pass
      else: pass
-     ''', 4),
+     ''', 4, {}),
 
     ('''
      for x in range(10): print(x)
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      for x in xrange(10): print(x)
      else: pass
-     ''', 3),
+     ''', 3, {}),
 
     ('''
      while a < 4: pass
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      while a < 4: pass
      else: pass
-     ''', 3),
+     ''', 3, {}),
 
     ('''
      while a < 4 and b < 42: pass
-     ''', 3),
+     ''', 3, {}),
 
     ('''
      while a and b or c < 10: pass
      else: pass
-     ''', 5),
+     ''', 5, {}),
 
     ('''
      with open('raw.py') as fobj: print(fobj.read())
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      [i for i in range(4)]
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      [i for i in range(4) if i&1]
-     ''', 3),
+     ''', 3, {}),
 
     ('''
      (i for i in range(4))
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      (i for i in range(4) if i&1)
-     ''', 3),
+     ''', 3, {}),
 
     ('''
      [i for i in range(42) if sum(k ** 2 for k in divisors(i)) & 1]
-     ''', 4),
+     ''', 4, {}),
 
     ('''
      try: raise TypeError
      except TypeError: pass
-     ''', 2),
-
-    ('''
-     try: raise TypeError
-     except TypeError: pass
-     else: pass
-     ''', 3),
-
-    ('''
-     try: raise TypeError
-     finally: pass
-     ''', 1),
-
-    ('''
-     try: raise TypeError
-     except TypeError: pass
-     finally: pass
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      try: raise TypeError
      except TypeError: pass
      else: pass
+     ''', 3, {}),
+
+    ('''
+     try: raise TypeError
      finally: pass
-     ''', 3),
+     ''', 1, {}),
+
+    ('''
+     try: raise TypeError
+     except TypeError: pass
+     finally: pass
+     ''', 2, {}),
+
+    ('''
+     try: raise TypeError
+     except TypeError: pass
+     else: pass
+     finally: pass
+     ''', 3, {}),
 
     # Lambda are not counted anymore as per #68
     ('''
      k = lambda a, b: k(b, a)
-     ''', 1),
+     ''', 1, {}),
 
     ('''
      k = lambda a, b, c: c if a else b
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      v = a if b else c
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      v = a if sum(i for i in xrange(c)) < 10 else c
-     ''', 3),
+     ''', 3, {}),
 
     ('''
      sum(i for i in range(12) for z in range(i ** 2) if i * z & 1)
-     ''', 4),
+     ''', 4, {}),
 
     ('''
      sum(i for i in range(10) if i >= 2 and val and val2 or val3)
-     ''', 6),
+     ''', 6, {}),
 
     ('''
      for i in range(10):
@@ -165,7 +167,7 @@ SIMPLE_BLOCKS = [
          print('wah')
          print('really not found')
          print(3)
-     ''', 3),
+     ''', 3, {}),
 
     ('''
      while True:
@@ -175,15 +177,15 @@ SIMPLE_BLOCKS = [
          print(1)
          print(0)
          print(-1)
-     ''', 3),
+     ''', 3, {}),
 
     ('''
      assert i < 0
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      assert i < 0, "Fail"
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      assert i < 0
@@ -206,19 +208,19 @@ SIMPLE_BLOCKS = [
 ADDITIONAL_BLOCKS = [
     ('''
      {i for i in range(4)}
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      {i for i in range(4) if i&1}
-     ''', 3),
+     ''', 3, {}),
 
     ('''
      {i:i**4 for i in range(4)}
-     ''', 2),
+     ''', 2, {}),
 
     ('''
      {i:i**4 for i in range(4) if i&1}
-     ''', 3),
+     ''', 3, {}),
 ]
 
 BLOCKS = SIMPLE_BLOCKS[:]
@@ -226,18 +228,10 @@ if sys.version_info[:2] >= (2, 7):
     BLOCKS.extend(ADDITIONAL_BLOCKS)
 
 
-@parametrized(*BLOCKS)
-class TestBlocks(ParametrizedTestCase):
-    '''Test blocks.'''
-
-    def setParameters(self, code, expected_complexity, kwargs={}):
-        self.code = dedent(code)
-        self.expected_complexity = expected_complexity
-        self.kwargs = kwargs
-
-    def test_ComplexityVisitor(self):
-        visitor = ComplexityVisitor.from_code(self.code, **self.kwargs)
-        self.assertEqual(visitor.complexity, self.expected_complexity)
+@pytest.mark.parametrize('code,expected,kwargs', BLOCKS)
+def test_visitor_simple(code, expected, kwargs):
+    visitor = ComplexityVisitor.from_code(dedent(code), **kwargs)
+    assert visitor.complexity == expected
 
 
 SINGLE_FUNCTIONS_CASES = [
@@ -287,18 +281,11 @@ if sys.version_info[:2] >= (3, 5):
     )
 
 
-@parametrized(*SINGLE_FUNCTIONS_CASES)
-class TestSingleFunctions(ParametrizedTestCase):
-
-    def setParameters(self, code, expected_complexity):
-        self.code = dedent(code)
-        self.expected_complexity = expected_complexity
-
-    def test_ComplexityVisitor(self):
-        visitor = ComplexityVisitor.from_code(self.code)
-        self.assertEqual(len(visitor.functions), 1)
-        self.assertEqual((visitor.complexity, visitor.functions[0].complexity),
-                         self.expected_complexity)
+@pytest.mark.parametrize('code,expected', SINGLE_FUNCTIONS_CASES)
+def test_visitor_single_functions(code, expected):
+    visitor = ComplexityVisitor.from_code(dedent(code))
+    assert len(visitor.functions) == 1
+    assert (visitor.complexity, visitor.functions[0].complexity) == expected
 
 
 FUNCTIONS_CASES = [
@@ -343,18 +330,11 @@ FUNCTIONS_CASES = [
 ]
 
 
-@parametrized(*FUNCTIONS_CASES)
-class TestFunctions(ParametrizedTestCase):
-
-    def setParameters(self, code, expected_complexity):
-        self.code = dedent(code)
-        self.expected_complexity = expected_complexity
-
-    def test_ComplexityVisitor(self):
-        visitor = ComplexityVisitor.from_code(self.code)
-        self.assertEqual(len(visitor.functions), len(self.expected_complexity))
-        self.assertEqual(tuple(map(GET_COMPLEXITY, visitor.functions)),
-                         self.expected_complexity)
+@pytest.mark.parametrize('code,expected', FUNCTIONS_CASES)
+def test_visitor_functions(code, expected):
+    visitor = ComplexityVisitor.from_code(dedent(code))
+    assert len(visitor.functions) == len(expected)
+    assert tuple(map(GET_COMPLEXITY, visitor.functions)) == expected
 
 
 CLASSES_CASES = [
@@ -398,22 +378,16 @@ CLASSES_CASES = [
 ]
 
 
-@parametrized(*CLASSES_CASES)
-class TestClasses(ParametrizedTestCase):
-
-    def setParameters(self, code, expected_complexity):
-        self.code = dedent(code)
-        self.total_class_complexity = expected_complexity[0]
-        self.methods_complexity = expected_complexity[1:]
-
-    def test_ComplexityVisitor(self):
-        visitor = ComplexityVisitor.from_code(self.code)
-        self.assertEqual(len(visitor.classes), 1)
-        self.assertEqual(len(visitor.functions), 0)
-        cls = visitor.classes[0]
-        self.assertEqual(cls.real_complexity, self.total_class_complexity)
-        self.assertEqual(tuple(map(GET_COMPLEXITY, cls.methods)),
-                         self.methods_complexity)
+@pytest.mark.parametrize('code,expected', CLASSES_CASES)
+def test_visitor_classes(code, expected):
+    total_class_complexity = expected[0]
+    methods_complexity = expected[1:]
+    visitor = ComplexityVisitor.from_code(dedent(code))
+    assert len(visitor.classes) == 1
+    assert len(visitor.functions) == 0
+    cls = visitor.classes[0]
+    assert cls.real_complexity == total_class_complexity
+    assert tuple(map(GET_COMPLEXITY, cls.methods)) == methods_complexity
 
 
 GENERAL_CASES = [
@@ -468,22 +442,18 @@ GENERAL_CASES = [
 ]
 
 
-@parametrized(*GENERAL_CASES)
-class TestModules(ParametrizedTestCase):
+@pytest.mark.parametrize('code,expected', GENERAL_CASES)
+def test_visitor_module(code, expected):
+    (module_complexity,
+     functions_complexity,
+     classes_complexity,
+     total_complexity) = expected
 
-    def setParameters(self, code, expected_complexity):
-        self.code = dedent(code)
-        self.module_complexity, self.functions_complexity, \
-            self.classes_complexity, \
-            self.total_complexity = expected_complexity
-
-    def test_module(self):
-        visitor = ComplexityVisitor.from_code(self.code)
-        self.assertEqual(visitor.complexity, self.module_complexity)
-        self.assertEqual(visitor.functions_complexity,
-                         self.functions_complexity)
-        self.assertEqual(visitor.classes_complexity, self.classes_complexity)
-        self.assertEqual(visitor.total_complexity, self.total_complexity)
+    visitor = ComplexityVisitor.from_code(dedent(code))
+    assert visitor.complexity, module_complexity
+    assert visitor.functions_complexity == functions_complexity
+    assert visitor.classes_complexity == classes_complexity
+    assert visitor.total_complexity == total_complexity
 
 
 CLOSURES_CASES = [
@@ -511,34 +481,26 @@ CLOSURES_CASES = [
 ]
 
 
-@parametrized(*CLOSURES_CASES)
-class TestClosures(ParametrizedTestCase):
+@pytest.mark.parametrize('code,closure_names,expected', CLOSURES_CASES)
+def test_visitor_closures(code, closure_names, expected):
+    visitor = ComplexityVisitor.from_code(dedent(code))
+    func = visitor.functions[0]
+    closure_names = closure_names
+    expected_cs_cc = expected[:-1]
+    expected_total_cc = expected[-1]
 
-    def setParameters(self, code, closure_names, expected_cc):
-        self.visitor = ComplexityVisitor.from_code(dedent(code))
-        self.func = self.visitor.functions[0]
-        self.closure_names = closure_names
-        self.expected_cs_cc = expected_cc[:-1]
-        self.expected_total_cc = expected_cc[-1]
+    assert len(visitor.functions) == 1
 
-    def test_one_function(self):
-        self.assertEqual(len(self.visitor.functions), 1)
+    names = tuple(cs.name for cs in func.closures)
+    assert names == closure_names
 
-    def test_closure_names(self):
-        names = tuple(cs.name for cs in self.func.closures)
-        self.assertEqual(names, self.closure_names)
+    cs_complexity = tuple(cs.complexity for cs in func.closures)
+    assert cs_complexity == expected_cs_cc
+    assert func.complexity == expected_total_cc
 
-    def test_closures_complexity(self):
-        cs_complexity = tuple(cs.complexity for cs in self.func.closures)
-        self.assertEqual(cs_complexity, self.expected_cs_cc)
-
-    def test_total_complexity(self):
-        self.assertEqual(self.func.complexity, self.expected_total_cc)
-
-    def test_mutable_blocks(self):
-        # There was a bug for which `blocks` increased while it got accessed
-        v = self.visitor
-        self.assertTrue(v.blocks == v.blocks == v.blocks)
+    # There was a bug for which `blocks` increased while it got accessed
+    v = visitor
+    assert v.blocks == v.blocks == v.blocks
 
 
 CONTAINERS_CASES = [
@@ -556,18 +518,12 @@ CONTAINERS_CASES = [
 ]
 
 
-@parametrized(*CONTAINERS_CASES)
-class TestContainers(ParametrizedTestCase):
+@pytest.mark.parametrize('values,expected', CONTAINERS_CASES)
+def test_visitor_containers(values, expected):
+        expected_letter, expected_name, expected_str = expected
 
-    def setParameters(self, values, expected):
-        self.values = values
-        self.expected_letter = expected[0]
-        self.expected_name = expected[1]
-        self.expected_str = expected[2]
-
-    def test_containers(self):
-        cls = Function if len(self.values) == 8 else Class
-        obj = cls(*self.values)
-        self.assertEqual(obj.letter, self.expected_letter)
-        self.assertEqual(obj.fullname, self.expected_name)
-        self.assertEqual(str(obj), self.expected_str)
+        cls = Function if len(values) == 8 else Class
+        obj = cls(*values)
+        assert obj.letter == expected_letter
+        assert obj.fullname == expected_name
+        assert str(obj) == expected_str

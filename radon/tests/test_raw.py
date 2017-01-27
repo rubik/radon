@@ -1,5 +1,7 @@
 import textwrap
-from paramunittest import *
+
+import pytest
+
 from radon.raw import *
 
 
@@ -30,18 +32,14 @@ FIND_CASES = [
 ]
 
 
-@parametrized(*FIND_CASES)
-class TestFind(ParametrizedTestCase):
-
-    def setParameters(self, code, result):
-        self.code = _generate(dedent(code))
-        self.result = result
-
-    def test_find(self):
-        if self.result is None:
-            self.assertRaises(ValueError, _find, self.code, OP, ':')
-        else:
-            self.assertEqual(_find(self.code, OP, ':'), self.result)
+@pytest.mark.parametrize('code,result', FIND_CASES)
+def test_find(code, result):
+    code = _generate(dedent(code))
+    if result is None:
+        with pytest.raises(ValueError):
+            _find(code, OP, ':')
+    else:
+        assert _find(code, OP, ':') == result
 
 
 LOGICAL_LINES_CASES = [
@@ -128,15 +126,10 @@ LOGICAL_LINES_CASES = [
 ]
 
 
-@parametrized(*LOGICAL_LINES_CASES)
-class TestLogicalLines(ParametrizedTestCase):
-
-    def setParameters(self, code, expected_number_of_lines):
-        self.code = _generate(dedent(code))
-        self.expected_number_of_lines = expected_number_of_lines
-
-    def test_logical(self):
-        self.assertEqual(_logical(self.code), self.expected_number_of_lines)
+@pytest.mark.parametrize('code,expected_number_of_lines', LOGICAL_LINES_CASES)
+def test_logical(code, expected_number_of_lines):
+    code = _generate(dedent(code))
+    assert _logical(code) == expected_number_of_lines
 
 
 ANALYZE_CASES = [
@@ -295,20 +288,17 @@ ANALYZE_CASES = [
 ]
 
 
-@parametrized(*ANALYZE_CASES)
-class TestAnalyze(ParametrizedTestCase):
+@pytest.mark.parametrize('code,expected', ANALYZE_CASES)
+def test_analyze(code, expected):
+    code = dedent(code)
 
-    def setParameters(self, code, expected):
-        self.code = dedent(code)
-        self.expected = expected
-
-    def test_analyze(self):
-        try:
-            len(self.expected)
-        except:
-            self.assertRaises(self.expected, analyze, self.code)
-        else:
-            result = analyze(self.code)
-            self.assertEqual(result, self.expected)
-            # sloc - single_comments - multi  = loc
-            self.assertTrue(result[0] == result[2] - result[6] - result[4])
+    try:
+        len(expected)
+    except:
+        with pytest.raises(expected):
+            analyze(code)
+    else:
+        result = analyze(code)
+        assert result == expected
+        # sloc - single_comments - multi  = loc
+        assert result[0] == result[2] - result[6] - result[4]

@@ -1,17 +1,14 @@
-import locale
 import os
-import platform
 import sys
 import json
-import unittest
+import locale
+import platform
+
+import pytest
+
 import radon.cli.tools as tools
 from radon.visitors import Function, Class
 from radon.raw import Module
-try:
-    import unittest.mock as mock
-except ImportError:
-    import mock
-from paramunittest import parametrized
 
 
 def fake_isfile(filename):
@@ -29,95 +26,90 @@ def fake_walk(start):
         yield './{0}'.format(d), [], contents[d]
 
 
-class TestGenericTools(unittest.TestCase):
-
-    def test_open(self):
-        with tools._open('-') as fobj:
-            self.assertTrue(fobj is sys.stdin)
-
-        try:
-            with tools._open(__file__) as fobj:
-                self.assertTrue(True)
-        except TypeError:  # issue 101
-            self.fail('tools._open raised TypeError')
-
-        m = mock.mock_open()
-
-        if platform.python_implementation() == 'PyPy':
-            with mock.patch('radon.cli.tools.open', m, create=True):
-                tools._open('randomfile.py').__enter__()
-            m.assert_called_with('randomfile.py')
-        else:
-            with mock.patch('radon.cli.tools._open_function', m, create=True):
-                tools._open('randomfile.py').__enter__()
-            except_encoding = os.getenv('RADONFILESENCODING',
-                                        locale.getpreferredencoding(False))
-            m.assert_called_with('randomfile.py', encoding=except_encoding)
+def assert_pequal(a, b):
+    a, b = [list(map(os.path.normpath, p)) for p in (a, b)]
+    assert a == b
 
 
-class TestIterFilenames(unittest.TestCase):
+def test_open(mocker):
+    with tools._open('-') as fobj:
+        assert fobj is sys.stdin
 
-    def setUp(self):
-        self.iter_files = lambda *a, **kw: list(tools.iter_filenames(*a, **kw))
+    try:
+        with tools._open(__file__) as fobj:
+            assert True
+    except TypeError:  # issue 101
+        assert False, 'tools._open raised TypeError'
 
-    def assertPEqual(self, a, b):
-        paths = [list(map(os.path.normpath, p)) for p in (a, b)]
-        self.assertEqual(*paths)
+    m = mocker.mock_open()
 
-    def test_stdin(self):
-        self.assertEqual(self.iter_files(['-']), ['-'])
+    if platform.python_implementation() == 'PyPy':
+        mocker.patch('radon.cli.tools.open', m, create=True)
+        tools._open('randomfile.py').__enter__()
+        m.assert_called_with('randomfile.py')
+    else:
+        mocker.patch('radon.cli.tools._open_function', m, create=True)
+        tools._open('randomfile.py').__enter__()
+        except_encoding = os.getenv('RADONFILESENCODING',
+                                    locale.getpreferredencoding(False))
+        m.assert_called_with('randomfile.py', encoding=except_encoding)
 
-    @mock.patch('radon.cli.tools.os.path')
-    @mock.patch('radon.cli.tools.os')
-    def test_all(self, os_mod, os_path_mod):
-        os_path_mod.normpath = os.path.normpath
-        os_path_mod.basename = os.path.basename
-        os_path_mod.join = os.path.join
-        os_path_mod.isfile.side_effect = fake_isfile
-        os_mod.walk = fake_walk
 
-        self.assertPEqual(self.iter_files(['file.py', 'random/path']),
-                          ['file.py', 'amod.py', 'test_all.py',
-                           'tests/test_amod.py', 'tests/run.py', 'sub/amod.py',
-                           'sub/bmod.py'])
+@pytest.fixture
+def iter_files():
+    return lambda *a, **kw: list(tools.iter_filenames(*a, **kw))
 
-        self.assertPEqual(self.iter_files(['file.py', 'random/path'],
-                                          'test_*'),
-                          ['file.py', 'amod.py', 'tests/test_amod.py',
-                           'tests/run.py', 'sub/amod.py', 'sub/bmod.py'])
 
-        self.assertPEqual(self.iter_files(['file.py', 'random/path'],
-                                          '*test_*'),
-                          ['file.py', 'amod.py', 'tests/run.py', 'sub/amod.py',
-                           'sub/bmod.py'])
+def test_iter_files_stdin(iter_files):
+    assert iter_files(['-']) == ['-']
 
-        self.assertPEqual(self.iter_files(['file.py', 'random/path'],
-                                          '*/test_*,amod*'),
-                          ['file.py', 'test_all.py', 'tests/run.py',
-                           'sub/amod.py', 'sub/bmod.py'])
 
-        self.assertPEqual(self.iter_files(['file.py', 'random/path'], None,
-                                          'tests'),
-                          ['file.py', 'amod.py', 'test_all.py', 'sub/amod.py',
-                           'sub/bmod.py'])
+def test_iter_files(mocker, iter_files):
+    os_mod = mocker.patch('radon.cli.tools.os')
+    os_path_mod = mocker.patch('radon.cli.tools.os.path')
+    os_path_mod.normpath = os.path.normpath
+    os_path_mod.basename = os.path.basename
+    os_path_mod.join = os.path.join
+    os_path_mod.isfile.side_effect = fake_isfile
+    os_mod.walk = fake_walk
 
-        self.assertPEqual(self.iter_files(['file.py', 'random/path'], None,
-                                          'tests,sub'),
-                          ['file.py', 'amod.py', 'test_all.py'])
+    assert_pequal(iter_files(['file.py', 'random/path']),
+                  ['file.py', 'amod.py', 'test_all.py',
+                   'tests/test_amod.py', 'tests/run.py', 'sub/amod.py',
+                   'sub/bmod.py'])
+
+    assert_pequal(iter_files(['file.py', 'random/path'], 'test_*'),
+                  ['file.py', 'amod.py', 'tests/test_amod.py',
+                   'tests/run.py', 'sub/amod.py', 'sub/bmod.py'])
+
+    assert_pequal(iter_files(['file.py', 'random/path'], '*test_*'),
+                  ['file.py', 'amod.py', 'tests/run.py', 'sub/amod.py',
+                   'sub/bmod.py'])
+
+    assert_pequal(iter_files(['file.py', 'random/path'], '*/test_*,amod*'),
+                  ['file.py', 'test_all.py', 'tests/run.py',
+                   'sub/amod.py', 'sub/bmod.py'])
+
+    assert_pequal(iter_files(['file.py', 'random/path'], None, 'tests'),
+                  ['file.py', 'amod.py', 'test_all.py', 'sub/amod.py',
+                   'sub/bmod.py'])
+
+    assert_pequal(iter_files(['file.py', 'random/path'], None, 'tests,sub'),
+                  ['file.py', 'amod.py', 'test_all.py'])
 
 
 CC_RESULTS_CASES = [
-    ([
+    (
         Function('name', 12, 0, 16, False, None, [], 6),
-    ], {
+    {
         'type': 'function', 'name': 'name', 'lineno': 12, 'col_offset': 0,
         'endline': 16, 'closures': [], 'complexity': 6, 'rank': 'B',
     }),
-    ([
+    (
         Class('Classname', 17, 0, 29, [
             Function('name', 19, 4, 26, True, 'Classname', [], 7),
         ], [], 7),
-    ], {
+    {
         'type': 'class', 'name': 'Classname', 'lineno': 17, 'col_offset': 0,
         'endline': 29, 'complexity': 7, 'rank': 'B', 'methods': [
             {
@@ -127,11 +119,11 @@ CC_RESULTS_CASES = [
             }
         ],
     }),
-    ([
+    (
         Function('name', 12, 0, 16, False, None, [
             Function('aux', 13, 4, 17, False, None, [], 4),
         ], 10),
-    ], {
+    {
         'type': 'function', 'name': 'name', 'lineno': 12, 'col_offset': 0,
         'endline': 16, 'complexity': 10, 'rank': 'B', 'closures': [
             {
@@ -144,15 +136,9 @@ CC_RESULTS_CASES = [
 ]
 
 
-@parametrized(*CC_RESULTS_CASES)
-class TestCCToDict(unittest.TestCase):
-
-    def setParameters(self, blocks, **dict_result):
-        self.blocks = blocks
-        self.dict_result = dict_result
-
-    def testCCToDict(self):
-        self.assertEqual(tools.cc_to_dict(self.blocks), self.dict_result)
+@pytest.mark.parametrize('blocks,dict_result', CC_RESULTS_CASES)
+def test_cc_to_dict(blocks, dict_result):
+    assert tools.cc_to_dict(blocks) == dict_result
 
 
 CC_TO_XML_CASE = [
@@ -185,124 +171,126 @@ CC_TO_CODECLIMATE_CASE = [
      'method', 'name': 'bar', 'col_offset': 4, 'rank': 'A'},
 ]
 
-class TestDictConversion(unittest.TestCase):
 
-    def test_raw_to_dict(self):
-        self.assertEqual(tools.raw_to_dict(Module(103, 123, 98, 8, 19, 5, 3)),
-                         {'loc': 103, 'lloc': 123, 'sloc': 98, 'comments': 8,
-                             'multi': 19, 'blank': 5, 'single_comments': 3})
-
-    def test_cc_to_xml(self):
-        self.assertEqual(tools.dict_to_xml({'filename': CC_TO_XML_CASE}),
-                         '''<ccm>
-                              <metric>
-                                <complexity>6</complexity>
-                                <unit>name</unit>
-                                <classification>B</classification>
-                                <file>filename</file>
-                                <startLineNumber>12</startLineNumber>
-                                <endLineNumber>16</endLineNumber>
-                              </metric>
-                              <metric>
-                                <complexity>8</complexity>
-                                <unit>Classname</unit>
-                                <classification>B</classification>
-                                <file>filename</file>
-                                <startLineNumber>17</startLineNumber>
-                                <endLineNumber>29</endLineNumber>
-                              </metric>
-                              <metric>
-                                <complexity>7</complexity>
-                                <unit>Classname.name</unit>
-                                <classification>B</classification>
-                                <file>filename</file>
-                                <startLineNumber>19</startLineNumber>
-                                <endLineNumber>26</endLineNumber>
-                              </metric>
-                              <metric>
-                                <complexity>4</complexity>
-                                <unit>aux</unit>
-                                <classification>A</classification>
-                                <file>filename</file>
-                                <startLineNumber>13</startLineNumber>
-                                <endLineNumber>17</endLineNumber>
-                              </metric>
-                              <metric>
-                                <complexity>10</complexity>
-                                <unit>name</unit>
-                                <classification>B</classification>
-                                <file>filename</file>
-                                <startLineNumber>12</startLineNumber>
-                                <endLineNumber>16</endLineNumber>
-                              </metric>
-                            </ccm>'''.replace('\n', '').replace(' ', ''))
+def test_raw_to_dict():
+    assert tools.raw_to_dict(Module(103, 123, 98, 8, 19, 5, 3)) == \
+         {'loc': 103, 'lloc': 123, 'sloc': 98, 'comments': 8,
+             'multi': 19, 'blank': 5, 'single_comments': 3}
 
 
-    def test_cc_error_to_codeclimate(self):
-        error_result = {
-            'error': 'Error: invalid syntax (<unknown>, line 100)'
-        }
+def test_cc_to_xml():
+    assert tools.dict_to_xml({'filename': CC_TO_XML_CASE}) == \
+         '''<ccm>
+              <metric>
+                <complexity>6</complexity>
+                <unit>name</unit>
+                <classification>B</classification>
+                <file>filename</file>
+                <startLineNumber>12</startLineNumber>
+                <endLineNumber>16</endLineNumber>
+              </metric>
+              <metric>
+                <complexity>8</complexity>
+                <unit>Classname</unit>
+                <classification>B</classification>
+                <file>filename</file>
+                <startLineNumber>17</startLineNumber>
+                <endLineNumber>29</endLineNumber>
+              </metric>
+              <metric>
+                <complexity>7</complexity>
+                <unit>Classname.name</unit>
+                <classification>B</classification>
+                <file>filename</file>
+                <startLineNumber>19</startLineNumber>
+                <endLineNumber>26</endLineNumber>
+              </metric>
+              <metric>
+                <complexity>4</complexity>
+                <unit>aux</unit>
+                <classification>A</classification>
+                <file>filename</file>
+                <startLineNumber>13</startLineNumber>
+                <endLineNumber>17</endLineNumber>
+              </metric>
+              <metric>
+                <complexity>10</complexity>
+                <unit>name</unit>
+                <classification>B</classification>
+                <file>filename</file>
+                <startLineNumber>12</startLineNumber>
+                <endLineNumber>16</endLineNumber>
+              </metric>
+            </ccm>'''.replace('\n', '').replace(' ', '')
 
-        expected_results = [
-                            json.dumps({
-                                "description":"Error: Error: invalid syntax (<unknown>, line 100)",
-                                "check_name":"Complexity",
-                                "content": { "body": "We encountered an error attempting to analyze this line." },
-                                "location": { "path": "filename", "lines": {"begin": 100, "end": 100}},
-                                "type":"issue",
-                                "categories": ["Bug Risk"],
-                                "remediation_points": 1000000,
-                                "fingerprint": "10ac332cd7f638664e8865b098a1707c"
-                                }),
-                            ]
 
-        actual_results = tools.dict_to_codeclimate_issues({"filename": error_result})
+def test_cc_error_to_codeclimate():
+    error_result = {
+        'error': 'Error: invalid syntax (<unknown>, line 100)'
+    }
 
-        actual_sorted = []
-        for i in actual_results:
-             actual_sorted.append(json.loads(i))
+    expected_results = \
+        [
+            json.dumps({
+                'description':'Error: Error: invalid syntax (<unknown>, line 100)',
+                'check_name':'Complexity',
+                'content': { 'body': 'We encountered an error attempting to analyze this line.' },
+                'location': { 'path': 'filename', 'lines': {'begin': 100, 'end': 100}},
+                'type':'issue',
+                'categories': ['Bug Risk'],
+                'remediation_points': 1000000,
+                'fingerprint': '10ac332cd7f638664e8865b098a1707c'
+                }),
+        ]
 
-        expected_sorted = []
-        for i in expected_results:
-             expected_sorted.append(json.loads(i))
+    actual_results = tools.dict_to_codeclimate_issues({'filename': error_result})
 
-        self.assertEqual(actual_sorted, expected_sorted)
+    actual_sorted = []
+    for i in actual_results:
+         actual_sorted.append(json.loads(i))
+
+    expected_sorted = []
+    for i in expected_results:
+         expected_sorted.append(json.loads(i))
+
+    assert actual_sorted == expected_sorted
 
 
-    def test_cc_to_codeclimate(self):
-        actual_results = tools.dict_to_codeclimate_issues({'filename': CC_TO_CODECLIMATE_CASE})
-        expected_results = [
-                            json.dumps({
-                                "description":"Cyclomatic complexity is too high in function foo. (6)",
-                                "check_name":"Complexity",
-                                "content": { "body": tools.get_content()},
-                                "location": { "path": "filename", "lines": {"begin": 12, "end": 16}},
-                                "type":"issue",
-                                "categories": ["Complexity"],
-                                "remediation_points": 1100000,
-                                "fingerprint": "afbe2b8d9a57fde5f3235ec97e7a22e1"
-                                }),
-                            json.dumps({
-                                "description":"Cyclomatic complexity is too high in class Classname. (8)",
-                                "check_name":"Complexity",
-                                "content": {"body": tools.get_content()},
-                                "location": {"path": "filename", "lines": {"begin": 17, "end": 29}},
-                                "type":"issue",
-                                "categories": ["Complexity"],
-                                "remediation_points": 1300000,
-                                "fingerprint": "8caecbb525375d825b95c23bc8f881d7"
-                                }),
-                            ]
+def test_cc_to_codeclimate():
+    actual_results = tools.dict_to_codeclimate_issues({'filename': CC_TO_CODECLIMATE_CASE})
+    expected_results = \
+        [
+            json.dumps({
+                'description':'Cyclomatic complexity is too high in function foo. (6)',
+                'check_name':'Complexity',
+                'content': { 'body': tools.get_content()},
+                'location': { 'path': 'filename', 'lines': {'begin': 12, 'end': 16}},
+                'type':'issue',
+                'categories': ['Complexity'],
+                'remediation_points': 1100000,
+                'fingerprint': 'afbe2b8d9a57fde5f3235ec97e7a22e1'
+                }),
+            json.dumps({
+                'description':'Cyclomatic complexity is too high in class Classname. (8)',
+                'check_name':'Complexity',
+                'content': {'body': tools.get_content()},
+                'location': {'path': 'filename', 'lines': {'begin': 17, 'end': 29}},
+                'type':'issue',
+                'categories': ['Complexity'],
+                'remediation_points': 1300000,
+                'fingerprint': '8caecbb525375d825b95c23bc8f881d7'
+                }),
+        ]
 
-        actual_sorted = []
-        for i in actual_results:
-             actual_sorted.append(json.loads(i))
+    actual_sorted = []
+    for i in actual_results:
+         actual_sorted.append(json.loads(i))
 
-        expected_sorted = []
-        for i in expected_results:
-             expected_sorted.append(json.loads(i))
+    expected_sorted = []
+    for i in expected_results:
+         expected_sorted.append(json.loads(i))
 
-        self.assertEqual(actual_sorted, expected_sorted)
+    assert actual_sorted == expected_sorted
 
 
 CC_TO_TERMINAL_CASES = [
@@ -324,37 +312,35 @@ CC_TO_TERMINAL_CASES = [
 ]
 
 
-class TestCCToTerminal(unittest.TestCase):
+def test_cc_to_terminal():
+    # do the patching
+    tools.LETTERS_COLORS = dict((l, '<!{0}!>'.format(l)) for l in 'FMC')
+    tools.RANKS_COLORS = dict((r, '<|{0}|>'.format(r)) for r in 'ABCDEF')
+    tools.BRIGHT = '@'
+    tools.RESET = '__R__'
 
-    def test_cc_to_terminal(self):
-        # do the patching
-        tools.LETTERS_COLORS = dict((l, '<!{0}!>'.format(l)) for l in 'FMC')
-        tools.RANKS_COLORS = dict((r, '<|{0}|>'.format(r)) for r in 'ABCDEF')
-        tools.BRIGHT = '@'
-        tools.RESET = '__R__'
+    results = CC_TO_TERMINAL_CASES
+    res = [
+        '@<!C!>C __R__17:0 Classname - <|A|>A (4)__R__',
+        '@<!M!>M __R__19:4 Classname.meth - <|B|>B (7)__R__',
+        '@<!F!>F __R__12:0 f1 - <|C|>C (14)__R__',
+        '@<!F!>F __R__12:0 f2 - <|D|>D (22)__R__',
+        '@<!F!>F __R__12:0 f3 - <|E|>E (32)__R__',
+        '@<!F!>F __R__12:0 f4 - <|F|>F (41)__R__',
+    ]
+    res_noshow = ['{0}__R__'.format(r[:r.index('(') - 1]) for r in res]
 
-        results = CC_TO_TERMINAL_CASES
-        res = [
-            '@<!C!>C __R__17:0 Classname - <|A|>A (4)__R__',
-            '@<!M!>M __R__19:4 Classname.meth - <|B|>B (7)__R__',
-            '@<!F!>F __R__12:0 f1 - <|C|>C (14)__R__',
-            '@<!F!>F __R__12:0 f2 - <|D|>D (22)__R__',
-            '@<!F!>F __R__12:0 f3 - <|E|>E (32)__R__',
-            '@<!F!>F __R__12:0 f4 - <|F|>F (41)__R__',
-        ]
-        res_noshow = ['{0}__R__'.format(r[:r.index('(') - 1]) for r in res]
-
-        self.assertEqual(tools.cc_to_terminal(results, False, 'A', 'F', False),
-                         (res_noshow, 120, 6))
-        self.assertEqual(tools.cc_to_terminal(results, True, 'A', 'F', False),
-                         (res, 120, 6))
-        self.assertEqual(tools.cc_to_terminal(results, True, 'A', 'D', False),
-                         (res[:-2], 47, 4))
-        self.assertEqual(tools.cc_to_terminal(results, False, 'A', 'D', False),
-                         (res_noshow[:-2], 47, 4))
-        self.assertEqual(tools.cc_to_terminal(results, True, 'C', 'F', False),
-                         (res[2:], 109, 4))
-        self.assertEqual(tools.cc_to_terminal(results, True, 'B', 'E', False),
-                         (res[1:-1], 75, 4))
-        self.assertEqual(tools.cc_to_terminal(results, True, 'B', 'F', True),
-                         (res[1:], 120, 6))
+    assert tools.cc_to_terminal(results, False, 'A', 'F', False) == \
+             (res_noshow, 120, 6)
+    assert tools.cc_to_terminal(results, True, 'A', 'F', False) == \
+             (res, 120, 6)
+    assert tools.cc_to_terminal(results, True, 'A', 'D', False) == \
+             (res[:-2], 47, 4)
+    assert tools.cc_to_terminal(results, False, 'A', 'D', False) == \
+             (res_noshow[:-2], 47, 4)
+    assert tools.cc_to_terminal(results, True, 'C', 'F', False) == \
+             (res[2:], 109, 4)
+    assert tools.cc_to_terminal(results, True, 'B', 'E', False) == \
+             (res[1:-1], 75, 4)
+    assert tools.cc_to_terminal(results, True, 'B', 'F', True) == \
+             (res[1:], 120, 6)

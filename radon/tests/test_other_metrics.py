@@ -1,9 +1,12 @@
 import textwrap
-from paramunittest import *
+
+import pytest
+
 from radon.metrics import *
 
 
 dedent = lambda code: textwrap.dedent(code).strip()
+
 
 def _compute_mi_rank(score):
     if 0 <= score < 10:
@@ -25,29 +28,18 @@ MI_COMPUTE_CASES = [
 ]
 
 
-@parametrized(*MI_COMPUTE_CASES)
-class TestComputeMI(ParametrizedTestCase):
-
-    def setParameters(self, values, expected):
-        self.values = values
-        self.expected = expected
-
-    def testComputeMI(self):
-        self.assertAlmostEqual(mi_compute(*self.values), self.expected)
+@pytest.mark.parametrize('values,expected', MI_COMPUTE_CASES)
+def test_mi_compute(values, expected):
+    # Equivalent to unittest's assertAlmostEqual
+    assert round(mi_compute(*values) - expected, 5) == 0
 
 
 MI_RANK_CASES = [(score, _compute_mi_rank(score)) for score in range(0, 100)]
 
 
-@parametrized(*MI_RANK_CASES)
-class TestMIRank(ParametrizedTestCase):
-
-    def setParameters(self, score, expected_rank):
-        self.score = score
-        self.expected_rank = expected_rank
-
-    def testRank(self):
-        self.assertEqual(mi_rank(self.score), self.expected_rank)
+@pytest.mark.parametrize('score,expected', MI_RANK_CASES)
+def test_mi_rank(score, expected):
+    assert mi_rank(score) == expected
 
 
 H_VISIT_CASES = [
@@ -67,15 +59,11 @@ H_VISIT_CASES = [
 ]
 
 
-@parametrized(*H_VISIT_CASES)
-class TestHVisit(ParametrizedTestCase):
-
-    def setParameters(self, code, expected):
-        self.code = dedent(code)
-        self.expected = expected
-
-    def testHVisit(self):
-        self.assertEqual(h_visit(self.code), self.expected)
+@pytest.mark.parametrize('code,expected', H_VISIT_CASES)
+def test_h_visit(code, expected):
+    code = dedent(code)
+    expected = expected
+    assert h_visit(code) == expected
 
 
 first_mi = '''
@@ -130,13 +118,9 @@ MI_VISIT_CASES = [
 ]
 
 
-@parametrized(*MI_VISIT_CASES)
-class TestMIVisit(ParametrizedTestCase):
-
-    def setParameters(self, code, expected, count_multi):
-        self.code = dedent(code)
-        self.expected = expected
-        self.count_multi = count_multi
-
-    def testMIParameters(self):
-        self.assertEqual(mi_visit(self.code, self.count_multi), self.expected)
+@pytest.mark.parametrize('code,expected,count_multi', MI_VISIT_CASES)
+def test_mi_visit(code, expected, count_multi):
+    code = dedent(code)
+    expected = expected
+    count_multi = count_multi
+    assert mi_visit(code, count_multi) == expected

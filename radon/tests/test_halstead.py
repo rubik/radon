@@ -1,5 +1,7 @@
 import textwrap
-from paramunittest import *
+
+import pytest
+
 from radon.visitors import HalsteadVisitor
 
 
@@ -63,15 +65,8 @@ SIMPLE_BLOCKS = [
 ]
 
 
-@parametrized(*SIMPLE_BLOCKS)
-class TestHalsteadVisitor(ParametrizedTestCase):
-
-    def setParameters(self, code, expected_result):
-        self.code = dedent(code)
-        self.expected_result = expected_result
-
-    def test_HalsteadVisitor(self):
-        visitor = HalsteadVisitor.from_code(self.code)
-        result = visitor.operators, visitor.operands, \
-            visitor.distinct_operators, visitor.distinct_operands
-        self.assertEqual(result, self.expected_result)
+@pytest.mark.parametrize('code,expected', SIMPLE_BLOCKS)
+def test_visitor(code, expected):
+    visitor = HalsteadVisitor.from_code(dedent(code))
+    assert expected == (visitor.operators, visitor.operands,
+                        visitor.distinct_operators, visitor.distinct_operands)
