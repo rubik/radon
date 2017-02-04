@@ -23,6 +23,9 @@ if os.path.exists("/config.json"):
                 binstub = "radon2"
             elif version != "3":
                 sys.exit("Invalid python_version; must be either 2 or 3")
+        if config["config"].get("encoding"):
+            encoding = config["config"].get("encoding")
+            os.environ["RADONFILESENCODING"] = encoding
 
     if config.get("include_paths"):
         config_paths = config.get("include_paths")
