@@ -1,0 +1,3 @@
+mando>=0.3,<0.4
+colorama>=0.3,<0.4
+flake8_polyfill
