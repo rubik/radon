@@ -187,7 +187,7 @@ ANALYZE_CASES = [
          """
          if n <= 1: return 1  # otherwise it will melt the cpu
          return fib(n - 2) + fib(n - 1)
-     ''', (6, 9, 10, 2, 3, 1, 1)),
+     ''', (6, 9, 10, 2, 3, 2, 1)),
 
     ('''
      a = [1, 2, 3,
@@ -285,6 +285,39 @@ ANALYZE_CASES = [
         """
         pass
     ''', (4, 3, 7, 0, 3, 0, 0)),
+    ('''
+    def function():
+        multiline_with_equals_in_it = """ """
+        pass
+    ''', (3, 3, 3, 0, 0, 0, 0)),
+    ('''
+    def function():
+        """ this is a docstring """
+    ''', (1, 2, 2, 0, 0, 0, 1)),
+    ('''
+    def function():
+        """ this is also a """ """ docstring """
+    ''', (1, 2, 2, 0, 0, 0, 1)),
+    (r'''
+    def function():
+        " this is also multiline " \
+            " docstring "
+    ''', (1, 2, 3, 0, 2, 0, 0)),
+    ('''
+    def function():
+        """ this is still a docstring """ # it really is!
+    ''', (1, 2, 2, 1, 0, 0, 1)),
+    (r'''
+    def function():
+        " a docstring is a single-line comment even when " \
+            # followed by a comment
+    ''', (2, 2, 3, 1, 0, 0, 1)),
+    (r'''
+    def function():
+        """ docstring continued by blank line is still a single-line comment """ \
+
+        pass
+    ''', (2, 2, 3, 0, 0, 1, 1)),
 ]
 
 
@@ -299,6 +332,5 @@ def test_analyze(code, expected):
             analyze(code)
     else:
         result = analyze(code)
-        assert result == expected
-        # sloc - single_comments - multi  = loc
-        assert result[0] == result[2] - result[6] - result[4]
+        assert result == Module(*expected)
+        assert result.loc == result.sloc - result.single_comments - result.multi
