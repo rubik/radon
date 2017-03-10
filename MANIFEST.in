@@ -1,4 +1,6 @@
 include README.rst
+include LICENSE
+include CHANGELOG
 include requirements.txt
 include tox_requirements.txt
 include tox.ini
