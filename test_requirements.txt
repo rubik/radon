@@ -1,5 +1,5 @@
 coverage
 coveralls
-pytest
+pytest>=2.7
 pytest-mock
 argparse
