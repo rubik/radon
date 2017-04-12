@@ -42,14 +42,14 @@ else:
     _encoding = os.getenv('RADONFILESENCODING',
                           locale.getpreferredencoding(False))
 
-    if sys.version_info[:1] < (2, 7):
+    if sys.version_info[:2] < (2, 7):
         # This open function treats line-endings slighly differently than
         # io.open. But the latter is implemented in pure Python in version 2.6,
         # so we'll live with the differences instead of taking a hit on the
         # speed. Radon does a lot of file reading, so the difference in speed
         # is significant.
         from codecs import open as _open_function
-    elif sys.version_info[:1] < (3, 0):
+    elif sys.version_info[:2] < (3, 0):
         from io import open as _open_function
     else:
         _open_function = open
