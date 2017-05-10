@@ -191,7 +191,7 @@ def analyze(source):
             single_comments += 1
 
         # Identify docstrings
-        elif TOKEN_NUMBER(tokens[0]) == tokenize.STRING:
+        if TOKEN_NUMBER(tokens[0]) == tokenize.STRING:
             _, _, (start_row, start_col), _, _ = tokens[0]
 
             # Find the end of any docstrings concatenated through adjacency
@@ -208,19 +208,11 @@ def analyze(source):
             else:
                 multi += sum(1 for l in parsed_lines if l)  # Skip empty lines
 
-        else:  # Everything else is either code or blank lines
+        # Process a logical line
+        # Split it on semicolons because they increase the number of logical
+        # lines
+        for sub_tokens in _split_tokens(tokens, OP, ';'):
+            lloc += _logical(sub_tokens)
 
-            for parsed_line in parsed_lines:
-                if parsed_line:
-                    sloc += 1
-                else:
-                    blank += 1
-
-            # Process a logical line
-            # Split it on semicolons because they increase the number of logical
-            # lines
-            for sub_tokens in _split_tokens(tokens, OP, ';'):
-                lloc += _logical(sub_tokens)
-
-    loc = sloc + blank + multi + single_comments
+    loc = sloc - multi - single_comments
     return Module(loc, lloc, sloc, comments, multi, blank, single_comments)

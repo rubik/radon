@@ -140,7 +140,7 @@ ANALYZE_CASES = [
      """
      doc?
      """
-     ''', (3, 0, 0, 0, 3, 0, 0)),
+     ''', (0, 1, 3, 0, 3, 0, 0)),
 
     ('''
      # just a comment
@@ -149,13 +149,13 @@ ANALYZE_CASES = [
      else:
          # you'll never get here
          print('ven')
-     ''', (6, 4, 4, 2, 0, 0, 2)),
+     ''', (4, 4, 6, 2, 0, 0, 2)),
 
     ('''
      #
      #
      #
-     ''', (3, 0, 0, 3, 0, 0, 3)),
+     ''', (0, 0, 3, 3, 0, 0, 3)),
 
     ('''
      if a:
@@ -164,7 +164,7 @@ ANALYZE_CASES = [
 
      else:
          print
-     ''', (6, 4, 4, 0, 0, 2, 0)),
+     ''', (4, 4, 4, 0, 0, 2, 0)),
 
     # In this case the docstring is not counted as a multi-line string
     # because in fact it is on one line!
@@ -172,7 +172,7 @@ ANALYZE_CASES = [
      def f(n):
          """here"""
          return n * f(n - 1)
-     ''', (3, 2, 2, 0, 0, 0, 1)),
+     ''', (2, 3, 3, 0, 0, 0, 1)),
 
     ('''
      def hip(a, k):
@@ -187,7 +187,7 @@ ANALYZE_CASES = [
          """
          if n <= 1: return 1  # otherwise it will melt the cpu
          return fib(n - 2) + fib(n - 1)
-     ''', (11, 8, 6, 2, 3, 1, 1)),
+     ''', (6, 9, 10, 2, 3, 2, 1)),
 
     ('''
      a = [1, 2, 3,
@@ -200,7 +200,7 @@ ANALYZE_CASES = [
         Try it with n = 294942: it will take a fairly long time.
         """
         if n <= 1: return 1  # otherwise it will melt the cpu
-    ''', (5, 3, 2, 1, 3, 0, 0)),
+    ''', (2, 4, 5, 1, 3, 0, 0)),
 
     ('''
      def foo(n=1):
@@ -209,7 +209,7 @@ ANALYZE_CASES = [
         """
         if n <= 1: return 1  # otherwise it will melt the cpu
         string = """This is a string not a comment"""
-    ''', (6, 4, 3, 1, 3, 0, 0)),
+    ''', (3, 5, 6, 1, 3, 0, 0)),
 
     ('''
      def foo(n=1):
@@ -220,7 +220,7 @@ ANALYZE_CASES = [
         string = """
                  This is a string not a comment
                  """
-    ''', (8, 4, 5, 1, 3, 0, 0)),
+    ''', (5, 5, 8, 1, 3, 0, 0)),
 
     ('''
      def foo(n=1):
@@ -232,7 +232,7 @@ ANALYZE_CASES = [
                 This is a string not a comment
                 """
         test = 0
-    ''', (9, 5, 6, 1, 3, 0, 0)),
+    ''', (6, 6, 9, 1, 3, 0, 0)),
 
     # Breaking lines still treated as single line of code.
     ('''
@@ -246,7 +246,7 @@ ANALYZE_CASES = [
                 This is a string not a comment
                 """
         test = 0
-    ''', (9, 5, 6, 1, 3, 0, 0)),
+    ''', (6, 6, 9, 1, 3, 0, 0)),
 
     # Test handling of last line comment.
     ('''
@@ -261,7 +261,7 @@ ANALYZE_CASES = [
                 """
         test = 0
         # Comment
-    ''', (10, 5, 6, 2, 3, 0, 1)),
+    ''', (6, 6, 10, 2, 3, 0, 1)),
 
     ('''
      def foo(n=1):
@@ -274,7 +274,7 @@ ANALYZE_CASES = [
                 """
                 This is a string not a comment
                 """
-    ''', (9, 5, 6, 1, 3, 0, 0)),
+    ''', (6, 6, 9, 1, 3, 0, 0)),
 
     ('''
     def function(
@@ -284,7 +284,7 @@ ANALYZE_CASES = [
         for the function
         """
         pass
-    ''', (7, 2, 4, 0, 3, 0, 0)),
+    ''', (4, 3, 7, 0, 3, 0, 0)),
     ('''
     def function():
         multiline_with_equals_in_it = """ """
@@ -293,32 +293,31 @@ ANALYZE_CASES = [
     ('''
     def function():
         """ this is a docstring """
-    ''', (2, 1, 1, 0, 0, 0, 1)),
+    ''', (1, 2, 2, 0, 0, 0, 1)),
     ('''
     def function():
         """ this is also a """ """ docstring """
-    ''', (2, 1, 1, 0, 0, 0, 1)),
+    ''', (1, 2, 2, 0, 0, 0, 1)),
     (r'''
     def function():
         " this is also multiline " \
             " docstring "
-    ''', (3, 1, 1, 0, 2, 0, 0)),
+    ''', (1, 2, 3, 0, 2, 0, 0)),
     ('''
     def function():
         """ this is still a docstring """ # it really is!
-    ''', (2, 1, 1, 1, 0, 0, 1)),
+    ''', (1, 2, 2, 1, 0, 0, 1)),
     (r'''
     def function():
         " a docstring is a single-line comment even when " \
             # followed by a comment
-    ''', (2, 1, 1, 1, 0, 0, 1)),
-    # TODO: Fix this one.  Tokenizer treats blank line as an error and joins 'pass' to docstring
+    ''', (2, 2, 3, 1, 0, 0, 1)),
     (r'''
     def function():
         """ docstring continued by blank line is still a single-line comment """ \
 
         pass
-    ''', (2, 1, 1, 0, 0, 0, 1)),
+    ''', (2, 2, 3, 0, 0, 1, 1)),
 ]
 
 
@@ -334,4 +333,4 @@ def test_analyze(code, expected):
     else:
         result = analyze(code)
         assert result == Module(*expected)
-        assert result.loc == result.blank + result.sloc + result.single_comments + result.multi
+        assert result.loc == result.sloc - result.single_comments - result.multi
