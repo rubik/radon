@@ -7,9 +7,9 @@ tox = "*"
 pytest = "*"
 coverage = "*"
 mock = "*"
-pytest_mock = "*"
+pytest-mock = "*"
 
 [packages]
 mando = ">=0.3,<0.4"
 colorama = ">=0.3,<0.4"
-flake8_polyfill = "*"
+flake8-polyfill = "*"
