@@ -214,5 +214,5 @@ def analyze(source):
         for sub_tokens in _split_tokens(tokens, OP, ';'):
             lloc += _logical(sub_tokens)
 
-    loc = sloc - multi - single_comments
+    loc = sloc + blank
     return Module(loc, lloc, sloc, comments, multi, blank, single_comments)

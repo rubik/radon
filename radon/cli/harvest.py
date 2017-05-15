@@ -215,6 +215,15 @@ class RawHarvester(Harvester):
             for header in self.headers:
                 yield '{0}: {1}', (header, sum_metrics[header]), {'indent': 1}
 
+            yield '- Comment Stats', (), {'indent': 1}
+            yield ('(C % L): {0:.0%}', (sum_metrics["Comments"] / (float(sum_metrics["LOC"]) or 1),),
+                   {'indent': 2})
+            yield ('(C % S): {0:.0%}', (sum_metrics["Comments"] / (float(sum_metrics["SLOC"]) or 1),),
+                   {'indent': 2})
+            yield ('(C + M % L): {0:.0%}',
+                   ((sum_metrics["Comments"] + sum_metrics["Multi"]) / (float(sum_metrics["LOC"]) or 1),),
+                   {'indent': 2})
+
 
 class MIHarvester(Harvester):
     '''A class that analyzes Python modules' Maintainability Index.'''
