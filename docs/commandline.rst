@@ -252,7 +252,8 @@ These include:
     * **multi**: the number of lines representing multi-line strings
     * **blank**: the number of blank lines (or whitespace-only ones)
 
-The equation :math:`sloc + blank = loc` should always hold.
+The equation :math:`sloc + multi + single comments + blank = loc` should always
+hold.
 
 .. [Wikipedia] More information on **LOC**, **SLOC**, **LLOC** here: http://en.wikipedia.org/wiki/Source_lines_of_code
 
