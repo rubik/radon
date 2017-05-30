@@ -84,10 +84,11 @@ def _get_all_tokens(line, lines):
     encountered.
     :returns: tokens, lines
     '''
+    buffer = line
     used_lines = [line]
     while True:
         try:
-            tokens = _generate(line)
+            tokens = _generate(buffer)
         except tokenize.TokenError:
             # A multi-line string or statement has been encountered:
             # start adding lines and stop when tokenize stops complaining
@@ -98,7 +99,7 @@ def _get_all_tokens(line, lines):
 
         # Add another line
         next_line = next(lines)
-        line = line + '\n' + next_line
+        buffer = buffer + '\n' + next_line
         used_lines.append(next_line)
 
 
@@ -150,6 +151,12 @@ def _logical(tokens):
     return sum(aux(sub) for sub in _split_tokens(tokens, OP, ';'))
 
 
+def is_single_token(token_number, tokens):
+    """ Is this a single token matching token_number followed by ENDMARKER or NL tokens """
+    return (TOKEN_NUMBER(tokens[0]) == token_number and
+            all(TOKEN_NUMBER(t) in (tokenize.ENDMARKER, tokenize.NL) for t in tokens[1:]))
+
+
 def analyze(source):
     '''Analyze the source code and return a namedtuple with the following
     fields:
@@ -170,49 +177,47 @@ def analyze(source):
     '''
     lloc = comments = single_comments = multi = blank = sloc = 0
     lines = (l.strip() for l in source.splitlines())
-    for lineno, line in enumerate(lines, 1):
+    lineno = 1
+    for line in lines:
         try:
-            # Process a logical line that spans on multiple lines
+            # Get a syntactically complete set of tokens that spans a set of lines
             tokens, parsed_lines = _get_all_tokens(line, lines)
         except StopIteration:
             raise SyntaxError('SyntaxError at line: {0}'.format(lineno))
 
-        for parsed_line in parsed_lines:
-            if parsed_line:
-                sloc += 1
-            else:
-                blank += 1
+        lineno += len(parsed_lines)
 
         comments += sum(1 for t in tokens
                         if TOKEN_NUMBER(t) == tokenize.COMMENT)
 
-        # Identify single line comments
-        if TOKEN_NUMBER(tokens[0]) == tokenize.COMMENT:
+        # Identify single line comments, conservatively
+        if is_single_token(tokenize.COMMENT, tokens):
             single_comments += 1
 
-        # Identify docstrings
-        if TOKEN_NUMBER(tokens[0]) == tokenize.STRING:
-            _, _, (start_row, start_col), _, _ = tokens[0]
-
-            # Find the end of any docstrings concatenated through adjacency
-            for t in tokens:
-                if TOKEN_NUMBER(t) == tokenize.STRING:
-                    _, _, _, (end_row, end_col), _ = t
-                else:
-                    break
-
+        # Identify docstrings, conservatively
+        elif is_single_token(tokenize.STRING, tokens):
+            _, _, (start_row, _), (end_row, _), _ = tokens[0]
             if end_row == start_row:
                 # Consider single-line docstrings separately from other
                 # multiline docstrings
                 single_comments += 1
             else:
                 multi += sum(1 for l in parsed_lines if l)  # Skip empty lines
+                blank += sum(1 for l in parsed_lines if not l)
 
-        # Process a logical line
-        # Split it on semicolons because they increase the number of logical
-        # lines
-        for sub_tokens in _split_tokens(tokens, OP, ';'):
-            lloc += _logical(sub_tokens)
+        else:  # Everything else is either code or blank lines
 
-    loc = sloc - multi - single_comments
+            for parsed_line in parsed_lines:
+                if parsed_line:
+                    sloc += 1
+                else:
+                    blank += 1
+
+            # Process a logical line
+            # Split it on semicolons because they increase the number of logical
+            # lines
+            for sub_tokens in _split_tokens(tokens, OP, ';'):
+                lloc += _logical(sub_tokens)
+
+    loc = sloc + blank + multi + single_comments
     return Module(loc, lloc, sloc, comments, multi, blank, single_comments)
