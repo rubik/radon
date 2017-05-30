@@ -274,6 +274,10 @@ def test_raw_to_terminal(raw_config):
         ('{0}: {1}', ('Single comments', 28), {'indent': 1}),
         ('{0}: {1}', ('Multi', 6), {'indent': 1}),
         ('{0}: {1}', ('Blank', 18), {'indent': 1}),
+        ('- Comment Stats', (), {'indent': 1}),
+        ('(C % L): {0:.0%}', (0.125,), {'indent': 2}),
+        ('(C % S): {0:.0%}', (0.2,), {'indent': 2}),
+        ('(C + M % L): {0:.0%}', (0.25,), {'indent': 2}),
     ]
 
 

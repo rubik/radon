@@ -211,9 +211,29 @@ class RawHarvester(Harvester):
                    {'indent': 2})
 
         if self.config.summary:
+            _get = lambda k, v=0: sum_metrics.get(k, v)
+            comments = float(_get('Comments'))
             yield '** Total **', (), {}
             for header in self.headers:
                 yield '{0}: {1}', (header, sum_metrics[header]), {'indent': 1}
+
+            yield '- Comment Stats', (), {'indent': 1}
+            yield (
+                '(C % L): {0:.0%}',
+                (comments / (_get('LOC', 1) or 1),),
+                {'indent': 2},
+            )
+            yield (
+                '(C % S): {0:.0%}',
+                (comments / (_get('SLOC', 1) or 1),),
+                {'indent': 2},
+            )
+            yield (
+                '(C + M % L): {0:.0%}',
+                (float(_get('Comments', 0) + _get('Multi')) /
+                    (_get('LOC', 1) or 1),),
+                {'indent': 2},
+            )
 
 
 class MIHarvester(Harvester):
