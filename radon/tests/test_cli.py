@@ -89,7 +89,7 @@ def test_mi(mocker, log_mock):
 
     harv_mock.assert_called_once_with(['-'], cli.Config(
         min='A', max='C', exclude=None, ignore=None, show=True,
-        multi=False))
+        multi=False, sort=False))
     log_mock.assert_called_once_with(mocker.sentinel.harvester, json=False)
 
 

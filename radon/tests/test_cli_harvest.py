@@ -32,6 +32,7 @@ MI_CONFIG = Config(
     min='B',
     max='C',
     show=True,
+    sort=False,
 )
 
 
