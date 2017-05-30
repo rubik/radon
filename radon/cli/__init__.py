@@ -92,7 +92,7 @@ def raw(paths, exclude=None, ignore=None, summary=False, json=False):
 @program.command
 @program.arg('paths', nargs='+')
 def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
-       show=False, json=False):
+       show=False, json=False, sort=False):
     '''Analyze the given Python modules and compute the Maintainability Index.
 
     The maintainability index (MI) is a compound metric, with the primary aim
@@ -112,6 +112,7 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
         comments.
     :param -s, --show: If given, the actual MI value is shown in results.
     :param -j, --json: Format results in JSON.
+    :param --sort: If given, results are sorted in ascending order.
     '''
     config = Config(
         min=min.upper(),
@@ -120,6 +121,7 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
         ignore=ignore,
         multi=multi,
         show=show,
+        sort=sort,
     )
 
     harvester = MIHarvester(paths, config)

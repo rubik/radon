@@ -250,8 +250,13 @@ class MIHarvester(Harvester):
         '''Filter results with respect with their rank.'''
         for key, value in self.results:
             if ('error' in value or
-               self.config.min <= value['rank'] <= self.config.max):
+                    self.config.min <= value['rank'] <= self.config.max):
                 yield (key, value)
+
+    def _sort(self, results):
+        if self.config.sort:
+            return sorted(results, key=lambda el: el[1]['mi'])
+        return results
 
     def as_json(self):
         '''Format the results as JSON.'''
@@ -263,7 +268,7 @@ class MIHarvester(Harvester):
 
     def to_terminal(self):
         '''Yield lines to be printed to a terminal.'''
-        for name, mi in self.filtered_results:
+        for name, mi in self._sort(self.filtered_results):
             if 'error' in mi:
                 yield name, (mi['error'],), {'error': True}
                 continue
