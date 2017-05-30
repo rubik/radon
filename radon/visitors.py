@@ -227,6 +227,9 @@ class ComplexityVisitor(CodeVisitor):
         self.complexity += not self.no_assert
 
     def visit_AsyncFunctionDef(self, node):
+        '''Async function definition is the same thing as the synchronous
+        one.
+        '''
         self.visit_FunctionDef(node)
 
     def visit_FunctionDef(self, node):

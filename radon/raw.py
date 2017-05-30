@@ -152,9 +152,12 @@ def _logical(tokens):
 
 
 def is_single_token(token_number, tokens):
-    """ Is this a single token matching token_number followed by ENDMARKER or NL tokens """
+    '''Is this a single token matching token_number followed by ENDMARKER or NL
+    tokens.
+    '''
     return (TOKEN_NUMBER(tokens[0]) == token_number and
-            all(TOKEN_NUMBER(t) in (tokenize.ENDMARKER, tokenize.NL) for t in tokens[1:]))
+            all(TOKEN_NUMBER(t) in (tokenize.ENDMARKER, tokenize.NL)
+                for t in tokens[1:]))
 
 
 def analyze(source):
@@ -180,7 +183,8 @@ def analyze(source):
     lineno = 1
     for line in lines:
         try:
-            # Get a syntactically complete set of tokens that spans a set of lines
+            # Get a syntactically complete set of tokens that spans a set of
+            # lines
             tokens, parsed_lines = _get_all_tokens(line, lines)
         except StopIteration:
             raise SyntaxError('SyntaxError at line: {0}'.format(lineno))
@@ -214,8 +218,8 @@ def analyze(source):
                     blank += 1
 
             # Process a logical line
-            # Split it on semicolons because they increase the number of logical
-            # lines
+            # Split it on semicolons because they increase the number of
+            # logical lines
             for sub_tokens in _split_tokens(tokens, OP, ';'):
                 lloc += _logical(sub_tokens)
 
