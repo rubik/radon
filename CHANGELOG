@@ -1,8 +1,20 @@
+2.0.0 (May 30, 2017)
+--------------------
+
+- Add ``--sort`` option to ``mi`` command: #100
+- Add comment stats summary when using the ``-s, --summary`` option of the
+  ``raw`` command: #110
+- Fix encoding bug: #114
+- Fix raw metrics (ensure that LOC = SLOC + Multi + Single Comments + Blank):
+  #118
+- Python 2.6 is not supported anymore
+
+
 1.5.0 (Mar 14, 2017)
 --------------------
 
-- use UTF-8 or RADONFILESENCODING to open files: #86
-- fix raw analysis bug on docstrings: #106
+- Use UTF-8 or RADONFILESENCODING to open files: #86
+- Fix raw analysis bug on docstrings: #106
 
 1.4.2 (Jul 26, 2016)
 --------------------
