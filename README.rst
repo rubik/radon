@@ -52,7 +52,7 @@ strictly required (for the CLI interface). `colorama` is also listed as a
 dependency but if Radon cannot import it, the output simply will not be
 colored.
 
-**Note about Python 2.6**
+**Note**:
 **Python 2.6** was supported until version 1.5.0. Starting from version 2.0, it
 is not supported anymore.
 
