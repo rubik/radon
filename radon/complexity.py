@@ -113,7 +113,7 @@ class Flake8Checker(object):
     name = 'radon'
     version = __import__('radon').__version__
     _code = 'R701'
-    _error_tmpl = 'R701: %r is too complex (%d)'
+    _error_tmpl = 'R701 %r is too complex (%d)'
     no_assert = False
     max_cc = -1
 
