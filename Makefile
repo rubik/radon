@@ -23,7 +23,7 @@ test-deps:
 	pip install -r test_requirements.pip
 
 publish:
-	python setup.py sdist bdist_wheel register upload
+	python setup.py sdist bdist_wheel upload
 	python setup.py develop
 
 coveralls: test-deps cov
