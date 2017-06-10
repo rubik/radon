@@ -17,10 +17,6 @@ Radon
     :alt: PyPI latest version badge
     :target: https://pypi.python.org/pypi/radon
 
-.. image:: https://img.shields.io/pypi/dm/radon.svg
-    :alt: PyPI downloads badge
-    :target: https://pypi.python.org/pypi/radon
-
 .. image:: https://img.shields.io/pypi/format/radon.svg
     :alt: Download format
     :target: http://pythonwheels.com/
