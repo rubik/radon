@@ -73,7 +73,7 @@ Options
    Like :option:`-a, --average`, but it is not influenced by `min` and `max`.
    Every analyzed block is counted, no matter whether it is displayed or not.
 
-.. option:: -s, --show_complexity
+.. option:: -s, --show-complexity
 
    If given, show the complexity score along with its rank.
 
