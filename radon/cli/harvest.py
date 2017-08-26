@@ -185,7 +185,7 @@ class RawHarvester(Harvester):
 
     def as_xml(self):
         '''Placeholder method. Currently not implemented.'''
-        raise NotImplementedError('Cannot export results as XML')
+        raise NotImplementedError('RawHarvester: cannot export results as XML')
 
     def to_terminal(self):
         '''Yield lines to be printed to a terminal.'''
