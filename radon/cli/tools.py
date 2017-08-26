@@ -12,6 +12,7 @@ import locale
 import hashlib
 import fnmatch
 import platform
+import tokenize
 import xml.etree.cElementTree as et
 from contextlib import contextmanager
 from radon.visitors import Function
@@ -62,8 +63,12 @@ else:
         if path == '-':
             yield sys.stdin
         else:
-            with _open_function(path, encoding=_encoding) as f:
-                yield f
+            try:
+                with tokenize.open(path) as f:
+                    yield f
+            except:
+                with _open_function(path, encoding=_encoding) as f:
+                    yield f
 
 
 def iter_filenames(paths, exclude=None, ignore=None):

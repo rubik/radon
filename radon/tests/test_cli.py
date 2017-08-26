@@ -1,8 +1,12 @@
+import os
+
 import pytest
 
 import radon.cli as cli
 import radon.complexity as cc_mod
-from radon.cli.harvest import Harvester
+from radon.cli.harvest import Harvester, MIHarvester
+
+DIRNAME = os.path.dirname(__file__)
 
 
 def func(a, b=2, c=[], d=None):
@@ -91,6 +95,21 @@ def test_mi(mocker, log_mock):
         min='A', max='C', exclude=None, ignore=None, show=True,
         multi=False, sort=False))
     log_mock.assert_called_once_with(mocker.sentinel.harvester, json=False)
+
+
+def test_mi_encoding(mocker, log_mock):
+    config = cli.Config(
+        min='A',
+        max='C',
+        exclude=None,
+        ignore=None,
+        multi=True,
+        show=False,
+        sort=False,
+    )
+    fname = os.path.join(DIRNAME, 'data/__init__.py')
+    harvester = MIHarvester([fname], config)
+    assert not any(['error' in kw for msg, args, kw in harvester.to_terminal()])
 
 
 @pytest.fixture
