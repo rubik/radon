@@ -3,6 +3,7 @@ import collections
 import pytest
 
 from radon.cli import Config
+import radon.complexity as cc_mod
 import radon.cli.harvest as harvest
 
 
@@ -12,7 +13,7 @@ BASE_CONFIG = Config(
 )
 
 CC_CONFIG = Config(
-    order='SCORE',
+    order=getattr(cc_mod, 'SCORE'),
     no_assert=False,
     min='A',
     max='F',

@@ -1,10 +1,15 @@
 import os
+import sys
 
 import pytest
 
 import radon.cli as cli
 import radon.complexity as cc_mod
-from radon.cli.harvest import Harvester, MIHarvester
+from radon.cli.harvest import Harvester, MIHarvester, RawHarvester, CCHarvester
+
+from radon.tests.test_cli_harvest import (
+        BASE_CONFIG, CC_CONFIG, RAW_CONFIG, MI_CONFIG,
+)
 
 DIRNAME = os.path.dirname(__file__)
 
@@ -33,20 +38,24 @@ def test_config_base_behavior():
     assert c.a == 2
     assert c.b == 3
 
+
 def test_config_exceptions():
     c = cli.Config(a=2)
     assert c.__dict__, {'config_values': {'a': 2}}
     with pytest.raises(AttributeError):
         c.notexistent
 
+
 def test_config_str():
     assert str(cli.Config()) == '{}'
     assert str(cli.Config(a=2)) == '{\'a\': 2}'
+
 
 def test_config_eq():
     assert cli.Config() == cli.Config()
     assert cli.Config(a=2) == cli.Config(a=2)
     assert cli.Config(a=2) != cli.Config(b=2)
+
 
 def test_config_for():
     assert cli.Config.from_function(func) == cli.Config(b=2, c=[], d=None)
@@ -97,19 +106,29 @@ def test_mi(mocker, log_mock):
     log_mock.assert_called_once_with(mocker.sentinel.harvester, json=False)
 
 
-def test_mi_encoding(mocker, log_mock):
-    config = cli.Config(
-        min='A',
-        max='C',
-        exclude=None,
-        ignore=None,
-        multi=True,
-        show=False,
-        sort=False,
+def test_encoding(mocker, log_mock):
+    mi_cfg = cli.Config(
+        **BASE_CONFIG.config_values
     )
-    fname = os.path.join(DIRNAME, 'data/__init__.py')
-    harvester = MIHarvester([fname], config)
-    assert not any(['error' in kw for msg, args, kw in harvester.to_terminal()])
+    mi_cfg.config_values.update(MI_CONFIG.config_values)
+    raw_cfg = cli.Config(
+        **BASE_CONFIG.config_values
+    )
+    raw_cfg.config_values.update(RAW_CONFIG.config_values)
+    mappings = {
+        MIHarvester: mi_cfg,
+        RawHarvester: raw_cfg,
+        CCHarvester: CC_CONFIG,
+    }
+    if sys.version_info[0] < 3:
+        target = 'data/__init__.py'
+    else:
+        target = 'data/py3unicode.py'
+    fname = os.path.join(DIRNAME, target)
+    for h_class, cfg in mappings.items():
+        harvester = h_class([fname], cfg)
+        assert not any(['error' in kw
+                        for msg, args, kw in harvester.to_terminal()])
 
 
 @pytest.fixture
