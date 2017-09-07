@@ -12,7 +12,6 @@ import locale
 import hashlib
 import fnmatch
 import platform
-import tokenize
 import xml.etree.cElementTree as et
 from contextlib import contextmanager
 from radon.visitors import Function
@@ -71,19 +70,21 @@ else:
         def detect_encoding(readline):
             """
             The detect_encoding() function is used to detect the encoding that should
-            be used to decode a Python source file.  It requires one argument, readline,
+            be used to decode a Python source file. It requires one argument, readline,
             in the same way as the tokenize() generator.
 
             It will call readline a maximum of twice, and return the encoding used
             (as a string) and a list of any lines (left as bytes) it has read in.
 
             It detects the encoding from the presence of a utf-8 bom or an encoding
-            cookie as specified in pep-0263.  If both a bom and a cookie are present,
-            but disagree, a SyntaxError will be raised.  If the encoding cookie is an
-            invalid charset, raise a SyntaxError.  Note that if a utf-8 bom is found,
+            cookie as specified in pep-0263. If both a bom and a cookie are present,
+            but disagree, a SyntaxError will be raised. If the encoding cookie is an
+            invalid charset, raise a SyntaxError. Note that if a utf-8 bom is found,
             'utf-8-sig' is returned.
 
             If no encoding is specified, then the default of 'utf-8' will be returned.
+            The third argument indicates whether the encoding cookie was found
+            or not.
             """
             try:
                 filename = readline.__self__.name
@@ -142,23 +143,23 @@ else:
                 first = first[3:]
                 default = 'utf-8-sig'
             if not first:
-                return default, []
+                return default, [], False
 
             encoding = find_cookie(first)
             if encoding:
-                return encoding, [first]
+                return encoding, [first], True
             if not blank_re.match(first):
-                return default, [first]
+                return default, [first], False
 
             second = read_or_stop()
             if not second:
-                return default, [first]
+                return default, [first], False
 
             encoding = find_cookie(second)
             if encoding:
-                return encoding, [first, second]
+                return encoding, [first, second], True
 
-            return default, [first, second]
+            return default, [first, second], False
 
 
         def _open_function(filename, encoding=None):
@@ -168,18 +169,22 @@ else:
             # Note: Python 3 uses builtins.open here..
             buffer = _io_open_function(filename, 'rb')
             try:
-                encoding, lines = detect_encoding(buffer.readline)
+                encoding, lines, found = detect_encoding(buffer.readline)
                 # Note: Python 3's tokenize does buffer seek(0), but that
                 # leaves the encoding cookie in the file and ast.parse
                 # does not like Unicode text with an encoding cookie.
-                buffer.seek(sum(len(line) for line in lines))
+                # If the encoding was not found we seek to the start anyway
+                if found:
+                    buffer.seek(sum(len(line) for line in lines))
+                else:
+                    buffer.seek(0)
                 text = TextIOWrapper(buffer, encoding, line_buffering=True)
                 text.mode = 'r'
                 return text
             except:
                 buffer.close()
                 raise
-        
+
     else:
         _open_function = open
 

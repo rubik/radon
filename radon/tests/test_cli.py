@@ -124,11 +124,17 @@ def test_encoding(mocker, log_mock):
         target = 'data/__init__.py'
     else:
         target = 'data/py3unicode.py'
-    fname = os.path.join(DIRNAME, target)
+    fnames = [
+        os.path.join(DIRNAME, target),
+        # This one will fail if detect_encoding() removes the first lines
+        # See #133
+        os.path.join(DIRNAME, 'data/no_encoding.py'),
+    ]
     for h_class, cfg in mappings.items():
-        harvester = h_class([fname], cfg)
-        assert not any(['error' in kw
-                        for msg, args, kw in harvester.to_terminal()])
+        for f in fnames:
+            harvester = h_class([f], cfg)
+            assert not any(['error' in kw
+                            for msg, args, kw in harvester.to_terminal()])
 
 
 @pytest.fixture
