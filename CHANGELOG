@@ -1,3 +1,9 @@
+2.1.1 (Sep 07, 2017)
+--------------------
+
+- Fix critical bug in Python 2 that prevented analysis of files with no
+  comments at the start of the module: #133
+
 2.0.3 (Aug 30, 2017)
 --------------------
 
