@@ -19,9 +19,9 @@ if os.path.exists("/config.json"):
 
         if config["config"].get("python_version"):
             version = config["config"].get("python_version")
-            if version == "2":
+            if version == "2" or version == 2:
                 binstub = "radon2"
-            elif version != "3":
+            elif version != "3" and version != 3:
                 sys.exit("Invalid python_version; must be either 2 or 3")
         if config["config"].get("encoding"):
             encoding = config["config"].get("encoding")
