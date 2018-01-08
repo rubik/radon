@@ -136,12 +136,19 @@ class Flake8Checker(object):
             default=False, help='Radon will ignore assert statements',
             parse_from_config=True,
         )
+        options.register(
+            parser,
+            '--radon-show-closures', dest='show_closures', action='store_true',
+            default=False, help='Add closures/inner classes to the output',
+            parse_from_config=True,
+        )
 
     @classmethod
     def parse_options(cls, options):  # pragma: no cover
         '''Save actual options as class attributes.'''
         cls.max_cc = options.radon_max_cc
         cls.no_assert = options.no_assert
+        cls.show_closures = options.show_closures
 
     def run(self):
         '''Run the ComplexityVisitor over the AST tree.'''
@@ -151,7 +158,12 @@ class Flake8Checker(object):
             self.max_cc = 10
         visitor = ComplexityVisitor.from_ast(self.tree,
                                              no_assert=self.no_assert)
-        for block in visitor.blocks:
+
+        blocks = visitor.blocks
+        if self.show_closures:
+            blocks = add_inner_blocks(blocks)
+
+        for block in blocks:
             if block.complexity > self.max_cc:
                 text = self._error_tmpl % (block.name, block.complexity)
                 yield block.lineno, block.col_offset, text, type(self)
