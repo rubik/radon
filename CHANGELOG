@@ -1,3 +1,8 @@
+2.2.0 (Jan 11, 2018)
+--------------------
+
+- Add an option to show closures when Radon is used from flake8: #135
+
 2.1.1 (Sep 07, 2017)
 --------------------
 
