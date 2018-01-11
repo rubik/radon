@@ -115,6 +115,7 @@ class Flake8Checker(object):
     _code = 'R701'
     _error_tmpl = 'R701 %r is too complex (%d)'
     no_assert = False
+    show_closures = False
     max_cc = -1
 
     def __init__(self, tree, filename):
