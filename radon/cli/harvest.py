@@ -3,7 +3,7 @@
 import json
 import collections
 from radon.raw import analyze
-from radon.metrics import mi_visit, mi_rank
+from radon.metrics import h_visit, mi_visit, mi_rank
 from radon.complexity import (cc_visit, sorted_results, cc_rank,
                               add_inner_blocks)
 from radon.cli.colors import RANKS_COLORS, MI_RANKS, RESET
@@ -278,3 +278,29 @@ class MIHarvester(Harvester):
             if self.config.show:
                 to_show = ' ({0:.2f})'.format(mi['mi'])
             yield '{0} - {1}{2}{3}{4}', (name, color, rank, to_show, RESET), {}
+
+
+class HCHarvester(Harvester):
+    """Computes the Halstead Complexity of Python modules."""
+
+    def gobble(self, fobj):
+        """Analyze the content of the file object."""
+        code = fobj.read()
+        return h_visit(code)
+
+    def to_terminal(self):
+        """Yield lines to be printed to the terminal."""
+        for name, res in self.results:
+            yield "{}:".format(name), (), {}
+            yield "h1: {}".format(res.h1), (), {"indent": 1}
+            yield "h2: {}".format(res.h2), (), {"indent": 1}
+            yield "N1: {}".format(res.N1), (), {"indent": 1}
+            yield "N2: {}".format(res.N2), (), {"indent": 1}
+            yield "vocabulary: {}".format(res.vocabulary), (), {"indent": 1}
+            yield "length: {}".format(res.length), (), {"indent": 1}
+            yield "calculated_length: {}".format(res.calculated_length), (), {"indent": 1}
+            yield "volume: {}".format(res.volume), (), {"indent": 1}
+            yield "difficulty: {}".format(res.difficulty), (), {"indent": 1}
+            yield "effort: {}".format(res.effort), (), {"indent": 1}
+            yield "time: {}".format(res.time), (), {"indent": 1}
+            yield "bugs: {}".format(res.bugs), (), {"indent": 1}

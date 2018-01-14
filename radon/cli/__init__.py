@@ -6,7 +6,7 @@ from mando import Program
 
 import radon.complexity as cc_mod
 from radon.cli.colors import BRIGHT, RED, RESET
-from radon.cli.harvest import CCHarvester, RawHarvester, MIHarvester
+from radon.cli.harvest import CCHarvester, RawHarvester, MIHarvester, HCHarvester
 
 
 program = Program(version=sys.modules['radon'].__version__)
@@ -127,6 +127,27 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
     harvester = MIHarvester(paths, config)
     log_result(harvester, json=json)
 
+
+@program.command
+@program.arg("paths", nargs="+")
+def hal(paths):
+    """
+    Analyze the given Python modules and compute their Halstead metrics.
+
+    The Halstead metrics are a series of measurements meant to quantitatively
+    measure the complexity of code, including the difficulty a programmer would
+    have in writing it.
+
+    :param paths: The paths where to find modules or packages to analyze. More
+        than one path is allowed.
+    """
+    config = Config(
+                exclude=None,
+                ignore=None
+            )
+
+    harvester = HCHarvester(paths, config)
+    log_result(harvester)
 
 class Config(object):
     '''An object holding config values.'''
