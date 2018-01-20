@@ -288,6 +288,11 @@ class HCHarvester(Harvester):
         code = fobj.read()
         return h_visit(code)
 
+    def as_json(self):
+        """Format the results as JSON."""
+        result_dict = self._to_dicts()
+        return json.dumps(result_dict)
+
     def to_terminal(self):
         """Yield lines to be printed to the terminal."""
         for name, res in self.results:
@@ -304,3 +309,14 @@ class HCHarvester(Harvester):
             yield "effort: {}".format(res.effort), (), {"indent": 1}
             yield "time: {}".format(res.time), (), {"indent": 1}
             yield "bugs: {}".format(res.bugs), (), {"indent": 1}
+
+    def _to_dicts(self):
+        '''Format the results as a dictionary of dictionaries.'''
+        result = {}
+        for filename, results in self.results:
+            if 'error' in results:
+                result[filename] = results
+            else:
+                result[filename] = results._asdict()
+
+        return result
