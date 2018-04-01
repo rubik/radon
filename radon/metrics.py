@@ -10,9 +10,13 @@ from radon.raw import analyze
 
 
 # Halstead metrics
-Halstead = collections.namedtuple('Halstead', 'h1 h2 N1 N2 vocabulary length '
-                                              'calculated_length volume '
-                                              'difficulty effort time bugs')
+HalsteadReport = collections.namedtuple('Halstead', 'h1 h2 N1 N2 vocabulary length '
+                                        'calculated_length volume '
+                                        'difficulty effort time bugs')
+
+# `total` is a HalsteadReport for the entire scanned file, while `functions` is
+# a list of `HalsteadReport`s for each function in the file.
+Halstead = collections.namedtuple("HalsteadReport", "total functions")
 
 
 def h_visit(code):
@@ -23,8 +27,10 @@ def h_visit(code):
 
 
 def h_visit_ast(ast_node):
-    '''Visit the AST node using the :class:`~radon.visitors.HalsteadVisitor`
-    visitor. A namedtuple with the following fields is returned:
+    '''
+    Visit the AST node using the :class:`~radon.visitors.HalsteadVisitor`
+    visitor. The results are `HalsteadReport` namedtuples with the following
+    fields:
 
         * h1: the number of distinct operators
         * h2: the number of distinct operands
@@ -38,8 +44,24 @@ def h_visit_ast(ast_node):
         * effort: E = D * V
         * time: T = E / 18 seconds
         * bugs: B = V / 3000 - an estimate of the errors in the implementation
+
+    The actual return of this function is a namedtuple with the following
+    fields:
+
+        * total: a `HalsteadReport` namedtuple for the entire scanned file
+        * functions: a list of `HalsteadReport`s for each toplevel function
+
+    Nested functions are not tracked.
     '''
     visitor = HalsteadVisitor.from_ast(ast_node)
+    total = halstead_visitor_report(visitor)
+    functions = [(v.context, halstead_visitor_report(v)) for v in visitor.function_visitors]
+
+    return Halstead(total, functions)
+
+
+def halstead_visitor_report(visitor):
+    """Return a HalsteadReport from a HalsteadVisitor instance."""
     h1, h2 = visitor.distinct_operators, visitor.distinct_operands
     N1, N2 = visitor.operators, visitor.operands
     h = h1 + h2
@@ -51,7 +73,7 @@ def h_visit_ast(ast_node):
     volume = N * math.log(h, 2) if h != 0 else 0
     difficulty = (h1 * N2) / float(2 * h2) if h2 != 0 else 0
     effort = difficulty * volume
-    return Halstead(
+    return HalsteadReport(
         h1, h2, N1, N2, h, N, length, volume, difficulty, effort,
         effort / 18., volume / 3000.
     )
@@ -91,7 +113,7 @@ def mi_parameters(code, count_multi=True):
     raw = analyze(code)
     comments_lines = raw.comments + (raw.multi if count_multi else 0)
     comments = comments_lines / float(raw.sloc) * 100 if raw.sloc != 0 else 0
-    return (h_visit_ast(ast_node).volume,
+    return (h_visit_ast(ast_node).total.volume,
             ComplexityVisitor.from_ast(ast_node).total_complexity, raw.lloc,
             comments)
 
