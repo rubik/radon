@@ -130,7 +130,7 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
 
 @program.command
 @program.arg("paths", nargs="+")
-def hal(paths):
+def hal(paths, exclude=None, ignore=None, json=False):
     """
     Analyze the given Python modules and compute their Halstead metrics.
 
@@ -140,14 +140,21 @@ def hal(paths):
 
     :param paths: The paths where to find modules or packages to analyze. More
         than one path is allowed.
+    :param -e, --exclude <str>: Exclude files only when their path matches one
+        of these glob patterns. Usually needs quoting at the command line.
+    :param -i, --ignore <str>: Ignore directories when their name matches one
+        of these glob patterns: radon won't even descend into them. By default,
+        hidden directories (starting with '.') are ignored.
+    :param -j, --json: Format results in JSON.
     """
     config = Config(
-                exclude=None,
-                ignore=None
+                exclude=exclude,
+                ignore=ignore
             )
 
     harvester = HCHarvester(paths, config)
-    log_result(harvester)
+    log_result(harvester, json=json, xml=False)
+
 
 class Config(object):
     '''An object holding config values.'''
