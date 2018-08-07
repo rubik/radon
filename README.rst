@@ -133,6 +133,11 @@ one.
 
 If you are looking for more complete solutions, read the following sections.
 
+Codacy
+++++++++++++
+
+`Codacy <https://www.codacy.com/>`_ uses Radon `by default <https://support.codacy.com/hc/en-us/articles/213632009-Engines#other-tools>`_ to calculate metrics from the source code.
+
 Code Climate
 ++++++++++++
 
