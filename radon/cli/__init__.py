@@ -130,7 +130,7 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
 
 @program.command
 @program.arg("paths", nargs="+")
-def hal(paths, exclude=None, ignore=None, json=False):
+def hal(paths, exclude=None, ignore=None, json=False, functions=False):
     """
     Analyze the given Python modules and compute their Halstead metrics.
 
@@ -146,11 +146,13 @@ def hal(paths, exclude=None, ignore=None, json=False):
         of these glob patterns: radon won't even descend into them. By default,
         hidden directories (starting with '.') are ignored.
     :param -j, --json: Format results in JSON.
+    :param -f, --functions: Analyze files by top-level functions instead of as a whole.
     """
     config = Config(
-                exclude=exclude,
-                ignore=ignore
-            )
+        exclude=exclude,
+        ignore=ignore,
+        by_function=functions,
+    )
 
     harvester = HCHarvester(paths, config)
     log_result(harvester, json=json, xml=False)

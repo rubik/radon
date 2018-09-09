@@ -283,6 +283,10 @@ class MIHarvester(Harvester):
 class HCHarvester(Harvester):
     """Computes the Halstead Complexity of Python modules."""
 
+    def __init__(self, paths, config):
+        super().__init__(paths, config)
+        self.by_function = config.by_function
+
     def gobble(self, fobj):
         """Analyze the content of the file object."""
         code = fobj.read()
@@ -295,20 +299,16 @@ class HCHarvester(Harvester):
 
     def to_terminal(self):
         """Yield lines to be printed to the terminal."""
-        for name, res in self.results:
-            yield "{}:".format(name), (), {}
-            yield "h1: {}".format(res.h1), (), {"indent": 1}
-            yield "h2: {}".format(res.h2), (), {"indent": 1}
-            yield "N1: {}".format(res.N1), (), {"indent": 1}
-            yield "N2: {}".format(res.N2), (), {"indent": 1}
-            yield "vocabulary: {}".format(res.vocabulary), (), {"indent": 1}
-            yield "length: {}".format(res.length), (), {"indent": 1}
-            yield "calculated_length: {}".format(res.calculated_length), (), {"indent": 1}
-            yield "volume: {}".format(res.volume), (), {"indent": 1}
-            yield "difficulty: {}".format(res.difficulty), (), {"indent": 1}
-            yield "effort: {}".format(res.effort), (), {"indent": 1}
-            yield "time: {}".format(res.time), (), {"indent": 1}
-            yield "bugs: {}".format(res.bugs), (), {"indent": 1}
+        if self.by_function:
+            for name, res in self.results:
+                yield "{}:".format(name), (), {}
+                for (name, report) in res.functions:
+                    yield "{}:".format(name), (), {"indent": 1}
+                    yield from hal_report_to_terminal(report, 1)
+        else:
+            for name, res in self.results:
+                yield "{}:".format(name), (), {}
+                yield from hal_report_to_terminal(res.total, 0)
 
     def _to_dicts(self):
         '''Format the results as a dictionary of dictionaries.'''
@@ -320,3 +320,19 @@ class HCHarvester(Harvester):
                 result[filename] = results._asdict()
 
         return result
+
+
+def hal_report_to_terminal(report, base_indent=0):
+    """Yield lines from the HalsteadReport to print to the terminal."""
+    yield "h1: {}".format(report.h1), (), {"indent": 1 + base_indent}
+    yield "h2: {}".format(report.h2), (), {"indent": 1 + base_indent}
+    yield "N1: {}".format(report.N1), (), {"indent": 1 + base_indent}
+    yield "N2: {}".format(report.N2), (), {"indent": 1 + base_indent}
+    yield "vocabulary: {}".format(report.vocabulary), (), {"indent": 1 + base_indent}
+    yield "length: {}".format(report.length), (), {"indent": 1 + base_indent}
+    yield "calculated_length: {}".format(report.calculated_length), (), {"indent": 1 + base_indent}
+    yield "volume: {}".format(report.volume), (), {"indent": 1 + base_indent}
+    yield "difficulty: {}".format(report.difficulty), (), {"indent": 1 + base_indent}
+    yield "effort: {}".format(report.effort), (), {"indent": 1 + base_indent}
+    yield "time: {}".format(report.time), (), {"indent": 1 + base_indent}
+    yield "bugs: {}".format(report.bugs), (), {"indent": 1 + base_indent}

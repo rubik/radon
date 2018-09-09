@@ -299,6 +299,9 @@ class HalsteadVisitor(CodeVisitor):
         self.operands = 0
         self.context = context
 
+        # A new visitor is spawned for every scanned function.
+        self.function_visitors = []
+
     @property
     def distinct_operators(self):
         '''The number of distinct operators.'''
@@ -363,11 +366,22 @@ class HalsteadVisitor(CodeVisitor):
 
     def visit_FunctionDef(self, node):
         '''When visiting functions, another visitor is created to recursively
-        analyze the function's body.
+        analyze the function's body. We also track information on the function
+        itself.
         '''
+        func_visitor = HalsteadVisitor(context=node.name)
+
         for child in node.body:
             visitor = HalsteadVisitor.from_ast(child, context=node.name)
             self.operators += visitor.operators
             self.operands += visitor.operands
             self.operators_seen.update(visitor.operators_seen)
             self.operands_seen.update(visitor.operands_seen)
+
+            func_visitor.operators += visitor.operators
+            func_visitor.operands += visitor.operands
+            func_visitor.operators_seen.update(visitor.operators_seen)
+            func_visitor.operands_seen.update(visitor.operands_seen)
+
+        # Save the visited function visitor for later reference.
+        self.function_visitors.append(func_visitor)
