@@ -10,13 +10,13 @@ from radon.raw import analyze
 
 
 # Halstead metrics
-HalsteadReport = collections.namedtuple('Halstead', 'h1 h2 N1 N2 vocabulary length '
+HalsteadReport = collections.namedtuple('HalsteadReport', 'h1 h2 N1 N2 vocabulary length '
                                         'calculated_length volume '
                                         'difficulty effort time bugs')
 
 # `total` is a HalsteadReport for the entire scanned file, while `functions` is
 # a list of `HalsteadReport`s for each function in the file.
-Halstead = collections.namedtuple("HalsteadReport", "total functions")
+Halstead = collections.namedtuple("Halstead", "total functions")
 
 
 def h_visit(code):
