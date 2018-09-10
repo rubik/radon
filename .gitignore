@@ -13,3 +13,4 @@ dist
 .tox
 docs/_build
 .coveralls.yml
+.pytest_cache
