@@ -153,6 +153,11 @@ Radon is also supported in `coala <http://coala-analyzer.org/>`_. To add Radon's
 checks to coala, simply add the ``RadonBear`` to one of the sections in
 your ``.coafile``.
 
+CodeFactor
+++++++++++++
+
+`CodeFactor <https://www.codefactor.io/>`_ uses Radon `out-of-the-box <https://support.codefactor.io/i24-analysis-tools-open-source>`_ to calculate Cyclomatic Complexity.
+
 
 Links
 -----
