@@ -1,11 +1,12 @@
 Command-line Usage
 ==================
 
-Radon currently has three commands:
+Radon currently has four commands:
 
     * :command:`cc`: compute Cyclomatic Complexity
     * :command:`raw`: compute raw metrics
     * :command:`mi`: compute Maintainability Index
+    * :command:`hal`: compute Halstead complexity metrics
 
 .. note::
     On some systems, such as Windows, the default encoding is not UTF-8. If you
@@ -297,3 +298,79 @@ every subdirectory.
 
 Like the previous example, but excluding from the analysis every path that
 matches ``path1/tests/*``.
+
+
+The :command:`hal` command
+-------------------------
+
+.. program:: hal
+
+This command analyzes Python source files and computes their Halstead
+complexity metrics. Files can be analyzed as wholes, or in terms of their
+top-level functions with the :option:`-f` flag.
+
+Excluding files or directories is supported through glob patterns with the
+:option:`-e` flag. Every positional argument is interpreted as a path. The
+program walks through its children and analyzes Python files.
+
+Options
++++++++
+
+.. option:: -f, --functions
+
+    Compute the metrics on the *function* level, as opposed to the *file*
+    level.
+
+.. option:: -e, --exclude
+
+   Exclude files when their path matches one of these glob patterns. Usually
+   needs quoting at the command line.
+
+.. option:: -i, --ignore
+
+   Refuse to descend into directories that match any of these glob patterns. By
+   default, hidden directories (starting with '.') are ignored.
+
+.. option:: -j, --json
+
+   Convert results into JSON. This is useful for exporting results to another
+   application.
+
+
+Examples
+++++++++
+
+::
+
+    $ radon hal file.py
+
+Radon will analyze the given file.
+
+
+::
+
+    $ radon hal path/
+
+Radon will walk through the subdirectories of ``path/`` and analyze all child
+nodes (every Python file it encounters).
+
+::
+
+    $ radon hal -e 'path/tests*,path/docs/*' path/
+
+As in the above example, Radon will walk the directories, excluding paths
+matching ``path/tests/*`` and ``path/docs/*``.
+
+.. warning::
+
+   Remember to quote the patterns, otherwise your shell might expand them!
+
+Depending on the single cases, a more suitable alternative might be this::
+
+    $ radon hal -i "docs,tests" path
+
+::
+
+    $ radon hal - < path/to/file.py
+
+Setting the path to "-" will cause Radon to analyze code from stdin.
