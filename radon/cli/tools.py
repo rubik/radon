@@ -213,6 +213,8 @@ def iter_filenames(paths, exclude=None, ignore=None):
         yield '-'
         return
     for path in paths:
+        if exclude and any(fnmatch.fnmatch(path, p) for p in exclude):
+            continue
         if os.path.isfile(path):
             yield path
             continue
