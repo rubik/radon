@@ -304,11 +304,13 @@ class HCHarvester(Harvester):
                 yield "{}:".format(name), (), {}
                 for (name, report) in res.functions:
                     yield "{}:".format(name), (), {"indent": 1}
-                    yield from hal_report_to_terminal(report, 1)
+                    for msg in hal_report_to_terminal(report, 1):
+                        yield msg
         else:
             for name, res in self.results:
                 yield "{}:".format(name), (), {}
-                yield from hal_report_to_terminal(res.total, 0)
+                for msg in hal_report_to_terminal(res.total, 0):
+                    yield msg
 
     def _to_dicts(self):
         '''Format the results as a dictionary of dictionaries.'''
