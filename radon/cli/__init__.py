@@ -229,13 +229,15 @@ def log_result(harvester, **kwargs):
         log_list(harvester.as_codeclimate_issues(), delimiter='\0',
                  noformat=True, **kwargs)
     else:
-        for msg, args, kwargs in harvester.to_terminal():
-            if kwargs.get('error', False):
-                log(msg, **kwargs)
-                log_error(args[0], indent=1)
+        for msg, h_args, h_kwargs in harvester.to_terminal():
+            kw = kwargs.copy()
+            kw.update(h_kwargs)
+            if h_kwargs.get('error', False):
+                log(msg, **kw)
+                log_error(h_args[0], indent=1)
                 continue
             msg = [msg] if not isinstance(msg, (list, tuple)) else msg
-            log_list(msg, *args, **kwargs)
+            log_list(msg, *h_args, **kw)
 
 
 def log(msg, *args, **kwargs):
