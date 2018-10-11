@@ -2,6 +2,7 @@
 
 import sys
 import inspect
+from contextlib import contextmanager
 from mando import Program
 
 import radon.complexity as cc_mod
@@ -16,7 +17,8 @@ program = Program(version=sys.modules['radon'].__version__)
 @program.arg('paths', nargs='+')
 def cc(paths, min='A', max='F', show_complexity=False, average=False,
        exclude=None, ignore=None, order='SCORE', json=False, no_assert=False,
-       show_closures=False, total_average=False, xml=False, codeclimate=False):
+       show_closures=False, total_average=False, xml=False, codeclimate=False,
+       output_file=None, ):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -47,6 +49,7 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
     :param --no-assert: Do not count `assert` statements when computing
         complexity.
     :param --show-closures: Add closures/inner classes to the output.
+    :param -O, --output-file <str>: The output file (default to stdout).
     '''
     config = Config(
         min=min.upper(),
@@ -61,12 +64,15 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
         show_closures=show_closures,
     )
     harvester = CCHarvester(paths, config)
-    log_result(harvester, json=json, xml=xml, codeclimate=codeclimate)
+    with outstream(output_file) as stream:
+        log_result(harvester, json=json, xml=xml, codeclimate=codeclimate,
+                   stream=stream)
 
 
 @program.command
 @program.arg('paths', nargs='+')
-def raw(paths, exclude=None, ignore=None, summary=False, json=False):
+def raw(paths, exclude=None, ignore=None, summary=False, json=False,
+        output_file=None):
     '''Analyze the given Python modules and compute raw metrics.
 
     :param paths: The paths where to find modules or packages to analyze. More
@@ -79,6 +85,7 @@ def raw(paths, exclude=None, ignore=None, summary=False, json=False):
     :param -s, --summary:  If given, at the end of the analysis display the
         summary of the gathered metrics. Default to False.
     :param -j, --json: Format results in JSON.
+    :param -O, --output-file <str>: The output file (default to stdout).
     '''
     config = Config(
         exclude=exclude,
@@ -86,13 +93,14 @@ def raw(paths, exclude=None, ignore=None, summary=False, json=False):
         summary=summary,
     )
     harvester = RawHarvester(paths, config)
-    log_result(harvester, json=json)
+    with outstream(output_file) as stream:
+        log_result(harvester, json=json, stream=stream)
 
 
 @program.command
 @program.arg('paths', nargs='+')
 def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
-       show=False, json=False, sort=False):
+       show=False, json=False, sort=False, output_file=None):
     '''Analyze the given Python modules and compute the Maintainability Index.
 
     The maintainability index (MI) is a compound metric, with the primary aim
@@ -113,6 +121,7 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
     :param -s, --show: If given, the actual MI value is shown in results.
     :param -j, --json: Format results in JSON.
     :param --sort: If given, results are sorted in ascending order.
+    :param -O, --output-file <str>: The output file (default to stdout).
     '''
     config = Config(
         min=min.upper(),
@@ -125,12 +134,14 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
     )
 
     harvester = MIHarvester(paths, config)
-    log_result(harvester, json=json)
+    with outstream(output_file) as stream:
+        log_result(harvester, json=json, stream=stream)
 
 
 @program.command
 @program.arg("paths", nargs="+")
-def hal(paths, exclude=None, ignore=None, json=False, functions=False):
+def hal(paths, exclude=None, ignore=None, json=False, functions=False,
+        output_file=None):
     """
     Analyze the given Python modules and compute their Halstead metrics.
 
@@ -147,6 +158,7 @@ def hal(paths, exclude=None, ignore=None, json=False, functions=False):
         hidden directories (starting with '.') are ignored.
     :param -j, --json: Format results in JSON.
     :param -f, --functions: Analyze files by top-level functions instead of as a whole.
+    :param -O, --output-file <str>: The output file (default to stdout).
     """
     config = Config(
         exclude=exclude,
@@ -155,7 +167,8 @@ def hal(paths, exclude=None, ignore=None, json=False, functions=False):
     )
 
     harvester = HCHarvester(paths, config)
-    log_result(harvester, json=json, xml=False)
+    with outstream(output_file) as stream:
+        log_result(harvester, json=json, xml=False, stream=stream)
 
 
 class Config(object):
@@ -209,16 +222,16 @@ def log_result(harvester, **kwargs):
     passed to the :func:`~radon.cli.log` function.
     '''
     if kwargs.get('json'):
-        log(harvester.as_json(), noformat=True)
+        log(harvester.as_json(), noformat=True, **kwargs)
     elif kwargs.get('xml'):
-        log(harvester.as_xml(), noformat=True)
+        log(harvester.as_xml(), noformat=True, **kwargs)
     elif kwargs.get('codeclimate'):
         log_list(harvester.as_codeclimate_issues(), delimiter='\0',
-                 noformat=True)
+                 noformat=True, **kwargs)
     else:
         for msg, args, kwargs in harvester.to_terminal():
             if kwargs.get('error', False):
-                log(msg)
+                log(msg, **kwargs)
                 log_error(args[0], indent=1)
                 continue
             msg = [msg] if not isinstance(msg, (list, tuple)) else msg
@@ -237,7 +250,8 @@ def log(msg, *args, **kwargs):
     indent = 4 * kwargs.get('indent', 0)
     delimiter = kwargs.get('delimiter', '\n')
     m = msg if kwargs.get('noformat', False) else msg.format(*args)
-    sys.stdout.write(' ' * indent + m + delimiter)
+    stream = kwargs.get('stream', sys.stdout)
+    stream.write(' ' * indent + m + delimiter)
 
 
 def log_list(lst, *args, **kwargs):
@@ -251,3 +265,13 @@ def log_list(lst, *args, **kwargs):
 def log_error(msg, *args, **kwargs):
     '''Log an error message. Arguments are the same as log().'''
     log('{0}{1}ERROR{2}: {3}'.format(BRIGHT, RED, RESET, msg), *args, **kwargs)
+
+
+@contextmanager
+def outstream(outfile=None):
+    '''Encapsulate output stream creation as a context manager'''
+    if outfile:
+        with open(outfile, 'w') as outstream:
+            yield outstream
+    else:
+        yield sys.stdout
