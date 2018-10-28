@@ -13,6 +13,7 @@
 
 import os
 import sys
+import time
 import datetime
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                 '..')))
@@ -46,9 +47,10 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Radon'
+build_date = datetime.datetime.utcfromtimestamp(int(os.environ.get('SOURCE_DATE_EPOCH', time.time())))
 copyright = u'{0}, Michele Lacchia'.format('-'.join(map(str,
                                                         range(2012,
-                                                              datetime.datetime.now().year + 1))))
+                                                              build_date.year + 1))))
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
