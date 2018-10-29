@@ -39,9 +39,10 @@ Radon can compute:
 Requirements
 ------------
 
-Radon will run from **Python 2.7** to **Python 3.6** with a single code base
-and without the need of tools like 2to3 or six. It can also run on **PyPy**
-without any problems (currently PyPy 5.8.0 is used in tests).
+Radon will run from **Python 2.7** to **Python 3.7** (except Python versions
+from 3.0 to 3.3) with a single code base and without the need of tools like
+2to3 or six. It can also run on **PyPy** without any problems (currently PyPy
+5.8.0 is used in tests).
 
 Radon depends on as few packages as possible. Currently only `mando` is
 strictly required (for the CLI interface). `colorama` is also listed as a
