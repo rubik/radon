@@ -115,10 +115,10 @@ MI_VISIT_CASES = [
     # CC = 4
     # LLOC = 9
     # CM % = 38.46153846153847
-    (second_mi, 95.10743260514764, True),
+    (second_mi, 94.10928035154717, True),
 
     # CM % = 15.384615384615385
-    (second_mi, 90.10892143724502, False),
+    (second_mi, 89.11076918364455, False),
 ]
 
 

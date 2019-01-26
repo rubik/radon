@@ -123,6 +123,10 @@ LOGICAL_LINES_CASES = [
     ('''
      a = 1; b = 2;
      ''', 2),
+
+    ('''
+     a = 2; b = 43; c = 42; d = 3; print(a)
+     ''', 5),
 ]
 
 
@@ -140,7 +144,7 @@ ANALYZE_CASES = [
      """
      doc?
      """
-     ''', (3, 0, 0, 0, 3, 0, 0)),
+     ''', (3, 1, 0, 0, 3, 0, 0)),
 
     ('''
      # just a comment
@@ -172,7 +176,7 @@ ANALYZE_CASES = [
      def f(n):
          """here"""
          return n * f(n - 1)
-     ''', (3, 2, 2, 0, 0, 0, 1)),
+     ''', (3, 3, 2, 0, 0, 0, 1)),
 
     ('''
      def hip(a, k):
@@ -187,7 +191,7 @@ ANALYZE_CASES = [
          """
          if n <= 1: return 1  # otherwise it will melt the cpu
          return fib(n - 2) + fib(n - 1)
-     ''', (12, 8, 6, 2, 3, 2, 1)),
+     ''', (12, 9, 6, 2, 3, 2, 1)),
 
     ('''
      a = [1, 2, 3,
@@ -200,7 +204,7 @@ ANALYZE_CASES = [
         Try it with n = 294942: it will take a fairly long time.
         """
         if n <= 1: return 1  # otherwise it will melt the cpu
-    ''', (5, 3, 2, 1, 3, 0, 0)),
+    ''', (5, 4, 2, 1, 3, 0, 0)),
 
     ('''
      def foo(n=1):
@@ -209,7 +213,7 @@ ANALYZE_CASES = [
         """
         if n <= 1: return 1  # otherwise it will melt the cpu
         string = """This is a string not a comment"""
-    ''', (6, 4, 3, 1, 3, 0, 0)),
+    ''', (6, 5, 3, 1, 3, 0, 0)),
 
     ('''
      def foo(n=1):
@@ -220,7 +224,7 @@ ANALYZE_CASES = [
         string = """
                  This is a string not a comment
                  """
-    ''', (8, 4, 5, 1, 3, 0, 0)),
+    ''', (8, 5, 5, 1, 3, 0, 0)),
 
     ('''
      def foo(n=1):
@@ -232,7 +236,7 @@ ANALYZE_CASES = [
                 This is a string not a comment
                 """
         test = 0
-    ''', (9, 5, 6, 1, 3, 0, 0)),
+    ''', (9, 6, 6, 1, 3, 0, 0)),
 
     # Breaking lines still treated as single line of code.
     (r'''
@@ -241,12 +245,12 @@ ANALYZE_CASES = [
         Try it with n = 294942: it will take a fairly long time.
         """
         if n <= 1: return 1  # otherwise it will melt the cpu
-        string =\
+        string = \
                 """
                 This is a string not a comment
                 """
         test = 0
-    ''', (10, 5, 7, 1, 3, 0, 0)),
+    ''', (10, 6, 7, 1, 3, 0, 0)),
 
     # Test handling of last line comment.
     (r'''
@@ -261,7 +265,7 @@ ANALYZE_CASES = [
                 """
         test = 0
         # Comment
-    ''', (11, 5, 7, 2, 3, 0, 1)),
+    ''', (11, 6, 7, 2, 3, 0, 1)),
 
     (r'''
      def foo(n=1):
@@ -270,11 +274,11 @@ ANALYZE_CASES = [
         """
         if n <= 1: return 1  # otherwise it will melt the cpu
         test = 0
-        string =\
+        string = \
                 """
                 This is a string not a comment
                 """
-    ''', (10, 5, 7, 1, 3, 0, 0)),
+    ''', (10, 6, 7, 1, 3, 0, 0)),
 
     ('''
     def function(
@@ -284,7 +288,7 @@ ANALYZE_CASES = [
         for the function
         """
         pass
-    ''', (7, 2, 4, 0, 3, 0, 0)),
+    ''', (7, 3, 4, 0, 3, 0, 0)),
     ('''
     def function():
         multiline_with_equals_in_it = """ """
@@ -293,7 +297,7 @@ ANALYZE_CASES = [
     ('''
     def function():
         """ a docstring in a single line counts as a single-line comment """
-    ''', (2, 1, 1, 0, 0, 0, 1)),
+    ''', (2, 2, 1, 0, 0, 0, 1)),
     ('''
     def function():
         """ this is not a """ """ docstring because it is concatenated """

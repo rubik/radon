@@ -13,12 +13,13 @@ except ImportError:  # pragma: no cover
     import io
 
 
-__all__ = ['OP', 'COMMENT', 'TOKEN_NUMBER', 'NL', 'EM', 'Module', '_generate',
-           '_less_tokens', '_find', '_logical', 'analyze']
+__all__ = ['OP', 'COMMENT', 'TOKEN_NUMBER', 'NL', 'NEWLINE', 'EM', 'Module',
+           '_generate', '_fewer_tokens', '_find', '_logical', 'analyze']
 
 COMMENT = tokenize.COMMENT
 OP = tokenize.OP
 NL = tokenize.NL
+NEWLINE = tokenize.NEWLINE
 EM = tokenize.ENDMARKER
 
 # Helper for map()
@@ -44,7 +45,7 @@ def _generate(code):
     return list(tokenize.generate_tokens(io.StringIO(code).readline))
 
 
-def _less_tokens(tokens, remove):
+def _fewer_tokens(tokens, remove):
     '''Process the output of `tokenize.generate_tokens` removing
     the tokens specified in `remove`.
     '''
@@ -135,29 +136,33 @@ def _logical(tokens):
     def aux(sub_tokens):
         '''The actual function which does the job.'''
         # Get the tokens and, in the meantime, remove comments
-        processed = list(_less_tokens(sub_tokens, [COMMENT]))
+        processed = list(_fewer_tokens(sub_tokens, [COMMENT, NL, NEWLINE]))
         try:
             # Verify whether a colon is present among the tokens and that
             # it is the last token.
             token_pos = _find(processed, OP, ':')
+            # We subtract 2 from the total because the last token is always
+            # ENDMARKER. There are two cases: if the colon is at the end, it
+            # means that there is only one logical line; if it isn't then there
+            # are two.
             return 2 - (token_pos == len(processed) - 2)
         except ValueError:
             # The colon is not present
             # If the line is only composed by comments, newlines and endmarker
             # then it does not count as a logical line.
             # Otherwise it count as 1.
-            if not list(_less_tokens(processed, [NL, EM])):
+            if not list(_fewer_tokens(processed, [NL, NEWLINE, EM])):
                 return 0
             return 1
     return sum(aux(sub) for sub in _split_tokens(tokens, OP, ';'))
 
 
 def is_single_token(token_number, tokens):
-    '''Is this a single token matching token_number followed by ENDMARKER or NL
-    tokens.
+    '''Is this a single token matching token_number followed by ENDMARKER, NL
+    or NEWLINE tokens.
     '''
     return (TOKEN_NUMBER(tokens[0]) == token_number and
-            all(TOKEN_NUMBER(t) in (tokenize.ENDMARKER, tokenize.NL)
+            all(TOKEN_NUMBER(t) in (EM, NL, NEWLINE)
                 for t in tokens[1:]))
 
 
@@ -209,20 +214,15 @@ def analyze(source):
             else:
                 multi += sum(1 for l in parsed_lines if l)  # Skip empty lines
                 blank += sum(1 for l in parsed_lines if not l)
-
         else:  # Everything else is either code or blank lines
-
             for parsed_line in parsed_lines:
                 if parsed_line:
                     sloc += 1
                 else:
                     blank += 1
 
-            # Process a logical line
-            # Split it on semicolons because they increase the number of
-            # logical lines
-            for sub_tokens in _split_tokens(tokens, OP, ';'):
-                lloc += _logical(sub_tokens)
+        # Process logical lines separately
+        lloc += _logical(tokens)
 
     loc = sloc + blank + multi + single_comments
     return Module(loc, lloc, sloc, comments, multi, blank, single_comments)
