@@ -272,7 +272,8 @@ class ComplexityVisitor(CodeVisitor):
             visitor.visit(child)
             methods.extend(visitor.functions)
             body_complexity += (visitor.complexity +
-                                visitor.functions_complexity)
+                                visitor.functions_complexity +
+                                len(visitor.functions))
             visitors_max_lines.append(visitor.max_line)
             inner_classes.extend(visitor.classes)
 

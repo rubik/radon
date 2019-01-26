@@ -356,7 +356,7 @@ CLASSES_CASES = [
              while self.m(k) < k:
                  k -= self.m(k ** 2 - min(self.m(j) for j in range(k ** 4)))
              return k
-     ''', (6, 4, 3)),
+     ''', (8, 4, 3)),
 
     ('''
      class B(object):
@@ -377,7 +377,7 @@ CLASSES_CASES = [
              elif a > self.ATTR ** 2:
                  yield self.__iter__()
              yield iter(a)
-     ''', (5, 1, 3)),
+     ''', (7, 1, 3)),
 ]
 
 
@@ -435,7 +435,7 @@ GENERAL_CASES = [
          if a < b:
              b, a = a, inner(b)
          return a, b
-     ''', (3, 1, 2, 6)),
+     ''', (3, 1, 3, 7)),
 
     ('''
      class f(object):
