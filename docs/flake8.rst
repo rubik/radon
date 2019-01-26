@@ -19,8 +19,9 @@ following options:
    Instruct radon not to count `assert` statements towards cyclomatic
    complexity. The default behaviour is the opposite.
 
- .. option:: --radon-show-closures
-    Instruct radon to add closures/inner classes to the output.
+.. option:: --radon-show-closures
+
+   Instruct radon to add closures/inner classes to the output.
 
 For more information visit the `Flake8 documentation
 <http://flake8.readthedocs.org/en/latest/>`_.
