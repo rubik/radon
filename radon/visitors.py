@@ -206,7 +206,7 @@ class ComplexityVisitor(CodeVisitor):
             self.complexity += len(node.values) - 1
         # Ifs, with and assert statements count all as 1.
         # Note: Lambda functions are not counted anymore, see #68
-        elif name in ('With', 'If', 'IfExp', 'AsyncWith'):
+        elif name in ('If', 'IfExp'):
             self.complexity += 1
         # The For and While blocks count as 1 plus the `else` block.
         elif name in ('For', 'While', 'AsyncFor'):

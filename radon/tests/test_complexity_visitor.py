@@ -82,9 +82,10 @@ SIMPLE_BLOCKS = [
      else: pass
      ''', 5, {}),
 
+    # With and async-with statements no longer count towards CC, see #123
     ('''
      with open('raw.py') as fobj: print(fobj.read())
-     ''', 2, {}),
+     ''', 1, {}),
 
     ('''
      [i for i in range(4)]
@@ -271,13 +272,14 @@ SINGLE_FUNCTIONS_CASES = [
 ]
 
 if sys.version_info[:2] >= (3, 5):
+    # With and async-with statements no longer count towards CC, see #123
     SINGLE_FUNCTIONS_CASES.append(
         ('''
          async def f(a, b):
             async with open('blabla.log', 'w') as f:
                 async for i in range(100):
                     f.write(str(i) + '\\n')
-         ''', (1, 3)),
+         ''', (1, 2)),
     )
 
 
@@ -289,6 +291,7 @@ def test_visitor_single_functions(code, expected):
 
 
 FUNCTIONS_CASES = [
+    # With and async-with statements no longer count towards CC, see #123
     ('''
      def f(a, b):
         return a if b else 2
@@ -326,7 +329,7 @@ FUNCTIONS_CASES = [
                     k += sum(1 / j for j in range(i ** 2) if j > 2)
                 fobj.write(str(k))
             return k - 1
-     ''', (5, 10)),
+     ''', (5, 9)),
 ]
 
 
