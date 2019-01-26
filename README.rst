@@ -1,7 +1,7 @@
 Radon
 =====
 
-.. image:: https://img.shields.io/codacy/623b84f5f6e6708c486f371e10da3610.svg
+.. image:: https://img.shields.io/codacy/grade/623b84f5f6e6708c486f371e10da3610.svg
    :alt: Codacy badge
    :target: https://www.codacy.com/app/rubik/radon/dashboard
 
