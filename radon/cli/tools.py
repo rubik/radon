@@ -201,6 +201,17 @@ else:
                 yield f
 
 
+def _is_python_file(filename):
+    '''Check if a file is a Python source file.'''
+    if filename.endswith('.py'):
+        return True
+    with open(filename) as fobj:
+        first_line = fobj.readline()
+        if first_line.startswith('#!') and 'python' in first_line:
+            return True
+    return False
+
+
 def iter_filenames(paths, exclude=None, ignore=None):
     '''A generator that yields all sub-paths of the ones specified in
     `paths`. Optional `exclude` filters can be passed as a comma-separated
@@ -212,11 +223,10 @@ def iter_filenames(paths, exclude=None, ignore=None):
     if set(paths) == set(('-',)):
         yield '-'
         return
-    e = '*[!p][!y]'
-    exclude = '{0},{1}'.format(e, exclude).split(',') if exclude else [e]
+    exclude = exclude.split(',') if exclude else []
     ignore = '.*,{0}'.format(ignore).split(',') if ignore else ['.*']
     for path in paths:
-        if (os.path.isfile(path) and
+        if (os.path.isfile(path) and _is_python_file(path) and
                 (not exclude or not any(fnmatch.fnmatch(path, p)
                                         for p in exclude))):
             yield path
@@ -234,7 +244,7 @@ def explore_directories(start, exclude, ignore):
         fullpaths = (os.path.normpath(os.path.join(root, p)) for p in files)
         for filename in filter_out(fullpaths, exclude):
             if (not os.path.basename(filename).startswith('.') and
-                    filename.endswith('.py')):
+                    _is_python_file(filename)):
                 yield filename
 
 
