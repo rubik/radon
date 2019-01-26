@@ -1,3 +1,31 @@
+3.0.0 (Jan 26, 2019)
+--------------------
+
+- Include files with no extension but a Python shebang (thanks @hawkeyej): #155
+- Fix calculation of total complexity for classes: #156
+- Update Colorama dependency to avoid conflicts with pytest: #164
+- Fix raw metrics, which were completely broken
+
+2.4.0 (Oct 11, 2018)
+--------------------
+
+- Add a `__main__` module (thanks @douardda): #153
+- Add --output-file option (thanks @douardda): #154
+
+2.3.1 (Oct 02, 2018)
+--------------------
+
+- Quickfix for Python 2.7
+- Add official Python 3.7 support
+
+2.3.0 (Oct 02, 2018)
+--------------------
+
+- Add Halstead command and harvester (thanks @rwbogl): #136
+- Add --json, --exclude, --ignore to `radon hal` (thanks @rwbogl): #138
+- Add --functions to `radon hal` (thanks @rwbogl): #147
+- Add documentation for the `radon hal` subcommand (thanks @rwbogl): #150
+
 2.2.0 (Jan 11, 2018)
 --------------------
 
