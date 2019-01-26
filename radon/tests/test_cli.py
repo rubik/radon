@@ -79,7 +79,7 @@ def test_cc(mocker, log_mock):
         average=False, order=getattr(cc_mod, 'SCORE'), no_assert=False,
         total_average=False, show_closures=False))
     log_mock.assert_called_once_with(mocker.sentinel.harvester,
-        codeclimate=False, json=True, xml=False)
+        codeclimate=False, json=True, stream=sys.stdout, xml=False)
 
 
 def test_raw(mocker, log_mock):
@@ -91,7 +91,8 @@ def test_raw(mocker, log_mock):
     harv_mock.assert_called_once_with(['-'], cli.Config(exclude=None,
                                                         ignore=None,
                                                         summary=True))
-    log_mock.assert_called_once_with(mocker.sentinel.harvester, json=True)
+    log_mock.assert_called_once_with(mocker.sentinel.harvester,
+            stream=sys.stdout, json=True)
 
 
 def test_mi(mocker, log_mock):
@@ -103,7 +104,8 @@ def test_mi(mocker, log_mock):
     harv_mock.assert_called_once_with(['-'], cli.Config(
         min='A', max='C', exclude=None, ignore=None, show=True,
         multi=False, sort=False))
-    log_mock.assert_called_once_with(mocker.sentinel.harvester, json=False)
+    log_mock.assert_called_once_with(mocker.sentinel.harvester,
+            stream=sys.stdout, json=False)
 
 
 def test_encoding(mocker, log_mock):
@@ -203,10 +205,10 @@ def test_log_result(mocker, stdout_mock):
     h.to_terminal.assert_called_once_with()
 
     log_mock.assert_has_calls([
-        mocker.call(mocker.sentinel.json, noformat=True),
-        mocker.call(mocker.sentinel.json, noformat=True),
-        mocker.call(mocker.sentinel.xml, noformat=True),
-        mocker.call('a'),
+        mocker.call(mocker.sentinel.json, json=True, noformat=True),
+        mocker.call(mocker.sentinel.json, json=True, noformat=True, xml=True),
+        mocker.call(mocker.sentinel.xml, noformat=True, xml=True),
+        mocker.call('a', error=True),
     ])
     le_mock.assert_called_once_with('mystr', indent=1)
     ll_mock.assert_has_calls([

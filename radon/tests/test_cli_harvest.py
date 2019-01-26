@@ -1,4 +1,7 @@
-import collections.abc
+try:
+    import collections.abc as collections_abc
+except ImportError:
+    import collections as collections_abc
 
 import pytest
 
@@ -100,7 +103,7 @@ def test_base_to_terminal_not_implemented(base_config):
 def test_base_run(base_config):
     h = harvest.Harvester(['-'], base_config)
     h.gobble = fake_gobble
-    assert isinstance(h.run(), collections.abc.Iterator)
+    assert isinstance(h.run(), collections_abc.Iterator)
     assert list(h.run()) == [('-', 42)]
     h.gobble = fake_gobble_raising
     assert list(h.run()) == [('-', {'error': 'mystr'})]
@@ -110,10 +113,10 @@ def test_base_results(base_config):
     h = harvest.Harvester([], base_config)
     h.run = fake_run
     results = h.results
-    assert isinstance(results, collections.abc.Iterator)
+    assert isinstance(results, collections_abc.Iterator)
     assert list(results) == [{'file-0': 0}, {'file-1': 1}, {'file-2': 4}]
-    assert not isinstance(h.results, collections.abc.Iterator)
-    assert isinstance(h.results, collections.abc.Iterable)
+    assert not isinstance(h.results, collections_abc.Iterator)
+    assert isinstance(h.results, collections_abc.Iterable)
     assert isinstance(h.results, list)
 
 

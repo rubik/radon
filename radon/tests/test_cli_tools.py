@@ -26,6 +26,10 @@ def fake_walk(start):
         yield './{0}'.format(d), [], contents[d]
 
 
+def fake_is_python_file(filename):
+    return filename.endswith('.py')
+
+
 def assert_pequal(a, b):
     a, b = [list(map(os.path.normpath, p)) for p in (a, b)]
     assert a == b
@@ -72,6 +76,7 @@ def test_iter_files(mocker, iter_files):
     os_path_mod.join = os.path.join
     os_path_mod.isfile.side_effect = fake_isfile
     os_mod.walk = fake_walk
+    tools._is_python_file = fake_is_python_file
 
     assert_pequal(iter_files(['file.py', 'random/path']),
                   ['file.py', 'amod.py', 'test_all.py',
