@@ -1,3 +1,8 @@
+3.0.1 (Feb 03, 2019)
+--------------------
+
+- Automatically exclude binary files, instead of producing an error: #166
+
 3.0.0 (Jan 26, 2019)
 --------------------
 
