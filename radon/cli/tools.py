@@ -203,12 +203,15 @@ else:
 
 def _is_python_file(filename):
     '''Check if a file is a Python source file.'''
-    if filename.endswith('.py'):
+    if filename == '-' or filename.endswith('.py'):
         return True
-    with open(filename) as fobj:
-        first_line = fobj.readline()
-        if first_line.startswith('#!') and 'python' in first_line:
-            return True
+    try:
+        with open(filename) as fobj:
+            first_line = fobj.readline()
+            if first_line.startswith('#!') and 'python' in first_line:
+                return True
+    except Exception:
+        return False
     return False
 
 
