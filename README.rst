@@ -147,10 +147,10 @@ To understand how to add Radon's checks to your Code Climate Platform, head
 over to their documentation:
 https://docs.codeclimate.com/v1.0/docs/radon
 
-Coala Analyzer
+coala Analyzer
 ++++++++++++++
 
-Radon is also supported in `coala <http://coala-analyzer.org/>`_. To add Radon's
+Radon is also supported in `coala <http://coala.io/>`_. To add Radon's
 checks to coala, simply add the ``RadonBear`` to one of the sections in
 your ``.coafile``.
 
