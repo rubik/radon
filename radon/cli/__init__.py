@@ -231,8 +231,7 @@ class Config(object):
         values.update(kwonlydefaults)
         return cls(**values)
 
-    @classmethod
-    def file_config(cls):
+    def file_config(self):
         '''Return any file configuration discovered'''
         config = configparser.ConfigParser()
         if os.path.exists('radon.cfg'):

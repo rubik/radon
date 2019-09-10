@@ -1,7 +1,8 @@
 import os
 import sys
-
+import textwrap
 import pytest
+import configparser
 
 import radon.cli as cli
 import radon.complexity as cc_mod
@@ -61,6 +62,40 @@ def test_config_for():
     assert cli.Config.from_function(func) == cli.Config(b=2, c=[], d=None)
     assert cli.Config.from_function(func2) == cli.Config()
     assert cli.Config.from_function(func3) == cli.Config(b=3)
+
+
+def test_config_file_defaults(mocker):
+    cfg = configparser.ConfigParser()
+    cfg.read_string(textwrap.dedent(
+        '''
+        [radon]
+        a = 2
+        '''))
+
+    file_config_mock = mocker.patch('radon.cli.Config.file_config')
+    file_config_mock.return_value = cfg
+    target = cli.Config(a=None)
+    assert target.config_values['a'] == '2'
+    assert target.a == '2'
+    assert str(target) == '{\'a\': \'2\'}'
+    file_config_mock.assert_called()
+
+
+
+def test_config_cli_overrides_file_defaults(mocker):
+    cfg = configparser.ConfigParser()
+    cfg.read_string(textwrap.dedent(
+        '''
+        [radon]
+        a = 2
+        '''))
+
+    file_config_mock = mocker.patch('radon.cli.Config.file_config')
+    file_config_mock.return_value = cfg
+    target = cli.Config(a=3)
+    assert str(target) == '{\'a\': 3}'
+    file_config_mock.assert_called()
+
 
 
 @pytest.fixture
