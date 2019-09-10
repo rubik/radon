@@ -4,10 +4,15 @@ import sys
 import inspect
 from contextlib import contextmanager
 from mando import Program
+import configparser
+import os
 
 import radon.complexity as cc_mod
 from radon.cli.colors import BRIGHT, RED, RESET
 from radon.cli.harvest import CCHarvester, RawHarvester, MIHarvester, HCHarvester
+
+
+CONFIG_SECTION_NAME = 'radon'
 
 
 program = Program(version=sys.modules['radon'].__version__)
@@ -178,6 +183,22 @@ class Config(object):
         '''Configuration values are passed as keyword parameters.'''
         self.config_values = kwargs
 
+        _cfg = self.file_config()
+        if _cfg is None:
+            return
+
+        # Merge CLI and file config.
+        new_config_values = {}
+        for k, v in kwargs.items():
+            # CLI will override file config options.
+            if _cfg.has_option(CONFIG_SECTION_NAME, k) and v is not None:
+                new_config_values[k] = v
+            # Get file config property, and default back to CLI value if not found.
+            else:
+                new_config_values[k] = _cfg.get(CONFIG_SECTION_NAME, k, fallback=v)
+        self.config_values = new_config_values
+
+
     def __getattr__(self, attr):
         '''If an attribute is not found inside the config values, the request
         is handed to `__getattribute__`.
@@ -209,6 +230,14 @@ class Config(object):
         values = dict(zip(reversed(args), reversed(defaults or [])))
         values.update(kwonlydefaults)
         return cls(**values)
+
+    @classmethod
+    def file_config(cls):
+        '''Return any file configuration discovered'''
+        config = configparser.ConfigParser()
+        config.read_file(open('radon.cfg'))
+        config.read(['setup.cfg', os.path.expanduser('~/.radon.cfg')])
+        return config
 
 
 def log_result(harvester, **kwargs):
