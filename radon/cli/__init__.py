@@ -235,7 +235,8 @@ class Config(object):
     def file_config(cls):
         '''Return any file configuration discovered'''
         config = configparser.ConfigParser()
-        config.read_file(open('radon.cfg'))
+        if os.path.exists('radon.cfg'):
+            config.read_file(open('radon.cfg'))
         config.read(['setup.cfg', os.path.expanduser('~/.radon.cfg')])
         return config
 
