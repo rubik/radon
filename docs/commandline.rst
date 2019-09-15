@@ -14,6 +14,28 @@ Radon currently has four commands:
     with Radon, you'll have to set the `RADONFILESENCODING` environment
     variable to `UTF-8`.
 
+Radon configuration files
+-------------------------
+
+When using radon regularly, you may want to specify default argument values in a configuration file.
+For example, all of the radon commands have a ``--exclude`` and ``--ignore`` argument on the command-line.
+
+Radon will look for the following files to determine default arguments:
+
+* ``radon.cfg``
+* ``setup.cfg``
+* ``~/.radon.cfg``
+
+Any radon configuration will be given in the INI-format, under the section ``[radon]``.
+
+For example:
+
+.. code-block:: ini
+
+   [radon]
+   exclude = test_*.py
+   cc_min = B
+
 The :command:`cc` command
 -------------------------
 
@@ -57,11 +79,15 @@ Options
 
 .. option:: -x, --max
 
-   Set the maximum complexity rank to display.
+   Set the maximum complexity rank to display, defaults to ``F``.
+
+   Value can be set in a configuration file using the ``cc_max`` property.
 
 .. option:: -n, --min
 
-   Set the minimum complexity rank to display.
+   Set the minimum complexity rank to display, defaults to ``A``.
+
+   Value can be set in a configuration file using the ``cc_min`` property.
 
 .. option:: -a, --average
 
@@ -69,25 +95,35 @@ Options
    Complexity. This option is influenced by :option:`-x, --max` and
    :option:`-n, --min` options.
 
+   Value can be set in a configuration file using the ``average`` property.
+
 .. option:: --total-average
 
    Like :option:`-a, --average`, but it is not influenced by `min` and `max`.
    Every analyzed block is counted, no matter whether it is displayed or not.
 
+   Value can be set in a configuration file using the ``total_average`` property.
+
 .. option:: -s, --show-complexity
 
    If given, show the complexity score along with its rank.
+
+   Value can be set in a configuration file using the ``show_complexity`` property.
 
 .. option:: -e, --exclude
 
    Exclude files only when their path matches one of these glob patterns.
    Usually needs quoting at the command line.
 
+   Value can be set in a configuration file using the ``exclude`` property.
+
 .. option:: -i, --ignore
 
    Ignore directories when their name matches one of these glob patterns: radon
    won't even descend into them. By default, hidden directories (starting with
    '.') are ignored.
+
+   Value can be set in a configuration file using the ``ignore`` property.
 
 .. option:: -o, --order
 
@@ -96,6 +132,8 @@ Options
     * `SCORE`: order by cyclomatic complexity (descending):
     * `LINES`: order by line numbers;
     * `ALPHA`: order by block names (alphabetically).
+
+   Value can be set in a configuration file using the ``order`` property.
 
 .. option:: -j, --json
 
@@ -111,6 +149,14 @@ Options
 
    Does not count assert statements when computing complexity. This is because
    Python can be run with an optimize flag which removes assert statements.
+
+   Value can be set in a configuration file using the ``no_assert`` property.
+
+.. option:: -O, --output-file
+
+   Save output to the specified output file.
+
+   Value can be set in a configuration file using the ``output_file`` property.
 
 Examples
 ++++++++
@@ -178,22 +224,30 @@ Options
 
 .. option:: -x, --max
 
-   Set the maximum MI to display.
+   Set the maximum MI to display. Expects a letter between A-F. Defaults to ``C``.
+
+   Value can be set in a configuration file using the ``mi_max`` property.
 
 .. option:: -n, --min
 
-   Set the minimum MI to display.
+   Set the minimum MI to display. Expects a letter between A-F. Defaults to ``A``.
+
+   Value can be set in a configuration file using the ``mi_min`` property.
 
 .. option:: -e, --exclude
 
    Exclude files only when their path matches one of these glob patterns.
    Usually needs quoting at the command line.
 
+   Value can be set in a configuration file using the ``exclude`` property.
+
 .. option:: -i, --ignore
 
    Ignore directories when their name matches one of these glob patterns: radon
    won't even descend into them. By default, hidden directories (starting with
    '.') are ignored.
+
+   Value can be set in a configuration file using the ``ignore`` property.
 
 .. option:: -m, --multi
 
@@ -202,13 +256,23 @@ Options
    docstrings, but one should be aware that their use is not limited to that
    and sometimes it would be wrong to count them as comment lines.
 
+   Value can be set in a configuration file using the ``multi`` property.
+
 .. option:: -s, --show
 
    If given, the actual MI value is shown in results, alongside the rank.
 
+   Value can be set in a configuration file using the ``show_mi`` property.
+
 .. option:: -j, --json
 
    Format results in JSON.
+
+.. option:: -O, --output-file
+
+   Save output to the specified output file.
+
+   Value can be set in a configuration file using the ``output_file`` property.
 
 
 Examples
@@ -267,11 +331,15 @@ Options
    Exclude files only when their path matches one of these glob patterns.
    Usually needs quoting at the command line.
 
+   Value can be set in a configuration file using the ``exclude`` property.
+
 .. option:: -i, --ignore
 
    Ignore directories when their name matches one of these glob patterns: radon
    won't even descend into them. By default, hidden directories (starting with
    '.') are ignored.
+
+   Value can be set in a configuration file using the ``ignore`` property.
 
 .. option:: -s, --summary
 
@@ -281,6 +349,13 @@ Options
 .. option:: -j, --json
 
    If given, the results will be converted into JSON.
+
+.. option:: -O, --output-file
+
+   Save output to the specified output file.
+
+   Value can be set in a configuration file using the ``output_file`` property.
+
 
 Examples
 ++++++++
@@ -301,7 +376,7 @@ matches ``path1/tests/*``.
 
 
 The :command:`hal` command
--------------------------
+--------------------------
 
 .. program:: hal
 
@@ -318,23 +393,34 @@ Options
 
 .. option:: -f, --functions
 
-    Compute the metrics on the *function* level, as opposed to the *file*
-    level.
+   Compute the metrics on the *function* level, as opposed to the *file* level.
+
+   Value can be set in a configuration file using the ``functions`` property.
 
 .. option:: -e, --exclude
 
    Exclude files when their path matches one of these glob patterns. Usually
    needs quoting at the command line.
 
+   Value can be set in a configuration file using the ``exclude`` property.
+
 .. option:: -i, --ignore
 
    Refuse to descend into directories that match any of these glob patterns. By
    default, hidden directories (starting with '.') are ignored.
 
+   Value can be set in a configuration file using the ``ignore`` property.
+
 .. option:: -j, --json
 
    Convert results into JSON. This is useful for exporting results to another
    application.
+
+.. option:: -O, --output-file
+
+   Save output to the specified output file.
+
+   Value can be set in a configuration file using the ``output_file`` property.
 
 
 Examples

@@ -55,13 +55,13 @@ def cc(paths, min=_cfg.get_value('cc_min', str, 'A'),
        average=_cfg.get_value('average', bool, False),
        exclude=_cfg.get_value('exclude', str, None),
        ignore=_cfg.get_value('ignore', str, None),
-       order=_cfg.get_value('average', str, 'SCORE'),
+       order=_cfg.get_value('order', str, 'SCORE'),
        json=False,
        no_assert=_cfg.get_value('no_assert', bool, False),
        show_closures=_cfg.get_value('show_closures', bool, False),
        total_average=_cfg.get_value('total_average', bool, False),
        xml=False,
-       codeclimate=_cfg.get_value('codeclimate', bool, False),
+       codeclimate=False,
        output_file=_cfg.get_value('output_file', str, None), ):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
