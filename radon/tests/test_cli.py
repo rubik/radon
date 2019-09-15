@@ -1,8 +1,6 @@
 import os
 import sys
-import textwrap
 import pytest
-import configparser
 
 import radon.cli as cli
 import radon.complexity as cc_mod
@@ -64,44 +62,23 @@ def test_config_for():
     assert cli.Config.from_function(func3) == cli.Config(b=3)
 
 
-def test_config_file_defaults(mocker):
-    cfg = configparser.ConfigParser()
-    cfg.read_string(textwrap.dedent(
-        '''
-        [radon]
-        a = 2
-        '''))
-
-    file_config_mock = mocker.patch('radon.cli.Config.file_config')
-    file_config_mock.return_value = cfg
-    target = cli.Config(a=None)
-    assert target.config_values['a'] == '2'
-    assert target.a == '2'
-    assert str(target) == '{\'a\': \'2\'}'
-    file_config_mock.assert_called()
-
-
-
-def test_config_cli_overrides_file_defaults(mocker):
-    cfg = configparser.ConfigParser()
-    cfg.read_string(textwrap.dedent(
-        '''
-        [radon]
-        a = 2
-        '''))
-
-    file_config_mock = mocker.patch('radon.cli.Config.file_config')
-    file_config_mock.return_value = cfg
-    target = cli.Config(a=3)
-    assert str(target) == '{\'a\': 3}'
-    file_config_mock.assert_called()
-
-
-
 @pytest.fixture
 def log_mock(mocker):
     return mocker.patch('radon.cli.log_result')
 
+
+def test_config_converts_types(radon_config):
+    radon_config.write(
+        '''
+        str_test = B
+        int_test = 19
+        bool_test = true
+        ''')
+    cfg = cli.FileConfig()
+    assert cfg.get_value('bool_test', bool, False) == True
+    assert cfg.get_value('str_test', str, 'x') == 'B'
+    assert cfg.get_value('missing_test', str, 'Y') == 'Y'
+    assert cfg.get_value('int_test', int, 10) == 19
 
 def test_cc(mocker, log_mock):
     harv_mock = mocker.patch('radon.cli.CCHarvester')
