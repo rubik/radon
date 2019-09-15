@@ -19,6 +19,11 @@ from radon.complexity import cc_rank
 from radon.cli.colors import (LETTERS_COLORS, RANKS_COLORS, TEMPLATE, BRIGHT,
                               RESET)
 
+try:
+    import nbformat
+    SUPPORTS_IPYNB = True
+except ImportError:
+    SUPPORTS_IPYNB = False
 
 # PyPy doesn't support encoding parameter in `open()` function and works with
 # UTF-8 encoding by default
@@ -203,7 +208,7 @@ else:
 
 def _is_python_file(filename):
     '''Check if a file is a Python source file.'''
-    if filename == '-' or filename.endswith('.py'):
+    if filename == '-' or filename.endswith('.py') or (SUPPORTS_IPYNB and filename.endswith('.ipynb')):
         return True
     try:
         with open(filename) as fobj:

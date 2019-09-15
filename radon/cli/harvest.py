@@ -12,6 +12,13 @@ from radon.cli.tools import (iter_filenames, _open, cc_to_dict, dict_to_xml,
                              dict_to_codeclimate_issues, cc_to_terminal,
                              raw_to_dict)
 
+try:
+    import nbformat
+    import io
+    SUPPORTS_IPYNB = True
+except ImportError:
+    SUPPORTS_IPYNB = False
+
 
 class Harvester(object):
     '''Base class defining the interface of a Harvester object.
@@ -67,7 +74,17 @@ class Harvester(object):
         for name in self._iter_filenames():
             with _open(name) as fobj:
                 try:
-                    yield (name, self.gobble(fobj))
+                    if name.endswith('.ipynb'):
+                        if SUPPORTS_IPYNB:
+                            nb = nbformat.read(fobj, as_version=nbformat.NO_CONVERT)
+                            cellid = 0
+                            for source in [cell.source for cell in nb.cells if cell.cell_type == 'code']:
+                                yield ("{0}:[{1}]".format(name, cellid), self.gobble(io.StringIO(source)))
+                                cellid += 1
+                        else:
+                            pass
+                    else:
+                        yield (name, self.gobble(fobj))
                 except Exception as e:
                     yield (name, {'error': str(e)})
 
