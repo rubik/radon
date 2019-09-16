@@ -63,11 +63,6 @@ def test_config_for():
     assert cli.Config.from_function(func3) == cli.Config(b=3)
 
 
-@pytest.fixture
-def log_mock(mocker):
-    return mocker.patch('radon.cli.log_result')
-
-
 def test_cc(mocker, log_mock):
     harv_mock = mocker.patch('radon.cli.CCHarvester')
     harv_mock.return_value = mocker.sentinel.harvester
@@ -77,7 +72,8 @@ def test_cc(mocker, log_mock):
     harv_mock.assert_called_once_with(['-'], cli.Config(
         min='A', max='F', exclude=None, ignore=None, show_complexity=False,
         average=False, order=getattr(cc_mod, 'SCORE'), no_assert=False,
-        total_average=False, show_closures=False))
+        total_average=False, show_closures=False, include_ipynb=False,
+        ipynb_cells=False))
     log_mock.assert_called_once_with(mocker.sentinel.harvester,
         codeclimate=False, json=True, stream=sys.stdout, xml=False)
 
@@ -90,7 +86,9 @@ def test_raw(mocker, log_mock):
 
     harv_mock.assert_called_once_with(['-'], cli.Config(exclude=None,
                                                         ignore=None,
-                                                        summary=True))
+                                                        summary=True,
+                                                        include_ipynb=False,
+                                                        ipynb_cells=False))
     log_mock.assert_called_once_with(mocker.sentinel.harvester,
             stream=sys.stdout, json=True)
 
@@ -103,7 +101,7 @@ def test_mi(mocker, log_mock):
 
     harv_mock.assert_called_once_with(['-'], cli.Config(
         min='A', max='C', exclude=None, ignore=None, show=True,
-        multi=False, sort=False))
+        multi=False, sort=False, include_ipynb=False, ipynb_cells=False))
     log_mock.assert_called_once_with(mocker.sentinel.harvester,
             stream=sys.stdout, json=False)
 
