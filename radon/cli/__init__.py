@@ -4,21 +4,65 @@ import sys
 import inspect
 from contextlib import contextmanager
 from mando import Program
+import configparser
+import os
 
 import radon.complexity as cc_mod
 from radon.cli.colors import BRIGHT, RED, RESET
 from radon.cli.harvest import CCHarvester, RawHarvester, MIHarvester, HCHarvester
 
 
+CONFIG_SECTION_NAME = 'radon'
+
+
+class FileConfig(object):
+    '''
+    Yield default options by reading local configuration files.
+    '''
+    def __init__(self):
+        self.file_cfg = self.file_config()
+
+    def get_value(self, key, type, default):
+        if not self.file_cfg.has_option(CONFIG_SECTION_NAME, key):
+            return default
+        if type == int:
+            return self.file_cfg.getint(CONFIG_SECTION_NAME, key, fallback=default)
+        if type == bool:
+            return self.file_cfg.getboolean(CONFIG_SECTION_NAME, key, fallback=default)
+        else:
+            return self.file_cfg.get(CONFIG_SECTION_NAME, key, fallback=default)
+
+    @staticmethod
+    def file_config():
+        '''Return any file configuration discovered'''
+        config = configparser.ConfigParser()
+        if os.path.exists('radon.cfg'):
+            config.read_file(open('radon.cfg'))
+        config.read(['setup.cfg', os.path.expanduser('~/.radon.cfg')])
+        return config
+
+
+_cfg = FileConfig()
+
 program = Program(version=sys.modules['radon'].__version__)
 
 
 @program.command
 @program.arg('paths', nargs='+')
-def cc(paths, min='A', max='F', show_complexity=False, average=False,
-       exclude=None, ignore=None, order='SCORE', json=False, no_assert=False,
-       show_closures=False, total_average=False, xml=False, codeclimate=False,
-       output_file=None, ):
+def cc(paths, min=_cfg.get_value('cc_min', str, 'A'),
+       max=_cfg.get_value('cc_max', str, 'F'),
+       show_complexity=_cfg.get_value('show_complexity', bool, False),
+       average=_cfg.get_value('average', bool, False),
+       exclude=_cfg.get_value('exclude', str, None),
+       ignore=_cfg.get_value('ignore', str, None),
+       order=_cfg.get_value('order', str, 'SCORE'),
+       json=False,
+       no_assert=_cfg.get_value('no_assert', bool, False),
+       show_closures=_cfg.get_value('show_closures', bool, False),
+       total_average=_cfg.get_value('total_average', bool, False),
+       xml=False,
+       codeclimate=False,
+       output_file=_cfg.get_value('output_file', str, None), ):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -71,8 +115,12 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
 
 @program.command
 @program.arg('paths', nargs='+')
-def raw(paths, exclude=None, ignore=None, summary=False, json=False,
-        output_file=None):
+def raw(paths,
+        exclude=_cfg.get_value('exclude', str, None),
+        ignore=_cfg.get_value('ignore', str, None),
+        summary=False,
+        json=False,
+        output_file=_cfg.get_value('output_file', str, None), ):
     '''Analyze the given Python modules and compute raw metrics.
 
     :param paths: The paths where to find modules or packages to analyze. More
@@ -99,8 +147,16 @@ def raw(paths, exclude=None, ignore=None, summary=False, json=False,
 
 @program.command
 @program.arg('paths', nargs='+')
-def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
-       show=False, json=False, sort=False, output_file=None):
+def mi(paths,
+       min=_cfg.get_value('mi_min', str, 'A'),
+       max=_cfg.get_value('mi_max', str, 'C'),
+       multi=_cfg.get_value('multi', bool, True),
+       exclude=_cfg.get_value('exclude', str, None),
+       ignore=_cfg.get_value('ignore', str, None),
+       show=_cfg.get_value('show_mi', bool, False),
+       json=False,
+       sort=False,
+       output_file=_cfg.get_value('output_file', str, None), ):
     '''Analyze the given Python modules and compute the Maintainability Index.
 
     The maintainability index (MI) is a compound metric, with the primary aim
@@ -140,8 +196,12 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
 
 @program.command
 @program.arg("paths", nargs="+")
-def hal(paths, exclude=None, ignore=None, json=False, functions=False,
-        output_file=None):
+def hal(paths,
+        exclude=_cfg.get_value('exclude', str, None),
+        ignore=_cfg.get_value('ignore', str, None),
+        json=False,
+        functions=_cfg.get_value('functions', bool, False),
+        output_file=_cfg.get_value('output_file', str, None), ):
     """
     Analyze the given Python modules and compute their Halstead metrics.
 
