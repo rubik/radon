@@ -91,6 +91,7 @@ def test_raw_ipynb(log_mock):
     target = os.path.join(DIRNAME, 'data/example.ipynb')
     harvester = RawHarvester([target], raw_cfg)
     out = json.loads(harvester.as_json())
+    assert harvester.config.include_ipynb == True
     assert target in out
     assert out[target]['loc'] == 63
     assert out[target]['lloc'] == 37
