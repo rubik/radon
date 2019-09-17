@@ -156,10 +156,13 @@ Options
 
    Include the Python cells within IPython Notebooks in the reporting.
 
+   Value can be set in a configuration file using the ``include_ipynb`` property.
+
 .. option:: --ipynb-cells
 
    Report on individual cells in any .ipynb files.
 
+   Value can be set in a configuration file using the ``ipynb_cells`` property.
 
 .. option:: -O, --output-file
 
@@ -281,9 +284,13 @@ Options
 
    Include the Python cells within IPython Notebooks in the reporting.
 
+   Value can be set in a configuration file using the ``include_ipynb`` property.
+
 .. option:: --ipynb-cells
 
    Report on individual cells in any .ipynb files.
+
+   Value can be set in a configuration file using the ``ipynb_cells`` property.
 
 .. option:: -O, --output-file
 
@@ -373,14 +380,17 @@ Options
 
    Value can be set in a configuration file using the ``output_file`` property.
 
-
 .. option:: --include-ipynb
 
    Include the Python cells within IPython Notebooks in the reporting.
 
+   Value can be set in a configuration file using the ``include_ipynb`` property.
+
 .. option:: --ipynb-cells
 
    Report on individual cells in any .ipynb files.
+
+   Value can be set in a configuration file using the ``ipynb_cells`` property.
 
 Examples
 ++++++++
@@ -451,9 +461,13 @@ Options
 
    Include the Python cells within IPython Notebooks in the reporting.
 
+   Value can be set in a configuration file using the ``include_ipynb`` property.
+
 .. option:: --ipynb-cells
 
    Report on individual cells in any .ipynb files.
+
+   Value can be set in a configuration file using the ``ipynb_cells`` property.
 
 Examples
 ++++++++
