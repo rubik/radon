@@ -1,6 +1,5 @@
 import os
 import sys
-
 import pytest
 
 import radon.cli as cli
@@ -62,6 +61,19 @@ def test_config_for():
     assert cli.Config.from_function(func2) == cli.Config()
     assert cli.Config.from_function(func3) == cli.Config(b=3)
 
+
+def test_config_converts_types(radon_config):
+    radon_config.write(
+        '''
+        str_test = B
+        int_test = 19
+        bool_test = true
+        ''')
+    cfg = cli.FileConfig()
+    assert cfg.get_value('bool_test', bool, False) == True
+    assert cfg.get_value('str_test', str, 'x') == 'B'
+    assert cfg.get_value('missing_test', str, 'Y') == 'Y'
+    assert cfg.get_value('int_test', int, 10) == 19
 
 def test_cc(mocker, log_mock):
     harv_mock = mocker.patch('radon.cli.CCHarvester')
