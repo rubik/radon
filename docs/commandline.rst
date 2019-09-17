@@ -112,14 +112,6 @@ Options
    Does not count assert statements when computing complexity. This is because
    Python can be run with an optimize flag which removes assert statements.
 
-.. option:: --include-ipynb
-
-   Include the Python cells within IPython Notebooks in the reporting.
-
-.. option:: --ipynb-cells
-
-   Report on individual cells in any .ipynb files.
-
 Examples
 ++++++++
 
@@ -218,13 +210,6 @@ Options
 
    Format results in JSON.
 
-.. option:: --include-ipynb
-
-   Include the Python cells within IPython Notebooks in the reporting.
-
-.. option:: --ipynb-cells
-
-   Report on individual cells in any .ipynb files.
 
 Examples
 ++++++++
@@ -297,14 +282,6 @@ Options
 
    If given, the results will be converted into JSON.
 
-.. option:: --include-ipynb
-
-   Include the Python cells within IPython Notebooks in the reporting.
-
-.. option:: --ipynb-cells
-
-   Report on individual cells in any .ipynb files.
-
 Examples
 ++++++++
 
@@ -359,13 +336,6 @@ Options
    Convert results into JSON. This is useful for exporting results to another
    application.
 
-.. option:: --include-ipynb
-
-   Include the Python cells within IPython Notebooks in the reporting.
-
-.. option:: --ipynb-cells
-
-   Report on individual cells in any .ipynb files.
 
 Examples
 ++++++++

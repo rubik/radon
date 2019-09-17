@@ -18,7 +18,7 @@ program = Program(version=sys.modules['radon'].__version__)
 def cc(paths, min='A', max='F', show_complexity=False, average=False,
        exclude=None, ignore=None, order='SCORE', json=False, no_assert=False,
        show_closures=False, total_average=False, xml=False, codeclimate=False,
-       output_file=None, include_ipynb=False, ipynb_cells=False):
+       output_file=None, ):
     '''Analyze the given Python modules and compute Cyclomatic
     Complexity (CC).
 
@@ -50,8 +50,6 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
         complexity.
     :param --show-closures: Add closures/inner classes to the output.
     :param -O, --output-file <str>: The output file (default to stdout).
-    :param --include-ipynb: Include IPython Notebook files
-    :param --ipynb-cells: Include reports for individual IPYNB cells
     '''
     config = Config(
         min=min.upper(),
@@ -64,8 +62,6 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
         order=getattr(cc_mod, order.upper(), getattr(cc_mod, 'SCORE')),
         no_assert=no_assert,
         show_closures=show_closures,
-        include_ipynb=include_ipynb,
-        ipynb_cells=ipynb_cells,
     )
     harvester = CCHarvester(paths, config)
     with outstream(output_file) as stream:
@@ -76,7 +72,7 @@ def cc(paths, min='A', max='F', show_complexity=False, average=False,
 @program.command
 @program.arg('paths', nargs='+')
 def raw(paths, exclude=None, ignore=None, summary=False, json=False,
-        output_file=None, include_ipynb=False, ipynb_cells=False):
+        output_file=None):
     '''Analyze the given Python modules and compute raw metrics.
 
     :param paths: The paths where to find modules or packages to analyze. More
@@ -90,15 +86,11 @@ def raw(paths, exclude=None, ignore=None, summary=False, json=False,
         summary of the gathered metrics. Default to False.
     :param -j, --json: Format results in JSON.
     :param -O, --output-file <str>: The output file (default to stdout).
-    :param --include-ipynb: Include IPython Notebook files
-    :param --ipynb-cells: Include reports for individual IPYNB cells
     '''
     config = Config(
         exclude=exclude,
         ignore=ignore,
         summary=summary,
-        include_ipynb=include_ipynb,
-        ipynb_cells=ipynb_cells,
     )
     harvester = RawHarvester(paths, config)
     with outstream(output_file) as stream:
@@ -108,8 +100,7 @@ def raw(paths, exclude=None, ignore=None, summary=False, json=False,
 @program.command
 @program.arg('paths', nargs='+')
 def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
-       show=False, json=False, sort=False, output_file=None,
-       include_ipynb=False, ipynb_cells=False):
+       show=False, json=False, sort=False, output_file=None):
     '''Analyze the given Python modules and compute the Maintainability Index.
 
     The maintainability index (MI) is a compound metric, with the primary aim
@@ -131,8 +122,6 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
     :param -j, --json: Format results in JSON.
     :param --sort: If given, results are sorted in ascending order.
     :param -O, --output-file <str>: The output file (default to stdout).
-    :param --include-ipynb: Include IPython Notebook files
-    :param --ipynb-cells: Include reports for individual IPYNB cells
     '''
     config = Config(
         min=min.upper(),
@@ -142,8 +131,6 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
         multi=multi,
         show=show,
         sort=sort,
-        include_ipynb=include_ipynb,
-        ipynb_cells=ipynb_cells,
     )
 
     harvester = MIHarvester(paths, config)
@@ -154,7 +141,7 @@ def mi(paths, min='A', max='C', multi=True, exclude=None, ignore=None,
 @program.command
 @program.arg("paths", nargs="+")
 def hal(paths, exclude=None, ignore=None, json=False, functions=False,
-        output_file=None, include_ipynb=False, ipynb_cells=False):
+        output_file=None):
     """
     Analyze the given Python modules and compute their Halstead metrics.
 
@@ -172,15 +159,11 @@ def hal(paths, exclude=None, ignore=None, json=False, functions=False,
     :param -j, --json: Format results in JSON.
     :param -f, --functions: Analyze files by top-level functions instead of as a whole.
     :param -O, --output-file <str>: The output file (default to stdout).
-    :param --include-ipynb: Include IPython Notebook files
-    :param --ipynb-cells: Include reports for individual IPYNB cells
     """
     config = Config(
         exclude=exclude,
         ignore=ignore,
         by_function=functions,
-        include_ipynb=include_ipynb,
-        ipynb_cells=ipynb_cells,
     )
 
     harvester = HCHarvester(paths, config)
