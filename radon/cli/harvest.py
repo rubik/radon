@@ -2,6 +2,7 @@
 
 from builtins import super
 import json
+import sys
 import collections
 from radon.raw import analyze
 from radon.metrics import h_visit, mi_visit, mi_rank
@@ -12,9 +13,13 @@ from radon.cli.tools import (iter_filenames, _open, cc_to_dict, dict_to_xml,
                              dict_to_codeclimate_issues, cc_to_terminal,
                              raw_to_dict, strip_ipython)
 
+if sys.version_info[0] < 3:
+    from StringIO import StringIO
+else:
+    from io import StringIO
+
 try:
     import nbformat
-    import io
     SUPPORTS_IPYNB = True
 except ImportError:
     SUPPORTS_IPYNB = False
@@ -80,13 +85,13 @@ class Harvester(object):
                             cells = [cell.source for cell in nb.cells if cell.cell_type == 'code']
                             # Whole document
                             doc = "\n".join(cells)
-                            yield (name, self.gobble(io.StringIO(strip_ipython(doc))))
+                            yield (name, self.gobble(StringIO(strip_ipython(doc))))
 
                             if self.config.ipynb_cells:
                                 # Individual cells
                                 cellid = 0
                                 for source in cells:
-                                    yield ("{0}:[{1}]".format(name, cellid), self.gobble(io.StringIO(strip_ipython(source))))
+                                    yield ("{0}:[{1}]".format(name, cellid), self.gobble(StringIO(strip_ipython(source))))
                                     cellid += 1
                     else:
                         yield (name, self.gobble(fobj))

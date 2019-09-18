@@ -67,7 +67,7 @@ def test_config_for():
 def test_config_converts_types(mocker):
     test_config = ConfigParser()
     test_config.read_string(
-        '''
+        u'''
         [radon]
         str_test = B
         int_test = 19
