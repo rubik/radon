@@ -1,8 +1,9 @@
 import os
 import json
 
+import pytest
 import radon.cli as cli
-from radon.cli.harvest import MIHarvester, RawHarvester, CCHarvester
+from radon.cli.harvest import MIHarvester, RawHarvester, CCHarvester, SUPPORTS_IPYNB
 
 from radon.tests.test_cli_harvest import (
         BASE_CONFIG, CC_CONFIG, RAW_CONFIG, MI_CONFIG,
@@ -11,6 +12,7 @@ from radon.tests.test_cli_harvest import (
 DIRNAME = os.path.dirname(__file__)
 
 
+@pytest.mark.skipif(not SUPPORTS_IPYNB, reason="nbformat not installed")
 def test_ipynb(log_mock):
     mi_cfg = cli.Config(
         **BASE_CONFIG.config_values,
@@ -44,6 +46,7 @@ def test_ipynb(log_mock):
             assert not any(['error' in out])
 
 
+@pytest.mark.skipif(not SUPPORTS_IPYNB, reason="nbformat not installed")
 def test_ipynb_with_cells(mocker, log_mock):
     mi_cfg = cli.Config(
         **BASE_CONFIG.config_values,
@@ -80,6 +83,7 @@ def test_ipynb_with_cells(mocker, log_mock):
             assert not any(['error' in out])
 
 
+@pytest.mark.skipif(not SUPPORTS_IPYNB, reason="nbformat not installed")
 def test_raw_ipynb(log_mock):
     raw_cfg = cli.Config(
         **BASE_CONFIG.config_values,
@@ -102,6 +106,7 @@ def test_raw_ipynb(log_mock):
     assert out[target]['single_comments'] == 2
 
 
+@pytest.mark.skipif(not SUPPORTS_IPYNB, reason="nbformat not installed")
 def test_raw_ipynb_cells(log_mock):
     raw_cfg = cli.Config(
         **BASE_CONFIG.config_values,
