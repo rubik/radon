@@ -159,6 +159,62 @@ CodeFactor
 
 `CodeFactor <https://www.codefactor.io/>`_ uses Radon `out-of-the-box <https://support.codefactor.io/i24-analysis-tools-open-source>`_ to calculate Cyclomatic Complexity.
 
+Usage with Jupyter Notebooks
+----------------------------
+
+Radon can be used with ``.ipynb`` files to inspect code metrics for Python cells. Any ``%`` macros will be ignored in the metrics.
+
+.. note::
+
+   Jupyter Notebook support requires the optional ``nbformat`` package. To install, run ``pip install nbformat``.
+
+To enable scanning of Jupyter notebooks, add the ``--include-ipynb`` flag.
+
+To enable reporting of individual cells, add the ``--ipynb-cells`` flag.
+
+Quick example:
+
+.. code-block:: sh
+
+    $ radon raw --include-ipynb --ipynb-cells .
+    example.ipynb
+        LOC: 63
+        LLOC: 37
+        SLOC: 37
+        Comments: 3
+        Single comments: 2
+        Multi: 10
+        Blank: 14
+        - Comment Stats
+            (C % L): 5%
+            (C % S): 8%
+            (C + M % L): 21%
+    example.ipynb:[0]
+        LOC: 0
+        LLOC: 0
+        SLOC: 0
+        Comments: 0
+        Single comments: 0
+        Multi: 0
+        Blank: 0
+        - Comment Stats
+            (C % L): 0%
+            (C % S): 0%
+            (C + M % L): 0%
+    example.ipynb:[1]
+        LOC: 2
+        LLOC: 2
+        SLOC: 2
+        Comments: 0
+        Single comments: 0
+        Multi: 0
+        Blank: 0
+        - Comment Stats
+            (C % L): 0%
+            (C % S): 0%
+            (C + M % L): 0%
+
+
 
 Links
 -----
