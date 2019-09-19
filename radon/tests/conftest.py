@@ -3,6 +3,11 @@ import textwrap
 import os
 
 
+@pytest.fixture
+def log_mock(mocker):
+    return mocker.patch('radon.cli.log_result')
+
+
 class RadonConfig(object):
     def __init__(self):
         self._fname = os.path.join(os.path.dirname(__file__), 'radon.cfg')

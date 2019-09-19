@@ -2,6 +2,7 @@
 
 from builtins import super
 import json
+import sys
 import collections
 from radon.raw import analyze
 from radon.metrics import h_visit, mi_visit, mi_rank
@@ -10,7 +11,18 @@ from radon.complexity import (cc_visit, sorted_results, cc_rank,
 from radon.cli.colors import RANKS_COLORS, MI_RANKS, RESET
 from radon.cli.tools import (iter_filenames, _open, cc_to_dict, dict_to_xml,
                              dict_to_codeclimate_issues, cc_to_terminal,
-                             raw_to_dict)
+                             raw_to_dict, strip_ipython)
+
+if sys.version_info[0] < 3:
+    from StringIO import StringIO
+else:
+    from io import StringIO
+
+try:
+    import nbformat
+    SUPPORTS_IPYNB = True
+except ImportError:
+    SUPPORTS_IPYNB = False
 
 
 class Harvester(object):
@@ -67,7 +79,22 @@ class Harvester(object):
         for name in self._iter_filenames():
             with _open(name) as fobj:
                 try:
-                    yield (name, self.gobble(fobj))
+                    if name.endswith('.ipynb'):
+                        if SUPPORTS_IPYNB and self.config.include_ipynb:
+                            nb = nbformat.read(fobj, as_version=nbformat.NO_CONVERT)
+                            cells = [cell.source for cell in nb.cells if cell.cell_type == 'code']
+                            # Whole document
+                            doc = "\n".join(cells)
+                            yield (name, self.gobble(StringIO(strip_ipython(doc))))
+
+                            if self.config.ipynb_cells:
+                                # Individual cells
+                                cellid = 0
+                                for source in cells:
+                                    yield ("{0}:[{1}]".format(name, cellid), self.gobble(StringIO(strip_ipython(source))))
+                                    cellid += 1
+                    else:
+                        yield (name, self.gobble(fobj))
                 except Exception as e:
                     yield (name, {'error': str(e)})
 
