@@ -66,8 +66,10 @@ H_VISIT_CASES = [
 @pytest.mark.parametrize('code,expected', H_VISIT_CASES)
 def test_h_visit(code, expected):
     code = dedent(code)
-    expected = expected
-    assert h_visit(code) == expected
+    # test for almost-equality
+    for act, exp in zip(h_visit(code), expected):
+        for a, e in zip(act, exp):
+            assert a == e or int(a * 10**3) == int(e * 10**3)
 
 
 first_mi = '''
