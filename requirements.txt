@@ -1,4 +1,4 @@
 mando>=0.6,<0.7
-colorama>=0.4,<0.5
+colorama==0.4.2
 flake8_polyfill
 future
