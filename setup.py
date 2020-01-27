@@ -20,7 +20,7 @@ setup(name='radon',
       tests_require=['tox'],
       install_requires=[
           'mando>=0.6,<0.7',
-          'colorama==0.4.2',
+          'colorama==0.4.1',
           'flake8-polyfill',
           'future',
       ],
