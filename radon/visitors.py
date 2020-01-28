@@ -288,9 +288,9 @@ class HalsteadVisitor(CodeVisitor):
     Halstead metrics (see :func:`radon.metrics.h_visit`).
     '''
 
-    types = {ast.Num: 'n',
-             ast.Name: 'id',
-             ast.Attribute: 'attr'}
+    # As of Python 3.8 Num/Str/Bytes/NameConstat
+    # are now in a common node Constant.
+    types = {"Num": "n", "Name": "id", "Attribute": "attr", "Constant": "value"}
 
     def __init__(self, context=None):
         '''*context* is a string used to keep track the analysis' context.'''
@@ -333,6 +333,8 @@ class HalsteadVisitor(CodeVisitor):
                 new_operand = getattr(operand,
                                       self.types.get(type(operand), ''),
                                       operand)
+                name = self.get_name(operand)
+                new_operand = getattr(operand, self.types.get(name, ""), operand)
 
                 self.operands_seen.add((self.context, new_operand))
             # Now dispatch to children
