@@ -335,9 +335,10 @@ def log(msg, *args, **kwargs):
     '''
     indent = 4 * kwargs.get('indent', 0)
     delimiter = kwargs.get('delimiter', '\n')
-    m = msg if kwargs.get('noformat', False) else msg.format(*args)
+    if not kwargs.get('noformat', False) and args:
+        msg = msg.replace('{', '{{').replace('}', '}}').format(*args)
     stream = kwargs.get('stream', sys.stdout)
-    stream.write(' ' * indent + m + delimiter)
+    stream.write(' ' * indent + msg + delimiter)
 
 
 def log_list(lst, *args, **kwargs):

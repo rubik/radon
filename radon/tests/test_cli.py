@@ -157,6 +157,37 @@ def test_encoding(mocker, log_mock):
                             for msg, args, kw in harvester.to_terminal()])
 
 
+def test_curly_braces_in_log_msg():
+    if sys.version_info[0] < 3:
+        # most syntax errors do not contain the original code, and the only one
+        # I know is in Python 3:
+        # SyntaxError: Missing parentheses in call to 'print'.
+        #   Did you mean print("{}")?
+        #
+        # We need the original code to be reported in the error so that we can
+        # have an error with curly braces in it.
+        return
+    mi_cfg = cli.Config(
+        **BASE_CONFIG.config_values
+    )
+    mi_cfg.config_values.update(MI_CONFIG.config_values)
+    raw_cfg = cli.Config(
+        **BASE_CONFIG.config_values
+    )
+    raw_cfg.config_values.update(RAW_CONFIG.config_values)
+    mappings = {
+        MIHarvester: mi_cfg,
+        RawHarvester: raw_cfg,
+        CCHarvester: CC_CONFIG,
+    }
+    fname = os.path.join(DIRNAME, 'data/curly_error.py')
+    for h_class, cfg in mappings.items():
+        harvester = h_class([fname], cfg)
+        for msg, args, kw in harvester.to_terminal():
+            if args:
+                assert 'Missing parentheses in call to ' not in args[0]
+
+
 @pytest.fixture
 def stdout_mock(mocker):
     return mocker.patch('radon.cli.sys.stdout.write')
