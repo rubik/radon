@@ -184,8 +184,8 @@ def test_curly_braces_in_log_msg():
     for h_class, cfg in mappings.items():
         harvester = h_class([fname], cfg)
         for msg, args, kw in harvester.to_terminal():
-            if args:
-                assert 'Missing parentheses in call to ' not in args[0]
+            if args and isinstance(args[0], str):
+                assert 'Single \'}\' encountered in format string' not in args[0]
 
 
 @pytest.fixture
