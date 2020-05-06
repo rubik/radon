@@ -4,7 +4,10 @@ import sys
 import inspect
 from contextlib import contextmanager
 from mando import Program
-import configparser
+if sys.version_info[0] == 2:
+    import ConfigParser as configparser
+else:
+    import configparser
 import os
 
 import radon.complexity as cc_mod
