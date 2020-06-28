@@ -53,7 +53,7 @@ BaseRawClassMetrics = namedtuple(
         ])
 
 
-class RawFunction(BaseRawFuncMetrics):
+class RawFunctionMetrics(BaseRawFuncMetrics):
     '''Object represeting a function block.'''
 
     @property
@@ -83,7 +83,7 @@ class RawFunction(BaseRawFuncMetrics):
                                                    self.complexity)
 
 
-class RawClass(BaseRawClassMetrics):
+class RawClassMetrics(BaseRawClassMetrics):
     '''Object representing a class block.'''
 
     letter = 'C'
@@ -91,7 +91,7 @@ class RawClass(BaseRawClassMetrics):
     @property
     def fullname(self):
         '''The full name of the class. It is just its name. This attribute
-        exists for consistency (see :data:`RawFunction.fullname`).
+        exists for consistency (see :data:`RawFunctionMetrics.fullname`).
         '''
         return self.name
 
@@ -251,6 +251,18 @@ class RawVisitor(CodeVisitor):
         '''
         self.visit_FunctionDef(node)
 
+    def get_raw_metrics(self, node):
+        code = unparse(node)
+        raw_metrics = analyze(code)
+        raw_metrics_dict = raw_to_dict(raw_metrics)
+        self.loc = raw_metrics_dict['loc']
+        self.lloc = raw_metrics_dict['lloc']
+        self.sloc = raw_metrics_dict['sloc']
+        self.comments = raw_metrics_dict['comments']
+        self.multi = raw_metrics_dict['multi']
+        self.blank = raw_metrics_dict['blank']
+        self.single_comments = raw_metrics_dict['single_comments']
+
     def visit_FunctionDef(self, node):
         '''When visiting functions a new visitor is created to recursively
         analyze the function's body.
@@ -261,6 +273,7 @@ class RawVisitor(CodeVisitor):
         # double).
         closures = []
         body_complexity = 1
+        
         for child in node.body:
             visitor = RawVisitor(off=False, no_assert=self.no_assert)
             visitor.visit(child)
@@ -268,22 +281,20 @@ class RawVisitor(CodeVisitor):
             # Add general complexity but not closures' complexity, see #68
             body_complexity += visitor.complexity
 
-            code = unparse(child)
-            raw_metrics = analyze(code)
-            raw_metrics_dict = raw_to_dict(raw_metrics)
-
-        func = RawFunction(node.name, node.lineno, node.col_offset,
+        self.get_raw_metrics(node)
+        func_metrics = RawFunctionMetrics(node.name, node.lineno, node.col_offset,
                         max(node.lineno, visitor.max_line), self.to_method,
                         self.classname, closures, body_complexity,
-                        raw_metrics_dict['loc'],
-                        raw_metrics_dict['lloc'],
-                        raw_metrics_dict['sloc'],
-                        raw_metrics_dict['comments'],
-                        raw_metrics_dict['multi'],
-                        raw_metrics_dict['blank'],
-                        raw_metrics_dict['single_comments'],
+                        self.loc,
+                        self.lloc,
+                        self.sloc,
+                        self.comments,
+                        self.multi,
+                        self.blank,
+                        self.single_comments,
                         )
-        self.functions.append(func)
+
+        self.functions.append(func_metrics)
 
     def visit_ClassDef(self, node):
         '''When visiting classes a new visitor is created to recursively
@@ -309,21 +320,18 @@ class RawVisitor(CodeVisitor):
                                 len(visitor.functions))
             visitors_max_lines.append(visitor.max_line)
             inner_classes.extend(visitor.classes)
-
-            code = unparse(child)
-            raw_metrics = analyze(code)
-            raw_metrics_dict = raw_to_dict(raw_metrics)
-
-        cls = RawClass(classname, node.lineno, node.col_offset,
+        
+        self.get_raw_metrics(node)
+        cls_metrics = RawClassMetrics(classname, node.lineno, node.col_offset,
                         max(visitors_max_lines + list(map(GET_ENDLINE, methods))),
                         methods, inner_classes, body_complexity,
-                        raw_metrics_dict['loc'],
-                        raw_metrics_dict['lloc'],
-                        raw_metrics_dict['sloc'],
-                        raw_metrics_dict['comments'],
-                        raw_metrics_dict['multi'],
-                        raw_metrics_dict['blank'],
-                        raw_metrics_dict['single_comments'],
+                        self.loc,
+                        self.lloc,
+                        self.sloc,
+                        self.comments,
+                        self.multi,
+                        self.blank,
+                        self.single_comments,
                     )
-        self.classes.append(cls)
+        self.classes.append(cls_metrics)
 
