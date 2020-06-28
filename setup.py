@@ -23,6 +23,7 @@ setup(name='radon',
           'colorama==0.4.1',
           'flake8-polyfill',
           'future',
+          'astunparse',
       ],
       entry_points={
           'console_scripts': ['radon = radon:main'],
