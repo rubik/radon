@@ -1,7 +1,7 @@
 from collections import namedtuple
 import ast
-
-from astunparse import unparse
+import inspect
+import sys
 
 from radon.metrics import analyze
 from radon.visitors import (
@@ -11,6 +11,12 @@ from radon.visitors import (
     code2ast
 )
 from radon.cli.tools import raw_to_dict
+
+try:
+    from ast import get_source_segment
+except ImportError:
+    raise ImportError('raw_visitor module requires Python 3.8')
+
 
 
 BaseRawFuncMetrics = namedtuple(
@@ -23,7 +29,6 @@ BaseRawFuncMetrics = namedtuple(
         'is_method',
         'classname',
         'closures',
-        'complexity',
         'loc',
         'lloc',
         'sloc',
@@ -42,7 +47,6 @@ BaseRawClassMetrics = namedtuple(
         'endline', 
         'methods',
         'inner_classes',
-        'real_complexity',
         'loc',
         'lloc',
         'sloc',
@@ -76,11 +80,11 @@ class RawFunctionMetrics(BaseRawFuncMetrics):
 
     def __str__(self):
         '''String representation of a function block.'''
-        return '{0} {1}:{2}->{3} {4} - {5}'.format(self.letter, self.lineno,
+        return '{0} {1}:{2}->{3} {4} - sloc: {5}'.format(self.letter, self.lineno,
                                                    self.col_offset,
                                                    self.endline,
                                                    self.fullname,
-                                                   self.complexity)
+                                                   self.sloc)
 
 
 class RawClassMetrics(BaseRawClassMetrics):
@@ -95,22 +99,12 @@ class RawClassMetrics(BaseRawClassMetrics):
         '''
         return self.name
 
-    @property
-    def complexity(self):
-        '''The average complexity of the class. It corresponds to the average
-        complexity of its methods plus one.
-        '''
-        if not self.methods:
-            return self.real_complexity
-        methods = len(self.methods)
-        return int(self.real_complexity / float(methods)) + (methods > 1)
-
     def __str__(self):
         '''String representation of a class block.'''
-        return '{0} {1}:{2}->{3} {4} - {5}'.format(self.letter, self.lineno,
+        return '{0} {1}:{2}->{3} {4} - sloc: {5}'.format(self.letter, self.lineno,
                                                    self.col_offset,
                                                    self.endline, self.name,
-                                                   self.complexity)
+                                                   self.sloc)
 
 
 class CodeVisitor(ast.NodeVisitor):
@@ -125,10 +119,12 @@ class CodeVisitor(ast.NodeVisitor):
 
     @classmethod
     def from_code(cls, code, **kwargs):
-        '''Instanciate the class from source code (string object). The
+        '''Instantiate the class from source code (string object). The
         `**kwargs` are directly passed to the `ast.NodeVisitor` constructor.
         '''
-        return cls.from_ast(code2ast(code), **kwargs)
+        cls.code = code
+        node = code2ast(code)
+        return cls.from_ast(node, **kwargs)
 
     @classmethod
     def from_ast(cls, ast_node, **kwargs):
@@ -141,8 +137,9 @@ class CodeVisitor(ast.NodeVisitor):
 
 
 class RawVisitor(CodeVisitor):
-    '''A visitor that keeps track of the cyclomatic complexity of
-    the elements.
+    '''A visitor that keeps track of raw metrics for block of code.
+
+    Metrics are provided for functions, classes and class methods.
 
     :param to_method: If True, every function is treated as a method. In this
         case the *classname* parameter is used as class name.
@@ -151,41 +148,13 @@ class RawVisitor(CodeVisitor):
         otherwise to 0.
     '''
 
-    def __init__(self, to_method=False, classname=None, off=True,
-                 no_assert=False):
-        self.off = off
-        self.complexity = 1 if off else 0
+    def __init__(self, to_method=False, classname=None):
         self.functions = []
         self.classes = []
         self.to_method = to_method
         self.classname = classname
-        self.no_assert = no_assert
         self._max_line = float('-inf')
 
-    @property
-    def functions_complexity(self):
-        '''The total complexity from all functions (i.e. the total number of
-        decision points + 1).
-
-        This is *not* the sum of all the complexity from the functions. Rather,
-        it's the complexity of the code *inside* all the functions.
-        '''
-        return sum(map(GET_COMPLEXITY, self.functions)) - len(self.functions)
-
-    @property
-    def classes_complexity(self):
-        '''The total complexity from all classes (i.e. the total number of
-        decision points + 1).
-        '''
-        return sum(map(GET_REAL_COMPLEXITY, self.classes)) - len(self.classes)
-
-    @property
-    def total_complexity(self):
-        '''The total complexity. Computed adding up the visitor complexity, the
-        functions complexity, and the classes complexity.
-        '''
-        return (self.complexity + self.functions_complexity +
-                self.classes_complexity + (not self.off))
 
     @property
     def blocks(self):
@@ -217,33 +186,8 @@ class RawVisitor(CodeVisitor):
         # Check for a lineno attribute
         if hasattr(node, 'lineno'):
             self.max_line = node.lineno
-        # The Try/Except block is counted as the number of handlers
-        # plus the `else` block.
-        # In Python 3.3 the TryExcept and TryFinally nodes have been merged
-        # into a single node: Try
-        if name in ('Try', 'TryExcept'):
-            self.complexity += len(node.handlers) + len(node.orelse)
-        elif name == 'BoolOp':
-            self.complexity += len(node.values) - 1
-        # Ifs, with and assert statements count all as 1.
-        # Note: Lambda functions are not counted anymore, see #68
-        elif name in ('If', 'IfExp'):
-            self.complexity += 1
-        # The For and While blocks count as 1 plus the `else` block.
-        elif name in ('For', 'While', 'AsyncFor'):
-            self.complexity += bool(node.orelse) + 1
-        # List, set, dict comprehensions and generator exps count as 1 plus
-        # the `if` statement.
-        elif name == 'comprehension':
-            self.complexity += len(node.ifs) + 1
 
         super(RawVisitor, self).generic_visit(node)
-
-    def visit_Assert(self, node):
-        '''When visiting `assert` statements, the complexity is increased only
-        if the `no_assert` attribute is `False`.
-        '''
-        self.complexity += not self.no_assert
 
     def visit_AsyncFunctionDef(self, node):
         '''Async function definition is the same thing as the synchronous
@@ -252,8 +196,13 @@ class RawVisitor(CodeVisitor):
         self.visit_FunctionDef(node)
 
     def get_raw_metrics(self, node):
-        code = unparse(node)
-        raw_metrics = analyze(code)
+        # astunparse.unparse() parses triple quote strings
+        # a single quote strings.  A single quote string is
+        # interpreted as a sloc instead of a multi.
+        # source_segement = unparse(node)
+
+        source_segment = get_source_segment(self.code, node)
+        raw_metrics = analyze(source_segment)
         raw_metrics_dict = raw_to_dict(raw_metrics)
         self.loc = raw_metrics_dict['loc']
         self.lloc = raw_metrics_dict['lloc']
@@ -267,24 +216,17 @@ class RawVisitor(CodeVisitor):
         '''When visiting functions a new visitor is created to recursively
         analyze the function's body.
         '''
-        # The complexity of a function is computed taking into account
-        # the following factors: number of decorators, the complexity
-        # the function's body and the number of closures (which count
-        # double).
         closures = []
-        body_complexity = 1
         
         for child in node.body:
-            visitor = RawVisitor(off=False, no_assert=self.no_assert)
+            visitor = RawVisitor()
             visitor.visit(child)
             closures.extend(visitor.functions)
-            # Add general complexity but not closures' complexity, see #68
-            body_complexity += visitor.complexity
 
         self.get_raw_metrics(node)
         func_metrics = RawFunctionMetrics(node.name, node.lineno, node.col_offset,
                         max(node.lineno, visitor.max_line), self.to_method,
-                        self.classname, closures, body_complexity,
+                        self.classname, closures,
                         self.loc,
                         self.lloc,
                         self.sloc,
@@ -300,31 +242,24 @@ class RawVisitor(CodeVisitor):
         '''When visiting classes a new visitor is created to recursively
         analyze the class' body and methods.
         '''
-        # The complexity of a class is computed taking into account
-        # the following factors: number of decorators and the complexity
-        # of the class' body (which is the sum of all the complexities).
         methods = []
-        # According to Cyclomatic Complexity definition it has to start off
-        # from 1.
-        body_complexity = 1
         classname = node.name
         visitors_max_lines = [node.lineno]
         inner_classes = []
         for child in node.body:
-            visitor = RawVisitor(True, classname, off=False,
-                                        no_assert=self.no_assert)
+            visitor = RawVisitor(
+                True,
+                classname,
+                )
             visitor.visit(child)
             methods.extend(visitor.functions)
-            body_complexity += (visitor.complexity +
-                                visitor.functions_complexity +
-                                len(visitor.functions))
             visitors_max_lines.append(visitor.max_line)
             inner_classes.extend(visitor.classes)
         
         self.get_raw_metrics(node)
         cls_metrics = RawClassMetrics(classname, node.lineno, node.col_offset,
                         max(visitors_max_lines + list(map(GET_ENDLINE, methods))),
-                        methods, inner_classes, body_complexity,
+                        methods, inner_classes,
                         self.loc,
                         self.lloc,
                         self.sloc,
