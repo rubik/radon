@@ -1,3 +1,10 @@
+4.2.0 (Jan 28, 2020)
+--------------------
+
+- Fix for Python 2.7 (thanks to @edwinelisia): #191
+- Pin Colorama to different versions depending on the Python version (thanks to
+  @douardda): #193
+
 4.1.0 (Jan 28, 2020)
 --------------------
 
