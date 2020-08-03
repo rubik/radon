@@ -3,11 +3,10 @@ sudo: false
 python:
     - "2.7"
     - "3.4"
-    - "3.5"
     - "3.6"
     - "3.7"
     - "3.8"
-    - "pypy3.5"
+    - "pypy3.6"
 install:
     - pip install .
     - pip install -r test_requirements.txt
