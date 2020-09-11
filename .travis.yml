@@ -9,7 +9,7 @@ python:
     - "3.8"
     - "pypy3.5"
 install:
-    - pip install .
+    - pip install .[flake8]
     - pip install -r test_requirements.txt
 script:
     - make tests
