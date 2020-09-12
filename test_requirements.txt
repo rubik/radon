@@ -1,6 +1,7 @@
 coverage
 coveralls
-pytest>=5.0
+pytest>=5.0; python_version >= '3.0'
+pytest>=2.7; python_version < '3.0'
 pytest-mock
 argparse
 nbformat
