@@ -4,23 +4,30 @@ Attributes:
     environment variable RADONFILESENCODING
 '''
 
-import os
-import re
-import sys
+import fnmatch
+import hashlib
 import json
 import locale
-import hashlib
-import fnmatch
+import os
 import platform
+import re
+import sys
 import xml.etree.cElementTree as et
 from contextlib import contextmanager
-from radon.visitors import Function
+
+from radon.cli.colors import (
+    BRIGHT,
+    LETTERS_COLORS,
+    RANKS_COLORS,
+    RESET,
+    TEMPLATE,
+)
 from radon.complexity import cc_rank
-from radon.cli.colors import (LETTERS_COLORS, RANKS_COLORS, TEMPLATE, BRIGHT,
-                              RESET)
+from radon.visitors import Function
 
 try:
     import nbformat
+
     SUPPORTS_IPYNB = True
 except ImportError:
     SUPPORTS_IPYNB = False
@@ -28,6 +35,7 @@ except ImportError:
 # PyPy doesn't support encoding parameter in `open()` function and works with
 # UTF-8 encoding by default
 if platform.python_implementation() == 'PyPy':
+
     @contextmanager
     def _open(path):
         '''Mock of the built-in `open()` function. If `path` is `-` then
@@ -38,14 +46,17 @@ if platform.python_implementation() == 'PyPy':
         else:
             with open(path) as f:
                 yield f
+
+
 else:
     # Add customized file encoding to fix #86.
     # By default `open()` function uses `locale.getpreferredencoding(False)`
     # encoding (see https://docs.python.org/3/library/functions.html#open).
     # This code allows to change `open()` encoding by setting an environment
     # variable.
-    _encoding = os.getenv('RADONFILESENCODING',
-                          locale.getpreferredencoding(False))
+    _encoding = os.getenv(
+        'RADONFILESENCODING', locale.getpreferredencoding(False)
+    )
 
     if sys.version_info[:2] < (2, 7):
         # This open function treats line-endings slighly differently than
@@ -57,6 +68,7 @@ else:
     elif sys.version_info[:2] < (3, 0):
         from io import open as _io_open_function, TextIOWrapper
         from codecs import lookup, BOM_UTF8
+
         cookie_re = re.compile(r'^[ \t\f]*#.*?coding[:=][ \t]*([-\w.]+)')
         blank_re = re.compile(r'^[ \t\f]*(?:[#\r\n]|$)')
 
@@ -66,8 +78,11 @@ else:
             enc = orig_enc[:12].lower().replace('_', '-')
             if enc == 'utf-8' or enc.startswith('utf-8-'):
                 return 'utf-8'
-            if enc in ('latin-1', 'iso-8859-1', 'iso-latin-1') or \
-               enc.startswith(('latin-1-', 'iso-8859-1-', 'iso-latin-1-')):
+            if enc in (
+                'latin-1',
+                'iso-8859-1',
+                'iso-latin-1',
+            ) or enc.startswith(('latin-1-', 'iso-8859-1-', 'iso-latin-1-')):
                 return 'iso-8859-1'
             return orig_enc
 
@@ -128,8 +143,9 @@ else:
                     if filename is None:
                         msg = 'unknown encoding: ' + encoding
                     else:
-                        msg = ('unknown encoding for {!r}: '
-                               '{}'.format(filename, encoding))
+                        msg = 'unknown encoding for {!r}: ' '{}'.format(
+                            filename, encoding
+                        )
                     raise SyntaxError(msg)
 
                 if bom_found:
@@ -138,8 +154,9 @@ else:
                         if filename is None:
                             msg = 'encoding problem: utf-8'
                         else:
-                            msg = ('encoding problem for '
-                                   '{!r}: utf-8'.format(filename))
+                            msg = 'encoding problem for ' '{!r}: utf-8'.format(
+                                filename
+                            )
                         raise SyntaxError(msg)
                     encoding += '-sig'
                 return encoding
@@ -187,7 +204,7 @@ else:
                 text = TextIOWrapper(buffer, encoding, line_buffering=True)
                 text.mode = 'r'
                 return text
-            except:
+            except Exception:
                 buffer.close()
                 raise
 
@@ -208,7 +225,11 @@ else:
 
 def _is_python_file(filename):
     '''Check if a file is a Python source file.'''
-    if filename == '-' or filename.endswith('.py') or (SUPPORTS_IPYNB and filename.endswith('.ipynb')):
+    if (
+        filename == '-'
+        or filename.endswith('.py')
+        or (SUPPORTS_IPYNB and filename.endswith('.ipynb'))
+    ):
         return True
     try:
         with open(filename) as fobj:
@@ -234,9 +255,14 @@ def iter_filenames(paths, exclude=None, ignore=None):
     exclude = exclude.split(',') if exclude else []
     ignore = '.*,{0}'.format(ignore).split(',') if ignore else ['.*']
     for path in paths:
-        if (os.path.isfile(path) and _is_python_file(path) and
-                (not exclude or not any(fnmatch.fnmatch(path, p)
-                                        for p in exclude))):
+        if (
+            os.path.isfile(path)
+            and _is_python_file(path)
+            and (
+                not exclude
+                or not any(fnmatch.fnmatch(path, p) for p in exclude)
+            )
+        ):
             yield path
             continue
         for filename in explore_directories(path, exclude, ignore):
@@ -251,8 +277,9 @@ def explore_directories(start, exclude, ignore):
         dirs[:] = list(filter_out(dirs, ignore))
         fullpaths = (os.path.normpath(os.path.join(root, p)) for p in files)
         for filename in filter_out(fullpaths, exclude):
-            if (not os.path.basename(filename).startswith('.') and
-                    _is_python_file(filename)):
+            if not os.path.basename(filename).startswith(
+                '.'
+            ) and _is_python_file(filename):
                 yield filename
 
 
@@ -266,6 +293,7 @@ def filter_out(strings, patterns):
 def cc_to_dict(obj):
     '''Convert an object holding CC results into a dictionary. This is meant
     for JSON dumping.'''
+
     def get_type(obj):
         '''The object can be of type *method*, *function* or *class*.'''
         if isinstance(obj, Function):
@@ -315,8 +343,9 @@ def dict_to_xml(results):
 
             et.SubElement(metric, 'classification').text = block['rank']
             et.SubElement(metric, 'file').text = filename
-            et.SubElement(metric, 'startLineNumber').text = \
-                str(block['lineno'])
+            et.SubElement(metric, 'startLineNumber').text = str(
+                block['lineno']
+            )
             et.SubElement(metric, 'endLineNumber').text = str(block['endline'])
     return et.tostring(ccm).decode('utf-8')
 
@@ -344,29 +373,49 @@ def dict_to_codeclimate_issues(results, threshold='B'):
             remediation_points = 1000000
             fingerprint = get_fingerprint(path, ['error'])
             codeclimate_issues.append(
-                format_cc_issue(path, description, error_content,
-                                error_category, beginline, endline,
-                                remediation_points, fingerprint))
+                format_cc_issue(
+                    path,
+                    description,
+                    error_content,
+                    error_category,
+                    beginline,
+                    endline,
+                    remediation_points,
+                    fingerprint,
+                )
+            )
         else:
             for offender in info:
                 beginline = offender['lineno']
                 endline = offender['endline']
                 complexity = offender['complexity']
                 category = 'Complexity'
-                description = ('Cyclomatic complexity is too high in {0} {1}. '
-                               '({2})'.format(offender['type'],
-                                              offender['name'],
-                                              complexity))
+                description = (
+                    'Cyclomatic complexity is too high in {0} {1}. '
+                    '({2})'.format(
+                        offender['type'], offender['name'], complexity
+                    )
+                )
                 remediation_points = get_remediation_points(
-                    complexity, threshold)
-                fingerprint = get_fingerprint(path, [offender['type'],
-                                                     offender['name']])
+                    complexity, threshold
+                )
+                fingerprint = get_fingerprint(
+                    path, [offender['type'], offender['name']]
+                )
 
                 if remediation_points > 0:
                     codeclimate_issues.append(
-                        format_cc_issue(path, description, content, category,
-                                        beginline, endline,
-                                        remediation_points, fingerprint))
+                        format_cc_issue(
+                            path,
+                            description,
+                            content,
+                            category,
+                            beginline,
+                            endline,
+                            remediation_points,
+                            fingerprint,
+                        )
+                    )
     return codeclimate_issues
 
 
@@ -390,7 +439,7 @@ def cc_to_terminal(results, show_complexity, min, max, total_average):
     '''
     res = []
     counted = 0
-    total_cc = .0
+    total_cc = 0.0
     for line in results:
         ranked = cc_rank(line.complexity)
         if min <= ranked <= max:
@@ -412,29 +461,39 @@ def _format_line(block, ranked, show_complexity=False):
     letter_colored = LETTERS_COLORS[block.letter] + block.letter
     rank_colored = RANKS_COLORS[ranked] + ranked
     compl = '' if not show_complexity else ' ({0})'.format(block.complexity)
-    return TEMPLATE.format(BRIGHT, letter_colored, block.lineno,
-                           block.col_offset, block.fullname, rank_colored,
-                           compl, reset=RESET)
+    return TEMPLATE.format(
+        BRIGHT,
+        letter_colored,
+        block.lineno,
+        block.col_offset,
+        block.fullname,
+        rank_colored,
+        compl,
+        reset=RESET,
+    )
 
 
-def format_cc_issue(path, description, content, category, beginline, endline,
-                    remediation_points, fingerprint):
+def format_cc_issue(
+    path,
+    description,
+    content,
+    category,
+    beginline,
+    endline,
+    remediation_points,
+    fingerprint,
+):
     '''Return properly formatted Code Climate issue json.'''
     issue = {
         'type': 'issue',
         'check_name': 'Complexity',
         'description': description,
-        'content': {
-            'body': content,
-        },
+        'content': {'body': content,},
         'categories': [category],
         'fingerprint': fingerprint,
         'location': {
             'path': path,
-            'lines': {
-                'begin': beginline,
-                'end': endline,
-            },
+            'lines': {'begin': beginline, 'end': endline,},
         },
         'remediation_points': remediation_points,
     }
@@ -462,36 +521,37 @@ def get_remediation_points(complexity, grade_threshold):
 
 def get_content():
     '''Return explanation string for Code Climate issue document.'''
-    content = ['##Cyclomatic Complexity',
-               'Cyclomatic Complexity corresponds to the number of decisions '
-               'a block of code contains plus 1. This number (also called '
-               'McCabe number) is equal to the number of linearly independent '
-               'paths through the code. This number can be used as a guide '
-               'when testing conditional logic in blocks.\n',
-               'Radon analyzes the AST tree of a Python program to compute '
-               'Cyclomatic Complexity. Statements have the following effects '
-               'on Cyclomatic Complexity:\n\n',
-               '| Construct | Effect on CC | Reasoning |',
-               '| --------- | ------------ | --------- |',
-               '| if | +1 | An *if* statement is a single decision. |',
-               '| elif| +1| The *elif* statement adds another decision. |',
-               '| else| +0| The *else* statement does not cause a new '
-               'decision. The decision is at the *if*. |',
-               '| for| +1| There is a decision at the start of the loop. |',
-               '| while| +1| There is a decision at the *while* statement. |',
-               '| except| +1| Each *except* branch adds a new conditional '
-               'path of execution. |',
-               '| finally| +0| The finally block is unconditionally '
-               'executed. |',
-               '| with| +1| The *with* statement roughly corresponds to a '
-               'try/except block (see PEP 343 for details). |',
-               '| assert| +1| The *assert* statement internally roughly '
-               'equals a conditional statement. |',
-               '| Comprehension| +1| A list/set/dict comprehension of '
-               'generator expression is equivalent to a for loop. |',
-               '| Boolean Operator| +1| Every boolean operator (and, or) '
-               'adds a decision point. |\n',
-               'Source: http://radon.readthedocs.org/en/latest/intro.html']
+    content = [
+        '##Cyclomatic Complexity',
+        'Cyclomatic Complexity corresponds to the number of decisions '
+        'a block of code contains plus 1. This number (also called '
+        'McCabe number) is equal to the number of linearly independent '
+        'paths through the code. This number can be used as a guide '
+        'when testing conditional logic in blocks.\n',
+        'Radon analyzes the AST tree of a Python program to compute '
+        'Cyclomatic Complexity. Statements have the following effects '
+        'on Cyclomatic Complexity:\n\n',
+        '| Construct | Effect on CC | Reasoning |',
+        '| --------- | ------------ | --------- |',
+        '| if | +1 | An *if* statement is a single decision. |',
+        '| elif| +1| The *elif* statement adds another decision. |',
+        '| else| +0| The *else* statement does not cause a new '
+        'decision. The decision is at the *if*. |',
+        '| for| +1| There is a decision at the start of the loop. |',
+        '| while| +1| There is a decision at the *while* statement. |',
+        '| except| +1| Each *except* branch adds a new conditional '
+        'path of execution. |',
+        '| finally| +0| The finally block is unconditionally ' 'executed. |',
+        '| with| +1| The *with* statement roughly corresponds to a '
+        'try/except block (see PEP 343 for details). |',
+        '| assert| +1| The *assert* statement internally roughly '
+        'equals a conditional statement. |',
+        '| Comprehension| +1| A list/set/dict comprehension of '
+        'generator expression is equivalent to a for loop. |',
+        '| Boolean Operator| +1| Every boolean operator (and, or) '
+        'adds a decision point. |\n',
+        'Source: http://radon.readthedocs.org/en/latest/intro.html',
+    ]
     return '\n'.join(content)
 
 
@@ -505,4 +565,6 @@ def get_fingerprint(path, additional_parts):
 
 
 def strip_ipython(code):
-    return '\n'.join([line for line in code.split('\n') if not line.startswith('%')])
+    return '\n'.join(
+        [line for line in code.split('\n') if not line.startswith('%')]
+    )

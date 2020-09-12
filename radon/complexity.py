@@ -3,9 +3,10 @@ Cyclomatic Complexity
 '''
 
 import math
-from flake8_polyfill import options
-from radon.visitors import GET_COMPLEXITY, ComplexityVisitor, code2ast
 
+from flake8_polyfill import options
+
+from radon.visitors import GET_COMPLEXITY, ComplexityVisitor, code2ast
 
 # sorted_block ordering functions
 SCORE = lambda block: -GET_COMPLEXITY(block)
@@ -40,7 +41,9 @@ def cc_rank(cc):
     '''
     if cc < 0:
         raise ValueError('Complexity must be a non-negative value')
-    return chr(min(int(math.ceil(cc / 10.) or 1) - (1, 0)[5 - cc < 0], 5) + 65)
+    return chr(
+        min(int(math.ceil(cc / 10.0) or 1) - (1, 0)[5 - cc < 0], 5) + 65
+    )
 
 
 def average_complexity(blocks):
@@ -52,7 +55,7 @@ def average_complexity(blocks):
     size = len(blocks)
     if size == 0:
         return 0
-    return sum((GET_COMPLEXITY(block) for block in blocks), .0) / len(blocks)
+    return sum((GET_COMPLEXITY(block) for block in blocks), 0.0) / len(blocks)
 
 
 def sorted_results(blocks, order=SCORE):
@@ -127,20 +130,29 @@ class Flake8Checker(object):
         '''Add custom options to the global parser.'''
         options.register(
             parser,
-            '--radon-max-cc', default=-1, action='store',
-            type='int', help='Radon complexity threshold',
-            parse_from_config=True
-        )
-        options.register(
-            parser,
-            '--radon-no-assert', dest='no_assert', action='store_true',
-            default=False, help='Radon will ignore assert statements',
+            '--radon-max-cc',
+            default=-1,
+            action='store',
+            type='int',
+            help='Radon complexity threshold',
             parse_from_config=True,
         )
         options.register(
             parser,
-            '--radon-show-closures', dest='show_closures', action='store_true',
-            default=False, help='Add closures/inner classes to the output',
+            '--radon-no-assert',
+            dest='no_assert',
+            action='store_true',
+            default=False,
+            help='Radon will ignore assert statements',
+            parse_from_config=True,
+        )
+        options.register(
+            parser,
+            '--radon-show-closures',
+            dest='show_closures',
+            action='store_true',
+            default=False,
+            help='Add closures/inner classes to the output',
             parse_from_config=True,
         )
 
@@ -157,8 +169,9 @@ class Flake8Checker(object):
             if not self.no_assert:
                 return
             self.max_cc = 10
-        visitor = ComplexityVisitor.from_ast(self.tree,
-                                             no_assert=self.no_assert)
+        visitor = ComplexityVisitor.from_ast(
+            self.tree, no_assert=self.no_assert
+        )
 
         blocks = visitor.blocks
         if self.show_closures:

@@ -3,9 +3,8 @@ analysis concerning Cyclomatic Complexity is done. There is also the class
 HalsteadVisitor, that counts Halstead metrics.'''
 
 import ast
-import operator
 import collections
-
+import operator
 
 # Helper functions to use in combination with map()
 GET_COMPLEXITY = operator.attrgetter('complexity')
@@ -13,14 +12,31 @@ GET_REAL_COMPLEXITY = operator.attrgetter('real_complexity')
 NAMES_GETTER = operator.attrgetter('name', 'asname')
 GET_ENDLINE = operator.attrgetter('endline')
 
-BaseFunc = collections.namedtuple('Function', ['name', 'lineno', 'col_offset',
-                                               'endline', 'is_method',
-                                               'classname', 'closures',
-                                               'complexity'])
-BaseClass = collections.namedtuple('Class', ['name', 'lineno', 'col_offset',
-                                             'endline', 'methods',
-                                             'inner_classes',
-                                             'real_complexity'])
+BaseFunc = collections.namedtuple(
+    'Function',
+    [
+        'name',
+        'lineno',
+        'col_offset',
+        'endline',
+        'is_method',
+        'classname',
+        'closures',
+        'complexity',
+    ],
+)
+BaseClass = collections.namedtuple(
+    'Class',
+    [
+        'name',
+        'lineno',
+        'col_offset',
+        'endline',
+        'methods',
+        'inner_classes',
+        'real_complexity',
+    ],
+)
 
 
 def code2ast(source):
@@ -55,11 +71,14 @@ class Function(BaseFunc):
 
     def __str__(self):
         '''String representation of a function block.'''
-        return '{0} {1}:{2}->{3} {4} - {5}'.format(self.letter, self.lineno,
-                                                   self.col_offset,
-                                                   self.endline,
-                                                   self.fullname,
-                                                   self.complexity)
+        return '{0} {1}:{2}->{3} {4} - {5}'.format(
+            self.letter,
+            self.lineno,
+            self.col_offset,
+            self.endline,
+            self.fullname,
+            self.complexity,
+        )
 
 
 class Class(BaseClass):
@@ -86,10 +105,14 @@ class Class(BaseClass):
 
     def __str__(self):
         '''String representation of a class block.'''
-        return '{0} {1}:{2}->{3} {4} - {5}'.format(self.letter, self.lineno,
-                                                   self.col_offset,
-                                                   self.endline, self.name,
-                                                   self.complexity)
+        return '{0} {1}:{2}->{3} {4} - {5}'.format(
+            self.letter,
+            self.lineno,
+            self.col_offset,
+            self.endline,
+            self.name,
+            self.complexity,
+        )
 
 
 class CodeVisitor(ast.NodeVisitor):
@@ -130,8 +153,9 @@ class ComplexityVisitor(CodeVisitor):
         otherwise to 0.
     '''
 
-    def __init__(self, to_method=False, classname=None, off=True,
-                 no_assert=False):
+    def __init__(
+        self, to_method=False, classname=None, off=True, no_assert=False
+    ):
         self.off = off
         self.complexity = 1 if off else 0
         self.functions = []
@@ -163,8 +187,12 @@ class ComplexityVisitor(CodeVisitor):
         '''The total complexity. Computed adding up the visitor complexity, the
         functions complexity, and the classes complexity.
         '''
-        return (self.complexity + self.functions_complexity +
-                self.classes_complexity + (not self.off))
+        return (
+            self.complexity
+            + self.functions_complexity
+            + self.classes_complexity
+            + (not self.off)
+        )
 
     @property
     def blocks(self):
@@ -247,9 +275,16 @@ class ComplexityVisitor(CodeVisitor):
             # Add general complexity but not closures' complexity, see #68
             body_complexity += visitor.complexity
 
-        func = Function(node.name, node.lineno, node.col_offset,
-                        max(node.lineno, visitor.max_line), self.to_method,
-                        self.classname, closures, body_complexity)
+        func = Function(
+            node.name,
+            node.lineno,
+            node.col_offset,
+            max(node.lineno, visitor.max_line),
+            self.to_method,
+            self.classname,
+            closures,
+            body_complexity,
+        )
         self.functions.append(func)
 
     def visit_ClassDef(self, node):
@@ -267,19 +302,28 @@ class ComplexityVisitor(CodeVisitor):
         visitors_max_lines = [node.lineno]
         inner_classes = []
         for child in node.body:
-            visitor = ComplexityVisitor(True, classname, off=False,
-                                        no_assert=self.no_assert)
+            visitor = ComplexityVisitor(
+                True, classname, off=False, no_assert=self.no_assert
+            )
             visitor.visit(child)
             methods.extend(visitor.functions)
-            body_complexity += (visitor.complexity +
-                                visitor.functions_complexity +
-                                len(visitor.functions))
+            body_complexity += (
+                visitor.complexity
+                + visitor.functions_complexity
+                + len(visitor.functions)
+            )
             visitors_max_lines.append(visitor.max_line)
             inner_classes.extend(visitor.classes)
 
-        cls = Class(classname, node.lineno, node.col_offset,
-                    max(visitors_max_lines + list(map(GET_ENDLINE, methods))),
-                    methods, inner_classes, body_complexity)
+        cls = Class(
+            classname,
+            node.lineno,
+            node.col_offset,
+            max(visitors_max_lines + list(map(GET_ENDLINE, methods))),
+            methods,
+            inner_classes,
+            body_complexity,
+        )
         self.classes.append(cls)
 
 
@@ -290,7 +334,12 @@ class HalsteadVisitor(CodeVisitor):
 
     # As of Python 3.8 Num/Str/Bytes/NameConstat
     # are now in a common node Constant.
-    types = {"Num": "n", "Name": "id", "Attribute": "attr", "Constant": "value"}
+    types = {
+        "Num": "n",
+        "Name": "id",
+        "Attribute": "attr",
+        "Constant": "value",
+    }
 
     def __init__(self, context=None):
         '''*context* is a string used to keep track the analysis' context.'''
@@ -323,6 +372,7 @@ class HalsteadVisitor(CodeVisitor):
             * the operators seen (a sequence)
             * the operands seen (a sequence)
         '''
+
         def aux(self, node):
             '''Actual function that updates the stats.'''
             results = meth(self, node)
@@ -330,15 +380,18 @@ class HalsteadVisitor(CodeVisitor):
             self.operands += results[1]
             self.operators_seen.update(results[2])
             for operand in results[3]:
-                new_operand = getattr(operand,
-                                      self.types.get(type(operand), ''),
-                                      operand)
+                new_operand = getattr(
+                    operand, self.types.get(type(operand), ''), operand
+                )
                 name = self.get_name(operand)
-                new_operand = getattr(operand, self.types.get(name, ""), operand)
+                new_operand = getattr(
+                    operand, self.types.get(name, ""), operand
+                )
 
                 self.operands_seen.add((self.context, new_operand))
             # Now dispatch to children
             super(HalsteadVisitor, self).generic_visit(node)
+
         return aux
 
     @dispatch
@@ -364,8 +417,12 @@ class HalsteadVisitor(CodeVisitor):
     @dispatch
     def visit_Compare(self, node):
         '''A comparison.'''
-        return (len(node.ops), len(node.comparators) + 1,
-                map(self.get_name, node.ops), node.comparators + [node.left])
+        return (
+            len(node.ops),
+            len(node.comparators) + 1,
+            map(self.get_name, node.ops),
+            node.comparators + [node.left],
+        )
 
     def visit_FunctionDef(self, node):
         '''When visiting functions, another visitor is created to recursively

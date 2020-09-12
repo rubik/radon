@@ -1,6 +1,7 @@
-import pytest
-import textwrap
 import os
+import textwrap
+
+import pytest
 
 
 @pytest.fixture

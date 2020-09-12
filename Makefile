@@ -1,4 +1,19 @@
-.PHONY: tests cov htmlcov pep8 pylint docs dev-deps test-deps publish coveralls
+.PHONY: format lint f tests cov htmlcov pep8 pylint docs dev-deps test-deps publish coveralls
+
+source_dirs = radon
+isort = isort -rc $(source_dirs)
+black = black --line-length 79 --skip-string-normalization \
+		--target-version py37 $(source_dirs)
+flake8 = flake8 $(source_dirs)
+
+format:
+	$(isort)
+	$(black)
+
+lint:
+	$(flake8)
+
+f: format lint
 
 tests:
 	python radon/tests/run.py

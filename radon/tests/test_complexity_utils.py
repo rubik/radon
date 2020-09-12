@@ -5,8 +5,8 @@ import pytest
 
 from radon.complexity import *
 from radon.visitors import Class, Function
-from .test_complexity_visitor import GENERAL_CASES, dedent
 
+from .test_complexity_visitor import GENERAL_CASES, dedent
 
 get_index = lambda seq: lambda index: seq[index]
 
@@ -36,22 +36,25 @@ RANK_CASES = [(score, _compute_cc_rank(score)) for score in range(-1, 100)]
 
 @pytest.mark.parametrize('score,expected_rank', RANK_CASES)
 def test_rank(score, expected_rank):
-    if (hasattr(expected_rank, '__call__') and
-            isinstance(expected_rank(), Exception)):
+    if hasattr(expected_rank, '__call__') and isinstance(
+        expected_rank(), Exception
+    ):
         with pytest.raises(expected_rank):
             cc_rank(score)
     else:
         assert cc_rank(score) == expected_rank
 
 
-fun = lambda complexity: Function('randomname', 1, 4, 23, False, None, [], complexity)
+fun = lambda complexity: Function(
+    'randomname', 1, 4, 23, False, None, [], complexity
+)
 cls = lambda complexity: Class('randomname_', 3, 21, 18, [], [], complexity)
 
 # This works with both the next two tests
 SIMPLE_BLOCKS = [
-    ([], [], 0.),
-    ([fun(12), fun(14), fun(1)], [1, 0, 2], 9.),
-    ([fun(4), cls(5), fun(2), cls(21)], [3, 1, 0, 2], 8.),
+    ([], [], 0.0),
+    ([fun(12), fun(14), fun(1)], [1, 0, 2], 9.0),
+    ([fun(4), cls(5), fun(2), cls(21)], [3, 1, 0, 2], 8.0),
 ]
 
 
@@ -69,7 +72,8 @@ def test_average_complexity(blocks, _, expected_average):
 CC_VISIT_CASES = [
     (GENERAL_CASES[0][0], 1, 1, 'f.inner'),
     (GENERAL_CASES[1][0], 3, 1, 'f.inner'),
-    ('''
+    (
+        '''
     class joe1:
         i = 1
         def doit1(self):
@@ -82,7 +86,11 @@ CC_VISIT_CASES = [
                 iii = 3
                 def doit3(self):
                     pass
-     ''', 2, 4, 'joe1.joe2.joe3'),
+     ''',
+        2,
+        4,
+        'joe1.joe2.joe3',
+    ),
 ]
 
 

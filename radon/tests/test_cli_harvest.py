@@ -5,10 +5,9 @@ except ImportError:
 
 import pytest
 
-from radon.cli import Config
-import radon.complexity as cc_mod
 import radon.cli.harvest as harvest
-
+import radon.complexity as cc_mod
+from radon.cli import Config
 
 BASE_CONFIG = Config(
     exclude=r'test_[^.]+\.py',
@@ -26,20 +25,12 @@ CC_CONFIG = Config(
     show_closures=False,
     average=True,
     total_average=False,
-    **BASE_CONFIG.config_values
+    **BASE_CONFIG.config_values,
 )
 
-RAW_CONFIG = Config(
-    summary=True,
-)
+RAW_CONFIG = Config(summary=True,)
 
-MI_CONFIG = Config(
-    multi=True,
-    min='B',
-    max='C',
-    show=True,
-    sort=False,
-)
+MI_CONFIG = Config(multi=True, min='B', max='C', show=True, sort=False,)
 
 
 def fake_gobble(fobj):
@@ -52,7 +43,7 @@ def fake_gobble_raising(fobj):
 
 def fake_run():
     for i in range(3):
-        yield {'file-{0}'.format(i): i**2}
+        yield {'file-{0}'.format(i): i ** 2}
 
 
 @pytest.fixture
@@ -80,8 +71,7 @@ def test_base_iter_filenames(base_config, mocker):
     h = harvest.Harvester([], base_config)
     h._iter_filenames()
 
-    iter_mock.assert_called_with([], base_config.exclude,
-                                 base_config.ignore)
+    iter_mock.assert_called_with([], base_config.exclude, base_config.ignore)
 
 
 def test_base_gobble_not_implemented(base_config):
@@ -140,8 +130,9 @@ def test_cc_gobble(cc_config, mocker):
     h.gobble(fobj)
 
     assert fobj.read.called
-    cc_mock.assert_called_with(mocker.sentinel.one,
-                               no_assert=cc_config.no_assert)
+    cc_mock.assert_called_with(
+        mocker.sentinel.one, no_assert=cc_config.no_assert
+    )
     sr_mock.assert_called_with([], order=cc_config.order)
 
 
@@ -149,8 +140,11 @@ def test_cc_to_dicts(cc_config, mocker):
     c2d_mock = mocker.patch('radon.cli.harvest.cc_to_dict')
     c2d_mock.side_effect = lambda i: i
     h = harvest.CCHarvester([], cc_config)
-    sample_results = [('a', [{'rank': 'A'}]), ('b', [{'rank': 'B'}]),
-                      ('c', {'error': 'An ERROR!'})]
+    sample_results = [
+        ('a', [{'rank': 'A'}]),
+        ('b', [{'rank': 'B'}]),
+        ('c', {'error': 'An ERROR!'}),
+    ]
     h._results = sample_results
 
     assert h._to_dicts() == dict(sample_results)
@@ -181,24 +175,29 @@ def test_cc_to_terminal(cc_config, mocker):
     ranks_mock = mocker.patch('radon.cli.harvest.RANKS_COLORS')
     c2t_mock = mocker.patch('radon.cli.harvest.cc_to_terminal')
     h = harvest.CCHarvester([], cc_config)
-    h._results = [
-        ('a', {'error': 'mystr'}), ('b', {})
-    ]
+    h._results = [('a', {'error': 'mystr'}), ('b', {})]
     c2t_mock.return_value = (['res'], 9, 3)
     ranks_mock.__getitem__.return_value = '<|A|>'
     reset_mock.__eq__.side_effect = lambda o: o == '__R__'
 
     results = list(h.to_terminal())
-    c2t_mock.assert_called_once_with({}, cc_config.show_complexity,
-                                     cc_config.min, cc_config.max,
-                                     cc_config.total_average)
+    c2t_mock.assert_called_once_with(
+        {},
+        cc_config.show_complexity,
+        cc_config.min,
+        cc_config.max,
+        cc_config.total_average,
+    )
     assert results == [
         ('a', ('mystr',), {'error': True}),
         ('b', (), {}),
         (['res'], (), {'indent': 1}),
         ('\n{0} blocks (classes, functions, methods) analyzed.', (3,), {}),
-        ('Average complexity: {0}{1} ({2}){3}',
-         ('<|A|>', 'A', 3, '__R__'), {}),
+        (
+            'Average complexity: {0}{1} ({2}){3}',
+            ('<|A|>', 'A', 3, '__R__'),
+            {},
+        ),
     ]
 
 
@@ -227,12 +226,42 @@ def test_raw_to_terminal(raw_config):
     h = harvest.RawHarvester([], raw_config)
     h._results = [
         ('a', {'error': 'mystr'}),
-        ('b', {'loc': 24, 'lloc': 27, 'sloc': 15, 'comments': 3,
-               'multi': 3, 'single_comments': 3, 'blank': 9}),
-        ('c', {'loc': 24, 'lloc': 27, 'sloc': 15, 'comments': 3,
-               'multi': 3, 'single_comments': 13, 'blank': 9}),
-        ('e', {'loc': 0, 'lloc': 0, 'sloc': 0, 'comments': 0,
-               'single_comments': 12, 'multi': 0, 'blank': 0}),
+        (
+            'b',
+            {
+                'loc': 24,
+                'lloc': 27,
+                'sloc': 15,
+                'comments': 3,
+                'multi': 3,
+                'single_comments': 3,
+                'blank': 9,
+            },
+        ),
+        (
+            'c',
+            {
+                'loc': 24,
+                'lloc': 27,
+                'sloc': 15,
+                'comments': 3,
+                'multi': 3,
+                'single_comments': 13,
+                'blank': 9,
+            },
+        ),
+        (
+            'e',
+            {
+                'loc': 0,
+                'lloc': 0,
+                'sloc': 0,
+                'comments': 0,
+                'single_comments': 12,
+                'multi': 0,
+                'blank': 0,
+            },
+        ),
     ]
 
     assert list(h.to_terminal()) == [
@@ -339,8 +368,6 @@ def test_mi_to_terminal(mi_config, mocker):
 
     assert list(h.to_terminal()) == [
         ('a', ('mystr',), {'error': True}),
-        ('{0} - {1}{2}{3}{4}', ('c', '<|B|>', 'B', ' (15.00)', '__R__'),
-         {}),
-        ('{0} - {1}{2}{3}{4}', ('d', '<|C|>', 'C', ' (0.00)', '__R__'),
-         {}),
+        ('{0} - {1}{2}{3}{4}', ('c', '<|B|>', 'B', ' (15.00)', '__R__'), {}),
+        ('{0} - {1}{2}{3}{4}', ('d', '<|C|>', 'C', ' (0.00)', '__R__'), {}),
     ]

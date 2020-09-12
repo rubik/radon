@@ -4,17 +4,30 @@ The main function is :func:`~radon.raw.analyze`, and should be the only one
 that is used.
 '''
 
-import tokenize
-import operator
 import collections
+import operator
+import tokenize
+
 try:
     import StringIO as io
 except ImportError:  # pragma: no cover
     import io
 
 
-__all__ = ['OP', 'COMMENT', 'TOKEN_NUMBER', 'NL', 'NEWLINE', 'EM', 'Module',
-           '_generate', '_fewer_tokens', '_find', '_logical', 'analyze']
+__all__ = [
+    'OP',
+    'COMMENT',
+    'TOKEN_NUMBER',
+    'NL',
+    'NEWLINE',
+    'EM',
+    'Module',
+    '_generate',
+    '_fewer_tokens',
+    '_find',
+    '_logical',
+    'analyze',
+]
 
 COMMENT = tokenize.COMMENT
 OP = tokenize.OP
@@ -32,9 +45,10 @@ TOKEN_NUMBER = operator.itemgetter(0)
 #   multi = Multi-line strings (assumed to be docstrings)
 #   blank = Blank lines (or whitespace-only lines)
 #   single_comments = Single-line comments or docstrings
-Module = collections.namedtuple('Module', ['loc', 'lloc', 'sloc',
-                                           'comments', 'multi', 'blank',
-                                           'single_comments'])
+Module = collections.namedtuple(
+    'Module',
+    ['loc', 'lloc', 'sloc', 'comments', 'multi', 'blank', 'single_comments'],
+)
 
 
 def _generate(code):
@@ -133,6 +147,7 @@ def _logical(tokens):
 
         if cond: return 0  # Only a comment  -> 2
     '''
+
     def aux(sub_tokens):
         '''The actual function which does the job.'''
         # Get the tokens and, in the meantime, remove comments
@@ -154,6 +169,7 @@ def _logical(tokens):
             if not list(_fewer_tokens(processed, [NL, NEWLINE, EM])):
                 return 0
             return 1
+
     return sum(aux(sub) for sub in _split_tokens(tokens, OP, ';'))
 
 
@@ -161,9 +177,9 @@ def is_single_token(token_number, tokens):
     '''Is this a single token matching token_number followed by ENDMARKER, NL
     or NEWLINE tokens.
     '''
-    return (TOKEN_NUMBER(tokens[0]) == token_number and
-            all(TOKEN_NUMBER(t) in (EM, NL, NEWLINE)
-                for t in tokens[1:]))
+    return TOKEN_NUMBER(tokens[0]) == token_number and all(
+        TOKEN_NUMBER(t) in (EM, NL, NEWLINE) for t in tokens[1:]
+    )
 
 
 def analyze(source):
@@ -197,8 +213,9 @@ def analyze(source):
 
         lineno += len(parsed_lines)
 
-        comments += sum(1 for t in tokens
-                        if TOKEN_NUMBER(t) == tokenize.COMMENT)
+        comments += sum(
+            1 for t in tokens if TOKEN_NUMBER(t) == tokenize.COMMENT
+        )
 
         # Identify single line comments, conservatively
         if is_single_token(tokenize.COMMENT, tokens):

@@ -3,16 +3,19 @@ metrics or the Maintainability Index.
 '''
 
 import ast
-import math
 import collections
-from radon.visitors import HalsteadVisitor, ComplexityVisitor
-from radon.raw import analyze
+import math
 
+from radon.raw import analyze
+from radon.visitors import ComplexityVisitor, HalsteadVisitor
 
 # Halstead metrics
-HalsteadReport = collections.namedtuple('HalsteadReport', 'h1 h2 N1 N2 vocabulary length '
-                                        'calculated_length volume '
-                                        'difficulty effort time bugs')
+HalsteadReport = collections.namedtuple(
+    'HalsteadReport',
+    'h1 h2 N1 N2 vocabulary length '
+    'calculated_length volume '
+    'difficulty effort time bugs',
+)
 
 # `total` is a HalsteadReport for the entire scanned file, while `functions` is
 # a list of `HalsteadReport`s for each function in the file.
@@ -55,7 +58,10 @@ def h_visit_ast(ast_node):
     '''
     visitor = HalsteadVisitor.from_ast(ast_node)
     total = halstead_visitor_report(visitor)
-    functions = [(v.context, halstead_visitor_report(v)) for v in visitor.function_visitors]
+    functions = [
+        (v.context, halstead_visitor_report(v))
+        for v in visitor.function_visitors
+    ]
 
     return Halstead(total, functions)
 
@@ -74,8 +80,18 @@ def halstead_visitor_report(visitor):
     difficulty = (h1 * N2) / float(2 * h2) if h2 != 0 else 0
     effort = difficulty * volume
     return HalsteadReport(
-        h1, h2, N1, N2, h, N, length, volume, difficulty, effort,
-        effort / 18., volume / 3000.
+        h1,
+        h2,
+        N1,
+        N2,
+        h,
+        N,
+        length,
+        volume,
+        difficulty,
+        effort,
+        effort / 18.0,
+        volume / 3000.0,
     )
 
 
@@ -86,14 +102,19 @@ def mi_compute(halstead_volume, complexity, sloc, comments):
     is preferred.
     '''
     if any(metric <= 0 for metric in (halstead_volume, sloc)):
-        return 100.
+        return 100.0
     sloc_scale = math.log(sloc)
     volume_scale = math.log(halstead_volume)
     comments_scale = math.sqrt(2.46 * math.radians(comments))
     # Non-normalized MI
-    nn_mi = (171 - 5.2 * volume_scale - .23 * complexity - 16.2 * sloc_scale +
-             50 * math.sin(comments_scale))
-    return min(max(0., nn_mi * 100 / 171.), 100.)
+    nn_mi = (
+        171
+        - 5.2 * volume_scale
+        - 0.23 * complexity
+        - 16.2 * sloc_scale
+        + 50 * math.sin(comments_scale)
+    )
+    return min(max(0.0, nn_mi * 100 / 171.0), 100.0)
 
 
 def mi_parameters(code, count_multi=True):
@@ -113,9 +134,12 @@ def mi_parameters(code, count_multi=True):
     raw = analyze(code)
     comments_lines = raw.comments + (raw.multi if count_multi else 0)
     comments = comments_lines / float(raw.sloc) * 100 if raw.sloc != 0 else 0
-    return (h_visit_ast(ast_node).total.volume,
-            ComplexityVisitor.from_ast(ast_node).total_complexity, raw.lloc,
-            comments)
+    return (
+        h_visit_ast(ast_node).total.volume,
+        ComplexityVisitor.from_ast(ast_node).total_complexity,
+        raw.lloc,
+        comments,
+    )
 
 
 def mi_visit(code, multi):

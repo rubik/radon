@@ -1,17 +1,29 @@
 '''This module holds the base Harvester class and all its subclassess.'''
 
-from builtins import super
+import collections
 import json
 import sys
-import collections
+from builtins import super
+
+from radon.cli.colors import MI_RANKS, RANKS_COLORS, RESET
+from radon.cli.tools import (
+    _open,
+    cc_to_dict,
+    cc_to_terminal,
+    dict_to_codeclimate_issues,
+    dict_to_xml,
+    iter_filenames,
+    raw_to_dict,
+    strip_ipython,
+)
+from radon.complexity import (
+    add_inner_blocks,
+    cc_rank,
+    cc_visit,
+    sorted_results,
+)
+from radon.metrics import h_visit, mi_rank, mi_visit
 from radon.raw import analyze
-from radon.metrics import h_visit, mi_visit, mi_rank
-from radon.complexity import (cc_visit, sorted_results, cc_rank,
-                              add_inner_blocks)
-from radon.cli.colors import RANKS_COLORS, MI_RANKS, RESET
-from radon.cli.tools import (iter_filenames, _open, cc_to_dict, dict_to_xml,
-                             dict_to_codeclimate_issues, cc_to_terminal,
-                             raw_to_dict, strip_ipython)
 
 if sys.version_info[0] < 3:
     from StringIO import StringIO
@@ -20,6 +32,7 @@ else:
 
 try:
     import nbformat
+
     SUPPORTS_IPYNB = True
 except ImportError:
     SUPPORTS_IPYNB = False
@@ -59,8 +72,9 @@ class Harvester(object):
 
     def _iter_filenames(self):
         '''A wrapper around :func:`~radon.cli.tools.iter_filenames`.'''
-        return iter_filenames(self.paths, self.config.exclude,
-                              self.config.ignore)
+        return iter_filenames(
+            self.paths, self.config.exclude, self.config.ignore
+        )
 
     def gobble(self, fobj):
         '''Subclasses must implement this method to define behavior.
@@ -81,17 +95,31 @@ class Harvester(object):
                 try:
                     if name.endswith('.ipynb'):
                         if SUPPORTS_IPYNB and self.config.include_ipynb:
-                            nb = nbformat.read(fobj, as_version=nbformat.NO_CONVERT)
-                            cells = [cell.source for cell in nb.cells if cell.cell_type == 'code']
+                            nb = nbformat.read(
+                                fobj, as_version=nbformat.NO_CONVERT
+                            )
+                            cells = [
+                                cell.source
+                                for cell in nb.cells
+                                if cell.cell_type == 'code'
+                            ]
                             # Whole document
                             doc = "\n".join(cells)
-                            yield (name, self.gobble(StringIO(strip_ipython(doc))))
+                            yield (
+                                name,
+                                self.gobble(StringIO(strip_ipython(doc))),
+                            )
 
                             if self.config.ipynb_cells:
                                 # Individual cells
                                 cellid = 0
                                 for source in cells:
-                                    yield ("{0}:[{1}]".format(name, cellid), self.gobble(StringIO(strip_ipython(source))))
+                                    yield (
+                                        "{0}:[{1}]".format(name, cellid),
+                                        self.gobble(
+                                            StringIO(strip_ipython(source))
+                                        ),
+                                    )
                                     cellid += 1
                     else:
                         yield (name, self.gobble(fobj))
@@ -107,6 +135,7 @@ class Harvester(object):
         `results` is accessed multiple times after the first one, a list will
         be returned.
         '''
+
         def caching_iterator(it, r):
             '''An iterator that caches another iterator.'''
             for t in it:
@@ -155,8 +184,11 @@ class CCHarvester(Harvester):
             if 'error' in data:
                 result[key] = data
                 continue
-            values = [v for v in map(cc_to_dict, data)
-                      if self.config.min <= v['rank'] <= self.config.max]
+            values = [
+                v
+                for v in map(cc_to_dict, data)
+                if self.config.min <= v['rank'] <= self.config.max
+            ]
             if values:
                 result[key] = values
         return result
@@ -177,15 +209,19 @@ class CCHarvester(Harvester):
 
     def to_terminal(self):
         '''Yield lines to be printed in a terminal.'''
-        average_cc = .0
+        average_cc = 0.0
         analyzed = 0
         for name, blocks in self.results:
             if 'error' in blocks:
                 yield name, (blocks['error'],), {'error': True}
                 continue
-            res, cc, n = cc_to_terminal(blocks, self.config.show_complexity,
-                                        self.config.min, self.config.max,
-                                        self.config.total_average)
+            res, cc, n = cc_to_terminal(
+                blocks,
+                self.config.show_complexity,
+                self.config.min,
+                self.config.max,
+                self.config.total_average,
+            )
             average_cc += cc
             analyzed += n
             if res:
@@ -195,17 +231,30 @@ class CCHarvester(Harvester):
         if (self.config.average or self.config.total_average) and analyzed:
             cc = average_cc / analyzed
             ranked_cc = cc_rank(cc)
-            yield ('\n{0} blocks (classes, functions, methods) analyzed.',
-                   (analyzed,), {})
-            yield ('Average complexity: {0}{1} ({2}){3}',
-                   (RANKS_COLORS[ranked_cc], ranked_cc, cc, RESET), {})
+            yield (
+                '\n{0} blocks (classes, functions, methods) analyzed.',
+                (analyzed,),
+                {},
+            )
+            yield (
+                'Average complexity: {0}{1} ({2}){3}',
+                (RANKS_COLORS[ranked_cc], ranked_cc, cc, RESET),
+                {},
+            )
 
 
 class RawHarvester(Harvester):
     '''A class that analyzes Python modules' raw metrics.'''
 
-    headers = ['LOC', 'LLOC', 'SLOC', 'Comments', 'Single comments', 'Multi',
-               'Blank']
+    headers = [
+        'LOC',
+        'LLOC',
+        'SLOC',
+        'Comments',
+        'Single comments',
+        'Multi',
+        'Blank',
+    ]
 
     def gobble(self, fobj):
         '''Analyze the content of the file object.'''
@@ -230,13 +279,21 @@ class RawHarvester(Harvester):
 
             loc, comments = mod['loc'], mod['comments']
             yield '- Comment Stats', (), {'indent': 1}
-            yield ('(C % L): {0:.0%}', (comments / (float(loc) or 1),),
-                   {'indent': 2})
-            yield ('(C % S): {0:.0%}', (comments / (float(mod['sloc']) or 1),),
-                   {'indent': 2})
-            yield ('(C + M % L): {0:.0%}',
-                   ((comments + mod['multi']) / (float(loc) or 1),),
-                   {'indent': 2})
+            yield (
+                '(C % L): {0:.0%}',
+                (comments / (float(loc) or 1),),
+                {'indent': 2},
+            )
+            yield (
+                '(C % S): {0:.0%}',
+                (comments / (float(mod['sloc']) or 1),),
+                {'indent': 2},
+            )
+            yield (
+                '(C + M % L): {0:.0%}',
+                ((comments + mod['multi']) / (float(loc) or 1),),
+                {'indent': 2},
+            )
 
         if self.config.summary:
             _get = lambda k, v=0: sum_metrics.get(k, v)
@@ -258,8 +315,10 @@ class RawHarvester(Harvester):
             )
             yield (
                 '(C + M % L): {0:.0%}',
-                (float(_get('Comments', 0) + _get('Multi')) /
-                    (_get('LOC', 1) or 1),),
+                (
+                    float(_get('Comments', 0) + _get('Multi'))
+                    / (_get('LOC', 1) or 1),
+                ),
                 {'indent': 2},
             )
 
@@ -277,8 +336,10 @@ class MIHarvester(Harvester):
     def filtered_results(self):
         '''Filter results with respect with their rank.'''
         for key, value in self.results:
-            if ('error' in value or
-                    self.config.min <= value['rank'] <= self.config.max):
+            if (
+                'error' in value
+                or self.config.min <= value['rank'] <= self.config.max
+            ):
                 yield (key, value)
 
     def _sort(self, results):
@@ -358,11 +419,17 @@ def hal_report_to_terminal(report, base_indent=0):
     yield "h2: {}".format(report.h2), (), {"indent": 1 + base_indent}
     yield "N1: {}".format(report.N1), (), {"indent": 1 + base_indent}
     yield "N2: {}".format(report.N2), (), {"indent": 1 + base_indent}
-    yield "vocabulary: {}".format(report.vocabulary), (), {"indent": 1 + base_indent}
+    yield "vocabulary: {}".format(report.vocabulary), (), {
+        "indent": 1 + base_indent
+    }
     yield "length: {}".format(report.length), (), {"indent": 1 + base_indent}
-    yield "calculated_length: {}".format(report.calculated_length), (), {"indent": 1 + base_indent}
+    yield "calculated_length: {}".format(report.calculated_length), (), {
+        "indent": 1 + base_indent
+    }
     yield "volume: {}".format(report.volume), (), {"indent": 1 + base_indent}
-    yield "difficulty: {}".format(report.difficulty), (), {"indent": 1 + base_indent}
+    yield "difficulty: {}".format(report.difficulty), (), {
+        "indent": 1 + base_indent
+    }
     yield "effort: {}".format(report.effort), (), {"indent": 1 + base_indent}
     yield "time: {}".format(report.time), (), {"indent": 1 + base_indent}
     yield "bugs: {}".format(report.bugs), (), {"indent": 1 + base_indent}
