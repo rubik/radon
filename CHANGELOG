@@ -1,3 +1,8 @@
+4.3.1 (Sep 12, 2020)
+--------------------
+
+- Separate `flake8-polyfill` to extra requirements (thanks to @tribals): #189
+
 4.2.0 (Jan 28, 2020)
 --------------------
 
