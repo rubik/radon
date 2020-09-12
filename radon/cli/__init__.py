@@ -346,7 +346,7 @@ def log_result(harvester, **kwargs):
             harvester.as_codeclimate_issues(),
             delimiter='\0',
             noformat=True,
-            **kwargs,
+            **kwargs
         )
     else:
         for msg, h_args, h_kwargs in harvester.to_terminal():

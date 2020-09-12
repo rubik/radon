@@ -25,7 +25,7 @@ CC_CONFIG = Config(
     show_closures=False,
     average=True,
     total_average=False,
-    **BASE_CONFIG.config_values,
+    **BASE_CONFIG.config_values
 )
 
 RAW_CONFIG = Config(summary=True,)

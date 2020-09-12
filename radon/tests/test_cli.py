@@ -271,5 +271,5 @@ def test_log_result(mocker, stdout_mock):
     )
     le_mock.assert_called_once_with('mystr', indent=1)
     ll_mock.assert_has_calls(
-        [mocker.call(['b']), mocker.call(('p1', 'p2'), indent=1),]
+        [mocker.call(['b']), mocker.call(('p1', 'p2'), indent=1)]
     )
