@@ -4,6 +4,7 @@ import operator
 import pytest
 
 from radon.complexity import *
+from radon.contrib.flake8 import Flake8Checker
 from radon.visitors import Class, Function
 
 from .test_complexity_visitor import GENERAL_CASES, dedent

@@ -33,7 +33,7 @@ setup(name='radon',
               'eggsecutable = radon:main',
           ],
           'flake8.extension': [
-              'R70 = radon.complexity:Flake8Checker [flake8]',
+              'R70 = radon.contrib.flake8:Flake8Checker [flake8]',
           ],
       },
       keywords='static analysis code complexity metrics',
