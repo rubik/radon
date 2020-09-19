@@ -23,6 +23,7 @@ setup(name='radon',
           'colorama==0.4.1;python_version<="3.4"',
           'colorama>=0.4.1;python_version>"3.4"',
           'future',
+          'astunparse',
       ],
       extras_require={
           'flake8': ['flake8-polyfill'],

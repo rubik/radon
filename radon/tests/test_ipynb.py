@@ -28,7 +28,7 @@ DIRNAME = os.path.dirname(__file__)
 @pytest.mark.skipif(not SUPPORTS_IPYNB, reason="nbformat not installed")
 def test_harvestor_yields_ipynb(log_mock):
     '''Test that Harvester will try ipynb files when configured'''
-    target = os.path.join(DIRNAME, 'data/example.ipynb')
+    target = os.path.join(DIRNAME, 'data\\example.ipynb')
     harvester = Harvester([DIRNAME], BASE_CONFIG_WITH_IPYNB)
     filenames = list(harvester._iter_filenames())
     assert _is_python_file(target)
@@ -108,7 +108,7 @@ def test_ipynb_with_cells(mocker, log_mock):
 def test_raw_ipynb(log_mock):
     raw_cfg = cli.Config(**BASE_CONFIG_WITH_IPYNB.config_values)
 
-    target = os.path.join(DIRNAME, 'data/example.ipynb')
+    target = os.path.join(DIRNAME, 'data\\example.ipynb')
     harvester = RawHarvester([DIRNAME], raw_cfg)
     out = json.loads(harvester.as_json())
     assert harvester.config.include_ipynb == True
@@ -126,7 +126,7 @@ def test_raw_ipynb(log_mock):
 def test_raw_ipynb_cells(log_mock):
     raw_cfg = cli.Config(**BASE_CONFIG_WITH_IPYNB_AND_CELLS.config_values)
 
-    target = os.path.join(DIRNAME, 'data/example.ipynb')
+    target = os.path.join(DIRNAME, 'data\\example.ipynb')
     harvester = RawHarvester([DIRNAME], raw_cfg)
     out = json.loads(harvester.as_json())
     cell_target = target + ":[3]"
