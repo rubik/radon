@@ -6,7 +6,10 @@ from radon.tests import test_raw
 
 # only testing cases with functions, and remove test with trailing
 # comment since this is not in the function scope.
-reuseable_tests = test_raw.ANALYZE_CASES[9:13] + test_raw.ANALYZE_CASES[14:]
+reuseable_tests = [test_raw.ANALYZE_CASES[5]] \
+    + test_raw.ANALYZE_CASES[9:13] \
+        + test_raw.ANALYZE_CASES[14:]
+
 @pytest.mark.parametrize('code, expected', reuseable_tests)
 def test_raw_visitor_functions(code, expected):
     code = test_raw.dedent(code)
@@ -21,17 +24,3 @@ def test_raw_visitor_functions(code, expected):
                                     + formated_result.sloc \
                                     + formated_result.single_comments \
                                     + formated_result.multi
-
-# @pytest.mark.parametrize('code,expected', ANALYZE_CASES)
-# def test_analyze(code, expected):
-#     code = dedent(code)
-
-#     try:
-#         len(expected)
-#     except:
-#         with pytest.raises(expected):
-#             analyze(code)
-#     else:
-#         result = analyze(code)
-#         assert result == Module(*expected)
-#         assert result.loc == result.blank + result.sloc + result.single_comments + result.multi
