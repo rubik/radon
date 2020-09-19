@@ -1,16 +1,26 @@
+import sys
+
 import pytest
 
-from radon.raw import Module, analyze
-from radon.raw_visitor import RawVisitor
+from radon.raw import Module
 from radon.tests import test_raw
 
-# only testing cases with functions, and remove test with trailing
-# comment since this is not in the function scope.
-reuseable_tests = [test_raw.ANALYZE_CASES[5]] \
-    + test_raw.ANALYZE_CASES[9:13] \
-        + test_raw.ANALYZE_CASES[14:]
+# we expect an ImportError when python <3.8
+try:
+    from radon.raw_visitor import RawVisitor
 
-@pytest.mark.parametrize('code, expected', reuseable_tests)
+    IMPORT_ERROR = False
+except ImportError:
+    IMPORT_ERROR = True
+
+min_py_version = pytest.mark.xfail(
+    IMPORT_ERROR and sys.version_info < (3, 8),
+    reason="raw_visitor requires python >=3.8",
+)
+
+
+@min_py_version
+@pytest.mark.parametrize("code, expected", test_raw.VISITOR_CASES)
 def test_raw_visitor_functions(code, expected):
     code = test_raw.dedent(code)
     raw_visitor = RawVisitor.from_code(code)
@@ -18,9 +28,17 @@ def test_raw_visitor_functions(code, expected):
     raw_result = raw_visitor.functions[0]
     # exclude the details about function name, lineno, etc. for now
     formated_result = Module(*raw_result[7:])
-    assert formated_result == Module(*expected), '\n result: \
-        {}\n expected: {}'.format(formated_result, Module(*expected))
-    assert formated_result.loc == formated_result.blank \
-                                    + formated_result.sloc \
-                                    + formated_result.single_comments \
-                                    + formated_result.multi
+    assert formated_result == Module(
+        *expected
+    ), f"\
+        \n input code: {code}\
+        \n result: {formated_result} \
+        \n expected: {Module(*expected)}"
+
+    expected_loc = (
+        formated_result.blank
+        + formated_result.sloc
+        + formated_result.single_comments
+        + formated_result.multi
+    )
+    assert formated_result.loc == expected_loc
