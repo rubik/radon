@@ -14,6 +14,8 @@ matrix:
   exclude:
   - arch: ppc64le
     python: pypy3.5    
+  - arch: ppc64le
+    python: 2.7    
 install:
     - pip install .[flake8]
     - pip install -r test_requirements.txt
