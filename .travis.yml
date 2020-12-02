@@ -1,5 +1,8 @@
 language: python
 os: linux
+arch:
+ - amd64
+ - ppc64le
 dist: xenial
 python:
     - "2.7"
@@ -7,6 +10,10 @@ python:
     - "3.7"
     - "3.8"
     - "pypy3.5"
+matrix:
+  exclude:
+  - arch: ppc64le
+    python: pypy3.5    
 install:
     - pip install .[flake8]
     - pip install -r test_requirements.txt
