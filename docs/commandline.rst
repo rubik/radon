@@ -158,6 +158,11 @@ Options
    If given, the results will be converted into XML. Note that not all the
    information is kept. This is specifically targeted to Jenkin's plugin CCM.
 
+.. option:: --xml
+
+   If given, the results will be converted into Markdown. Note that not all the
+   information is kept.
+
 .. option:: --no-assert
 
    Does not count assert statements when computing complexity. This is because
