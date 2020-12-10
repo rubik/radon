@@ -375,6 +375,21 @@ def test_cc_to_xml():
     )
 
 
+def test_cc_to_md():
+    assert (
+        tools.dict_to_md({'filename': CC_TO_XML_CASE})
+        == '''
+| Filename | Name | Type | Start:End Line | Complexity | Clasification |
+| -------- | ---- | ---- | -------------- | ---------- | ------------- |
+| filename | name | F | 12:16 | 6 | B |
+| filename | Classname | C | 17:29 | 8 | B |
+| filename | Classname.name | M | 19:26 | 7 | B |
+| filename | aux | F | 13:17 | 4 | A |
+| filename | name | F | 12:16 | 10 | B |
+'''
+    )
+
+
 def test_cc_error_to_codeclimate():
     error_result = {'error': 'Error: invalid syntax (<unknown>, line 100)'}
 

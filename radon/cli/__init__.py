@@ -80,6 +80,7 @@ def cc(
     show_closures=_cfg.get_value('show_closures', bool, False),
     total_average=_cfg.get_value('total_average', bool, False),
     xml=False,
+    md=False,
     codeclimate=False,
     output_file=_cfg.get_value('output_file', str, None),
     include_ipynb=_cfg.get_value('include_ipynb', bool, False),
@@ -111,6 +112,7 @@ def cc(
         ALPHA.
     :param -j, --json: Format results in JSON.
     :param --xml: Format results in XML (compatible with CCM).
+    :param --md: Format results in Markdown.
     :param --codeclimate: Format results for Code Climate.
     :param --no-assert: Do not count `assert` statements when computing
         complexity.
@@ -139,6 +141,7 @@ def cc(
             harvester,
             json=json,
             xml=xml,
+            md=md,
             codeclimate=codeclimate,
             stream=stream,
         )
@@ -284,7 +287,7 @@ def hal(
 
     harvester = HCHarvester(paths, config)
     with outstream(output_file) as stream:
-        log_result(harvester, json=json, xml=False, stream=stream)
+        log_result(harvester, json=json, xml=False, md=False, stream=stream)
 
 
 class Config(object):
@@ -348,6 +351,8 @@ def log_result(harvester, **kwargs):
             noformat=True,
             **kwargs
         )
+    elif kwargs.get('md'):
+        log(harvester.as_md(), noformat=True, **kwargs)
     else:
         for msg, h_args, h_kwargs in harvester.to_terminal():
             kw = kwargs.copy()

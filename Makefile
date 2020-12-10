@@ -35,7 +35,7 @@ docs:
 	cd docs && make html
 
 test-deps:
-	pip install -r test_requirements.pip
+	pip install -r test_requirements.txt
 
 publish:
 	rm -rf dist/*
