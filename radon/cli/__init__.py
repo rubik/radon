@@ -53,8 +53,9 @@ class FileConfig(object):
     def file_config():
         '''Return any file configuration discovered'''
         config = configparser.ConfigParser()
-        if os.path.exists('radon.cfg'):
-            config.read_file(open('radon.cfg'))
+        for path in (os.getenv('RADONCFG', None), 'radon.cfg'):
+            if path is not None and os.path.exists(path):
+                config.read_file(open(path))
         config.read(['setup.cfg', os.path.expanduser('~/.radon.cfg')])
         return config
 
