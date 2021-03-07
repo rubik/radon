@@ -158,7 +158,7 @@ Options
    If given, the results will be converted into XML. Note that not all the
    information is kept. This is specifically targeted to Jenkin's plugin CCM.
 
-.. option:: --xml
+.. option:: --md
 
    If given, the results will be converted into Markdown. Note that not all the
    information is kept.
