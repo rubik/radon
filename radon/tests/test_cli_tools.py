@@ -56,8 +56,12 @@ def test_open(mocker):
     else:
         mocker.patch('radon.cli.tools._open_function', m, create=True)
         tools._open('randomfile.py').__enter__()
+        if sys.version_info[:2] >= (3, 0):
+            default_encoding = 'utf-8'
+        else:
+            default_encoding = locale.getpreferredencoding(False)
         except_encoding = os.getenv(
-            'RADONFILESENCODING', locale.getpreferredencoding(False)
+            'RADONFILESENCODING', default_encoding
         )
         m.assert_called_with('randomfile.py', encoding=except_encoding)
 

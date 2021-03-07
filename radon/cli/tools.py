@@ -49,13 +49,17 @@ if platform.python_implementation() == 'PyPy':
 
 
 else:
+    if sys.version_info[:2] >= (3, 0):
+        default_encoding = 'utf-8'
+    else:
+        default_encoding = locale.getpreferredencoding(False)
     # Add customized file encoding to fix #86.
     # By default `open()` function uses `locale.getpreferredencoding(False)`
     # encoding (see https://docs.python.org/3/library/functions.html#open).
     # This code allows to change `open()` encoding by setting an environment
     # variable.
     _encoding = os.getenv(
-        'RADONFILESENCODING', locale.getpreferredencoding(False)
+        'RADONFILESENCODING', default_encoding
     )
 
     if sys.version_info[:2] < (2, 7):
