@@ -1,3 +1,9 @@
+4.4.0 (Mar 07, 2021)
+--------------------
+
+- Use utf-8 as the default encoding on Python 3.0+: #203
+- Allow custom config file path through the RADONCFG env var: #207
+
 4.3.2 (Sep 18, 2020)
 --------------------
 
