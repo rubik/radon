@@ -86,6 +86,12 @@ def test_base_as_xml_not_implemented(base_config):
         h.as_xml()
 
 
+def test_base_as_md_not_implemented(base_config):
+    h = harvest.Harvester([], base_config)
+    with pytest.raises(NotImplementedError):
+        h.as_md()
+
+
 def test_base_to_terminal_not_implemented(base_config):
     h = harvest.Harvester([], base_config)
     with pytest.raises(NotImplementedError):
@@ -168,6 +174,19 @@ def test_cc_as_json_xml(cc_config, mocker):
     assert d2x_mock.called
     d2x_mock.assert_called_with(to_dicts_mock.return_value)
     assert to_dicts_mock.call_count == 2
+
+
+def test_cc_as_md(cc_config, mocker):
+    d2md_mock = mocker.patch('radon.cli.harvest.dict_to_md')
+    to_dicts_mock = mocker.MagicMock()
+    to_dicts_mock.return_value = {'a': {'rank': 'A'}}
+
+    h = harvest.CCHarvester([], cc_config)
+    h._to_dicts = to_dicts_mock
+    assert h.as_md()
+    assert d2md_mock.called
+    d2md_mock.assert_called_with(to_dicts_mock.return_value)
+    assert to_dicts_mock.call_count == 1
 
 
 def test_cc_to_terminal(cc_config, mocker):

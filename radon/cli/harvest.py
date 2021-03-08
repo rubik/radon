@@ -12,6 +12,7 @@ from radon.cli.tools import (
     cc_to_terminal,
     dict_to_codeclimate_issues,
     dict_to_xml,
+    dict_to_md,
     iter_filenames,
     raw_to_dict,
     strip_ipython,
@@ -154,6 +155,10 @@ class Harvester(object):
         '''Format the results as XML.'''
         raise NotImplementedError
 
+    def as_md(self):
+        '''Format the results as Markdown.'''
+        raise NotImplementedError
+
     def as_codeclimate_issues(self):
         '''Format the results as Code Climate issues.'''
         raise NotImplementedError
@@ -202,6 +207,10 @@ class CCHarvester(Harvester):
         Jenkin's CCM plugin. Therefore not all the fields are kept.
         '''
         return dict_to_xml(self._to_dicts())
+
+    def as_md(self):
+        '''Format the results as Markdown.'''
+        return dict_to_md(self._to_dicts())
 
     def as_codeclimate_issues(self):
         '''Format the result as Code Climate issues.'''

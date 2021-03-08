@@ -15,13 +15,8 @@ import sys
 import xml.etree.cElementTree as et
 from contextlib import contextmanager
 
-from radon.cli.colors import (
-    BRIGHT,
-    LETTERS_COLORS,
-    RANKS_COLORS,
-    RESET,
-    TEMPLATE,
-)
+from radon.cli.colors import (BRIGHT, LETTERS_COLORS, RANKS_COLORS, RESET,
+                              TEMPLATE)
 from radon.complexity import cc_rank
 from radon.visitors import Function
 
@@ -70,8 +65,9 @@ else:
         # is significant.
         from codecs import open as _open_function
     elif sys.version_info[:2] < (3, 0):
-        from io import open as _io_open_function, TextIOWrapper
-        from codecs import lookup, BOM_UTF8
+        from codecs import BOM_UTF8, lookup
+        from io import TextIOWrapper
+        from io import open as _io_open_function
 
         cookie_re = re.compile(r'^[ \t\f]*#.*?coding[:=][ \t]*([-\w.]+)')
         blank_re = re.compile(r'^[ \t\f]*(?:[#\r\n]|$)')
@@ -352,6 +348,36 @@ def dict_to_xml(results):
             )
             et.SubElement(metric, 'endLineNumber').text = str(block['endline'])
     return et.tostring(ccm).decode('utf-8')
+
+
+def dict_to_md(results):
+    md_string = '''
+| Filename | Name | Type | Start:End Line | Complexity | Clasification |
+| -------- | ---- | ---- | -------------- | ---------- | ------------- |
+'''
+    for filename, blocks in results.items():
+        for block in blocks:
+            raw_classname = block.get("classname")
+            raw_name = block.get("name")
+            name = "{}.{}".format(
+                raw_classname,
+                raw_name) if raw_classname else block["name"]
+            raw_is_method = block.get("is_method")
+            if raw_classname and raw_is_method:
+                type = "M"
+            elif raw_is_method is None:
+                type = "C"
+            else:
+                type = "F"
+            md_string += "| {} | {} | {} | {}:{} | {} | {} |\n".format(
+                filename,
+                name,
+                type,
+                block["lineno"],
+                block["endline"],
+                block["complexity"],
+                block["rank"])
+    return md_string
 
 
 def dict_to_codeclimate_issues(results, threshold='B'):
