@@ -1,3 +1,4 @@
+import sys
 import textwrap
 
 import pytest
@@ -83,6 +84,22 @@ SIMPLE_BLOCKS = [
         (4, 7, 3, 6),
     ),
 ]
+
+if sys.version_info[:2] >= (3, 5):
+    SIMPLE_BLOCKS.append(
+        (
+            '''
+        a = 2
+        b = 3
+        a *= b
+
+        async def f():
+            b = 2
+            b += 4
+        ''',
+            (2, 4, 2, 4),
+        ),
+    )
 
 
 @pytest.mark.parametrize('code,expected', SIMPLE_BLOCKS)

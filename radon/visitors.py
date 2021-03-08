@@ -445,3 +445,9 @@ class HalsteadVisitor(CodeVisitor):
 
         # Save the visited function visitor for later reference.
         self.function_visitors.append(func_visitor)
+
+    def visit_AsyncFunctionDef(self, node):
+        '''Async functions are similar to standard functions, so treat them as
+        such.
+        '''
+        self.visit_FunctionDef(node)
