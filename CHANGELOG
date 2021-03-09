@@ -1,3 +1,10 @@
+4.5.0 (Mar 09, 2021)
+--------------------
+
+- Add ``--md`` option to ``cc`` command to export results as Markdown (thanks
+  to @kanekotic): #205
+- Add async function support to Halstead visitor (thanks to @rharish101): #208
+
 4.4.0 (Mar 07, 2021)
 --------------------
 
