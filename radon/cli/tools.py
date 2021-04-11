@@ -355,6 +355,9 @@ def dict_to_md(results):
 | Filename | Name | Type | Start:End Line | Complexity | Clasification |
 | -------- | ---- | ---- | -------------- | ---------- | ------------- |
 '''
+    type_letter_map = {'class': 'C',
+                       'method': 'M',
+                       'function': 'F'}
     for filename, blocks in results.items():
         for block in blocks:
             raw_classname = block.get("classname")
@@ -362,13 +365,7 @@ def dict_to_md(results):
             name = "{}.{}".format(
                 raw_classname,
                 raw_name) if raw_classname else block["name"]
-            raw_is_method = block.get("is_method")
-            if raw_classname and raw_is_method:
-                type = "M"
-            elif raw_is_method is None:
-                type = "C"
-            else:
-                type = "F"
+            type = type_letter_map[block["type"]]
             md_string += "| {} | {} | {} | {}:{} | {} | {} |\n".format(
                 filename,
                 name,
