@@ -379,19 +379,26 @@ def test_cc_to_xml():
     )
 
 
+CC_TO_MD_RESULTS = [
+    {"type": "method", "rank": "A", "lineno": 110, "classname": "Classname", "endline": 117,
+     "complexity": 2, "name": "flush", "col_offset": 4},
+    {"type": "class", "rank": "B", "lineno": 73, "endline": 124, "complexity": 4, "name": "Classname",
+     "col_offset": 0},
+    {'type': 'function', 'rank': 'C', 'lineno': 62, 'endline': 69, 'complexity': 10, 'name': 'decrement',
+     'col_offset': 0}
+]
+
+
 def test_cc_to_md():
-    assert (
-        tools.dict_to_md({'filename': CC_TO_XML_CASE})
-        == '''
+    md = tools.dict_to_md({'filename': CC_TO_MD_RESULTS})
+    _md = '''
 | Filename | Name | Type | Start:End Line | Complexity | Clasification |
 | -------- | ---- | ---- | -------------- | ---------- | ------------- |
-| filename | name | F | 12:16 | 6 | B |
-| filename | Classname | C | 17:29 | 8 | B |
-| filename | Classname.name | M | 19:26 | 7 | B |
-| filename | aux | F | 13:17 | 4 | A |
-| filename | name | F | 12:16 | 10 | B |
+| filename | Classname.flush | M | 110:117 | 2 | A |
+| filename | Classname | C | 73:124 | 4 | B |
+| filename | decrement | F | 62:69 | 10 | C |
 '''
-    )
+    assert md == _md
 
 
 def test_cc_error_to_codeclimate():
