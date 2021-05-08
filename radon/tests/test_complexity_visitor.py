@@ -213,6 +213,18 @@ SIMPLE_BLOCKS = [
         3,
         {},
     ),
+    (
+        '''
+     try: raise TypeError
+     except TypeError: pass
+     else:
+        pass
+        pass
+     finally: pass
+     ''',
+        3,
+        {},
+    ),
     # Lambda are not counted anymore as per #68
     (
         '''
