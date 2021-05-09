@@ -1,3 +1,10 @@
+4.5.1 (May 09, 2021)
+--------------------
+
+- Fix CC calculation for try-except-else blocks with multiple statements,
+  thanks @justWerns: #212
+- Fix CC type field in Markdown output, thanks @4l1fe: #213
+
 4.5.0 (Mar 09, 2021)
 --------------------
 
