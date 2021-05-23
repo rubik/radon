@@ -1,3 +1,9 @@
+4.5.2 (May 23, 2021)
+--------------------
+
+- Add back `flake8-polyfill` dependency because conditional extra does not work
+  as intended, reported by @joxl: #217
+
 4.5.1 (May 09, 2021)
 --------------------
 
