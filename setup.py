@@ -23,17 +23,15 @@ setup(name='radon',
           'colorama==0.4.1;python_version<="3.4"',
           'colorama>=0.4.1;python_version>"3.4"',
           'future',
+          'flake8-polyfill',
       ],
-      extras_require={
-          'flake8': ['flake8-polyfill'],
-      },
       entry_points={
           'console_scripts': ['radon = radon:main'],
           'setuptools.installation': [
               'eggsecutable = radon:main',
           ],
           'flake8.extension': [
-              'R70 = radon.contrib.flake8:Flake8Checker [flake8]',
+              'R70 = radon.contrib.flake8:Flake8Checker',
           ],
       },
       keywords='static analysis code complexity metrics',
