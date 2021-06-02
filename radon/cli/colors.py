@@ -2,12 +2,23 @@
 terminal.
 '''
 
+import os
 import sys
+
+
+def color_enabled():
+    COLOR_ENV = os.getenv('COLOR', 'auto')
+    if COLOR_ENV == 'auto' and sys.stdout.isatty():
+        return True
+    if COLOR_ENV == 'yes':
+        return True
+    return False
+
 
 try:
     import colorama
 
-    colorama.init(strip=(not sys.stdout.isatty()))
+    colorama.init(strip=not color_enabled())
     GREEN, YELLOW, RED = (
         colorama.Fore.GREEN,
         colorama.Fore.YELLOW,
