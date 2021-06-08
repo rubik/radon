@@ -1,7 +1,8 @@
 5.0.0 (Jun 8, 2021)
 --------------------
 
-- Drop support for flake8 < 3.x (removes `flake8-polyfill` dependency)
+- Drop support for flake8 < 3.x (removes `flake8-polyfill` dependency), by
+  @joxl: #219
 
 4.5.2 (May 23, 2021)
 --------------------
