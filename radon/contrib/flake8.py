@@ -1,5 +1,3 @@
-from flake8_polyfill import options
-
 from radon.complexity import add_inner_blocks
 from radon.visitors import ComplexityVisitor
 
@@ -20,19 +18,17 @@ class Flake8Checker(object):
         self.tree = tree
 
     @classmethod
-    def add_options(cls, parser):  # pragma: no cover
+    def add_options(cls, option_manager):  # pragma: no cover
         '''Add custom options to the global parser.'''
-        options.register(
-            parser,
+        option_manager.add_option(
             '--radon-max-cc',
             default=-1,
             action='store',
-            type='int',
+            type=int,
             help='Radon complexity threshold',
             parse_from_config=True,
         )
-        options.register(
-            parser,
+        option_manager.add_option(
             '--radon-no-assert',
             dest='no_assert',
             action='store_true',
@@ -40,8 +36,7 @@ class Flake8Checker(object):
             help='Radon will ignore assert statements',
             parse_from_config=True,
         )
-        options.register(
-            parser,
+        option_manager.add_option(
             '--radon-show-closures',
             dest='show_closures',
             action='store_true',
