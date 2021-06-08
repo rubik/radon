@@ -12,4 +12,3 @@ pytest-mock = "*"
 [packages]
 mando = ">=0.3,<0.4"
 colorama = ">=0.3,<0.4"
-flake8-polyfill = "*"

@@ -23,7 +23,6 @@ setup(name='radon',
           'colorama==0.4.1;python_version<="3.4"',
           'colorama>=0.4.1;python_version>"3.4"',
           'future',
-          'flake8-polyfill',
       ],
       entry_points={
           'console_scripts': ['radon = radon:main'],
