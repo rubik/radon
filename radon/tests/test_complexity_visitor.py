@@ -86,7 +86,7 @@ SIMPLE_BLOCKS = [
      match a:
          case 1: pass
      ''',
-        1,
+        2,
         {},
     ),
     (
@@ -94,15 +94,6 @@ SIMPLE_BLOCKS = [
      match a:
          case 1: pass
          case _: pass
-     ''',
-        1,
-        {},
-    ),
-    (
-        '''
-     match a:
-         case 1: pass
-         case 2: pass
      ''',
         2,
         {},
@@ -112,9 +103,18 @@ SIMPLE_BLOCKS = [
      match a:
          case 1: pass
          case 2: pass
+     ''',
+        3,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case 1: pass
+         case 2: pass
          case _: pass
      ''',
-        2,
+        3,
         {},
     ),
     (

@@ -242,7 +242,7 @@ class ComplexityVisitor(CodeVisitor):
                 (case for case in node.cases if
                  getattr(case.pattern, "pattern", False) is None))
             # Max used for case when match contain only _ (else)
-            self.complexity = max(0, len(node.cases) - contain_underscore)
+            self.complexity += max(0, len(node.cases) - contain_underscore)
         # The For and While blocks count as 1 plus the `else` block.
         elif name in ('For', 'While', 'AsyncFor'):
             self.complexity += bool(node.orelse) + 1
