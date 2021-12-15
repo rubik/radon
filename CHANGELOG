@@ -192,7 +192,7 @@
 ------------------
 
 - Add ``--xml`` option to `cc` command: #49.
-- Officialy support Python 3.4.
+- Officially support Python 3.4.
 - Remove pathfinder: #59.
 - Reduce drastically unit-testing time: #56.
 - Update documentation (http://radon.readthedocs.org/en/latest/): #60.
