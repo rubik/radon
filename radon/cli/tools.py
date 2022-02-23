@@ -352,8 +352,8 @@ def dict_to_xml(results):
 
 def dict_to_md(results):
     md_string = '''
-| Filename | Name | Type | Start:End Line | Complexity | Clasification |
-| -------- | ---- | ---- | -------------- | ---------- | ------------- |
+| Filename | Name | Type | Start:End Line | Complexity | Classification |
+| -------- | ---- | ---- | -------------- | ---------- | -------------- |
 '''
     type_letter_map = {'class': 'C',
                        'method': 'M',
