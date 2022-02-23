@@ -171,7 +171,8 @@ def raw(
         hidden directories (starting with '.') are ignored.
     :param -s, --summary:  If given, at the end of the analysis display the
         summary of the gathered metrics. Default to False.
-    :param -j, --json: Format results in JSON.
+    :param -j, --json: Format results in JSON. Note that the JSON export does
+        not include the summary (enabled with `-s, --summary`).
     :param -O, --output-file <str>: The output file (default to stdout).
     :param --include-ipynb: Include IPython Notebook files
     :param --ipynb-cells: Include reports for individual IPYNB cells

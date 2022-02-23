@@ -390,7 +390,8 @@ Options
 
 .. option:: -j, --json
 
-   If given, the results will be converted into JSON.
+   If given, the results will be converted into JSON. Note that the JSON export
+   does not include the summary (enabled with the option `-s, --summary`).
 
 .. option:: -O, --output-file
 
