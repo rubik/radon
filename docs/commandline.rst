@@ -429,7 +429,7 @@ matches ``path1/tests/*``.
 
 
 The :command:`hal` command
--------------------------
+--------------------------
 
 .. program:: hal
 

@@ -137,7 +137,7 @@ Further Reading
 
 2. Don M. Coleman, Dan Ash, Bruce Lowther, Paul W. Oman. Using Metrics to
    Evaluate Software System Maintainability. IEEE Computer 27(8), 1994. (`doi
-   <http://doi.ieeecomputersociety.org/10.1109/2.303623>`_, `postprint
+   <http://doi.ieeecomputersociety.org/10.1109/2.303623>`__, `postprint
    <http://www.ecs.csun.edu/~rlingard/comp589/ColemanPaper.pdf>`_)
 
 3. `Maintainability Index Range and Meaning
