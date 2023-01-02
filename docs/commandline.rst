@@ -23,6 +23,7 @@ For example, all of the radon commands have a ``--exclude`` and ``--ignore`` arg
 Radon will look for the following files to determine default arguments:
 
 * ``radon.cfg``
+* ``pyproject.toml`` (with optional toml install before python 3.11)
 * ``setup.cfg``
 * ``~/.radon.cfg``
 

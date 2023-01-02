@@ -26,6 +26,9 @@ setup(name='radon',
           'colorama==0.4.1;python_version<="3.4"',
           'colorama>=0.4.1;python_version>"3.4"',
       ],
+      extras_require={
+          'toml': ["tomli>=2.0.1"]
+      },
       entry_points={
           'console_scripts': ['radon = radon:main'],
           'setuptools.installation': [
