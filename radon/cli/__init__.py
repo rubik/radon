@@ -64,6 +64,8 @@ class FileConfig(object):
             with open("pyproject.toml", "rb") as pyproject_file:
                 pyproject = tomllib.load(pyproject_file)
             config_dict = pyproject["tool"]
+        except tomllib.TOMLDecodeError as exc:
+            raise exc
         except Exception:
             config_dict = {}
         return config_dict
