@@ -417,7 +417,12 @@ class HCHarvester(Harvester):
             if 'error' in results:
                 result[filename] = results
             else:
-                result[filename] = results._asdict()
+                result[filename] = {}
+                for k, v in results._asdict().items():
+                    if k == "functions":
+                        result[filename]["functions"] = {key: val._asdict() for key, val in v}
+                    else:
+                        result[filename][k] = v._asdict()
 
         return result
 
