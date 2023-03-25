@@ -6,6 +6,15 @@ import sys
 from contextlib import contextmanager
 
 from mando import Program
+try:
+    # Python 3.11+
+    import tomllib
+except ImportError:
+    try:
+        # Support for python <3.11
+        import tomli as tomllib
+    except ImportError:
+        pass
 
 import radon.complexity as cc_mod
 from radon.cli.colors import BRIGHT, RED, RESET
@@ -50,12 +59,25 @@ class FileConfig(object):
             )
 
     @staticmethod
+    def toml_config():
+        try:
+            with open("pyproject.toml", "rb") as pyproject_file:
+                pyproject = tomllib.load(pyproject_file)
+            config_dict = pyproject["tool"]
+        except tomllib.TOMLDecodeError as exc:
+            raise exc
+        except Exception:
+            config_dict = {}
+        return config_dict
+
+    @staticmethod
     def file_config():
         '''Return any file configuration discovered'''
         config = configparser.ConfigParser()
         for path in (os.getenv('RADONCFG', None), 'radon.cfg'):
             if path is not None and os.path.exists(path):
                 config.read_file(open(path))
+        config.read_dict(FileConfig.toml_config())
         config.read(['setup.cfg', os.path.expanduser('~/.radon.cfg')])
         return config
 
