@@ -58,7 +58,8 @@ With Pip:
 
     $ pip install radon
 
-With Pip and `pyproject.toml` support on Python <3.11:
+If you want to configure Radon from `pyproject.toml` and you run Python <3.11,
+you'll need the extra `toml` dependency:
 
 .. code-block:: sh
 
