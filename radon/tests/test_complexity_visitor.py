@@ -83,6 +83,42 @@ SIMPLE_BLOCKS = [
     ),
     (
         '''
+     match a:
+         case 1: pass
+     ''',
+        2,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case 1: pass
+         case _: pass
+     ''',
+        2,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case 1: pass
+         case 2: pass
+     ''',
+        3,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case 1: pass
+         case 2: pass
+         case _: pass
+     ''',
+        3,
+        {},
+    ),
+    (
+        '''
      for x in range(10): print(x)
      ''',
         2,
