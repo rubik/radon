@@ -83,42 +83,6 @@ SIMPLE_BLOCKS = [
     ),
     (
         '''
-     match a:
-         case 1: pass
-     ''',
-        2,
-        {},
-    ),
-    (
-        '''
-     match a:
-         case 1: pass
-         case _: pass
-     ''',
-        2,
-        {},
-    ),
-    (
-        '''
-     match a:
-         case 1: pass
-         case 2: pass
-     ''',
-        3,
-        {},
-    ),
-    (
-        '''
-     match a:
-         case 1: pass
-         case 2: pass
-         case _: pass
-     ''',
-        3,
-        {},
-    ),
-    (
-        '''
      for x in range(10): print(x)
      ''',
         2,
@@ -402,9 +366,51 @@ ADDITIONAL_BLOCKS = [
     ),
 ]
 
+# The match statement was introduced in Python 3.10
+MATCH_STATEMENT_BLOCKS = [
+    (
+        '''
+     match a:
+         case 1: pass
+     ''',
+        2,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case 1: pass
+         case _: pass
+     ''',
+        2,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case 1: pass
+         case 2: pass
+     ''',
+        3,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case 1: pass
+         case 2: pass
+         case _: pass
+     ''',
+        3,
+        {},
+    ),
+]
+
 BLOCKS = SIMPLE_BLOCKS[:]
 if sys.version_info[:2] >= (2, 7):
     BLOCKS.extend(ADDITIONAL_BLOCKS)
+if sys.version_info[:2] >= (3, 10):
+    BLOCKS.extend(MATCH_STATEMENT_BLOCKS)
 
 
 @pytest.mark.parametrize('code,expected,kwargs', BLOCKS)
