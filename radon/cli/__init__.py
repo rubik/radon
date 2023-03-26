@@ -9,12 +9,14 @@ from mando import Program
 try:
     # Python 3.11+
     import tomllib
+    TOMLLIB_PRESENT = True
 except ImportError:
     try:
-        # Support for python <3.11
+        # Support for Python <3.11
         import tomli as tomllib
+        TOMLLIB_PRESENT = True
     except ImportError:
-        pass
+        TOMLLIB_PRESENT = False
 
 import radon.complexity as cc_mod
 from radon.cli.colors import BRIGHT, RED, RESET
@@ -60,6 +62,9 @@ class FileConfig(object):
 
     @staticmethod
     def toml_config():
+        if not TOMLLIB_PRESENT:
+            return {}
+
         try:
             with open("pyproject.toml", "rb") as pyproject_file:
                 pyproject = tomllib.load(pyproject_file)
