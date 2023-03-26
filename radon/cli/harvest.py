@@ -52,7 +52,7 @@ class Harvester(object):
        implemented.
 
     3. **Reporting**: the methods *as_json* and *as_xml* return a string
-       with the corrisponding format. The method *to_terminal* is a generator
+       with the corresponding format. The method *to_terminal* is a generator
        that yields the lines to be printed in the terminal.
 
     This class is meant to be subclasses and cannot be used directly, since

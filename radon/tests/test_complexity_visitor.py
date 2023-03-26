@@ -624,7 +624,7 @@ GENERAL_CASES = [
         '''
      try:
          1 / 0
-     except ZeroDivisonError:
+     except ZeroDivisionError:
          print
      except TypeError:
          pass

@@ -43,13 +43,13 @@ def code2ast(source):
     '''Convert a string object into an AST object.
 
     This function is retained for backwards compatibility, but it no longer
-    attemps any conversions. It's equivalent to a call to ``ast.parse``.
+    attempts any conversions. It's equivalent to a call to ``ast.parse``.
     '''
     return ast.parse(source)
 
 
 class Function(BaseFunc):
-    '''Object represeting a function block.'''
+    '''Object representing a function block.'''
 
     @property
     def letter(self):
@@ -127,7 +127,7 @@ class CodeVisitor(ast.NodeVisitor):
 
     @classmethod
     def from_code(cls, code, **kwargs):
-        '''Instanciate the class from source code (string object). The
+        '''Instantiate the class from source code (string object). The
         `**kwargs` are directly passed to the `ast.NodeVisitor` constructor.
         '''
         return cls.from_ast(code2ast(code), **kwargs)

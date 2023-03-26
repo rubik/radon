@@ -58,7 +58,7 @@ else:
     )
 
     if sys.version_info[:2] < (2, 7):
-        # This open function treats line-endings slighly differently than
+        # This open function treats line-endings slightly differently than
         # io.open. But the latter is implemented in pure Python in version 2.6,
         # so we'll live with the differences instead of taking a hit on the
         # speed. Radon does a lot of file reading, so the difference in speed
@@ -447,7 +447,7 @@ def dict_to_codeclimate_issues(results, threshold='B'):
 
 
 def cc_to_terminal(results, show_complexity, min, max, total_average):
-    '''Transfom Cyclomatic Complexity results into a 3-elements tuple:
+    '''Transform Cyclomatic Complexity results into a 3-elements tuple:
 
         ``(res, total_cc, counted)``
 
