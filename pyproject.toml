@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "radon"
-version = "6.0.0"
+version = "6.0.1"
 description = "Code Metrics in Python"
 authors = ["Michele Lacchia <michelelacchia@gmail.com>"]
 license = "MIT"

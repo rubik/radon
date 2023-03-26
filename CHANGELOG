@@ -1,3 +1,8 @@
+6.0.1 (Mar 26, 2023)
+--------------------
+
+- Prevent tomllib error when the `toml` module is not available
+
 6.0.0 (Mar 26, 2023)
 --------------------
 
