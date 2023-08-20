@@ -384,11 +384,12 @@ class HCHarvester(Harvester):
     def __init__(self, paths, config):
         super().__init__(paths, config)
         self.by_function = config.by_function
+        self.class_names = config.class_names
 
     def gobble(self, fobj):
         """Analyze the content of the file object."""
         code = fobj.read()
-        return h_visit(code)
+        return h_visit(code, self.class_names)
 
     def as_json(self):
         """Format the results as JSON."""
