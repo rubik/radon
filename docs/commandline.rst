@@ -437,7 +437,8 @@ The :command:`hal` command
 
 This command analyzes Python source files and computes their Halstead
 complexity metrics. Files can be analyzed as wholes, or in terms of their
-top-level functions with the :option:`-f` flag.
+top-level functions with the :option:`-f` flag. Method names can be
+prefixed with their class names if the :option:`-c` flag is used.
 
 Excluding files or directories is supported through glob patterns with the
 :option:`-e` flag. Every positional argument is interpreted as a path. The
@@ -488,6 +489,13 @@ Options
    Report on individual cells in any .ipynb files.
 
    Value can be set in a configuration file using the ``ipynb_cells`` property.
+
+.. option:: -c, --class_names
+
+   When showing metrics on the function level, prefix method names with their
+   class names.
+
+   Value can be set in a configuration file using the ``class_names`` property.
 
 Examples
 ++++++++
