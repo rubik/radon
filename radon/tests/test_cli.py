@@ -184,6 +184,7 @@ def test_mi(mocker, log_mock):
             sort=False,
             include_ipynb=False,
             ipynb_cells=False,
+            class_names=False,
         ),
     )
     log_mock.assert_called_once_with(

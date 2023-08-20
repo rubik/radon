@@ -266,6 +266,7 @@ def mi(
         sort=sort,
         include_ipynb=include_ipynb,
         ipynb_cells=ipynb_cells,
+        class_names=False,
     )
 
     harvester = MIHarvester(paths, config)
