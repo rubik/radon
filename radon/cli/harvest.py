@@ -24,7 +24,8 @@ from radon.complexity import (
     sorted_results,
 )
 from radon.metrics import h_visit, mi_rank, mi_visit
-from radon.raw import analyze
+from radon.raw import Module, analyze
+from radon.raw_visitor import RawClassMetrics, RawFunctionMetrics, RawVisitor
 
 if sys.version_info[0] < 3:
     from StringIO import StringIO
@@ -267,7 +268,7 @@ class RawHarvester(Harvester):
 
     def gobble(self, fobj):
         '''Analyze the content of the file object.'''
-        return raw_to_dict(analyze(fobj.read()))
+        return RawVisitor.from_code(fobj.read()).blocks
 
     def as_xml(self):
         '''Placeholder method. Currently not implemented.'''
@@ -276,33 +277,44 @@ class RawHarvester(Harvester):
     def to_terminal(self):
         '''Yield lines to be printed to a terminal.'''
         sum_metrics = collections.defaultdict(int)
-        for path, mod in self.results:
-            if 'error' in mod:
-                yield path, (mod['error'],), {'error': True}
-                continue
-            yield path, (), {}
-            for header in self.headers:
-                value = mod[header.lower().replace(' ', '_')]
-                yield '{0}: {1}', (header, value), {'indent': 1}
-                sum_metrics[header] += value
+        for path, mods in self.results:
+            for name, result in mods:
+                if isinstance(result, (Module, RawClassMetrics, RawFunctionMetrics)):
+                    mod = raw_to_dict(result)
+                else:
+                    mod = result
+                if 'error' in mod:
+                    yield name, (mod['error'],), {'error': True}
+                    continue
+                if name == "__ModuleMetrics__":
+                    yield path, (), {}
+                elif not hasattr(self.config, "detailed") or not self.config.detailed:
+                    continue
+                else:
+                    yield f"{path}:{name}", (), {}
+                for header in self.headers:
+                    value = mod[header.lower().replace(' ', '_')]
+                    yield '{0}: {1}', (header, value), {'indent': 1}
+                    if name == "__ModuleMetrics__":
+                        sum_metrics[header] += value
 
-            loc, comments = mod['loc'], mod['comments']
-            yield '- Comment Stats', (), {'indent': 1}
-            yield (
-                '(C % L): {0:.0%}',
-                (comments / (float(loc) or 1),),
-                {'indent': 2},
-            )
-            yield (
-                '(C % S): {0:.0%}',
-                (comments / (float(mod['sloc']) or 1),),
-                {'indent': 2},
-            )
-            yield (
-                '(C + M % L): {0:.0%}',
-                ((comments + mod['multi']) / (float(loc) or 1),),
-                {'indent': 2},
-            )
+                loc, comments = mod['loc'], mod['comments']
+                yield '- Comment Stats', (), {'indent': 1}
+                yield (
+                    '(C % L): {0:.0%}',
+                    (comments / (float(loc) or 1),),
+                    {'indent': 2},
+                )
+                yield (
+                    '(C % S): {0:.0%}',
+                    (comments / (float(mod['sloc']) or 1),),
+                    {'indent': 2},
+                )
+                yield (
+                    '(C + M % L): {0:.0%}',
+                    ((comments + mod['multi']) / (float(loc) or 1),),
+                    {'indent': 2},
+                )
 
         if self.config.summary:
             _get = lambda k, v=0: sum_metrics.get(k, v)
