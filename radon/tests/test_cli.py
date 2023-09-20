@@ -159,6 +159,7 @@ def test_raw(mocker, log_mock):
             summary=True,
             include_ipynb=False,
             ipynb_cells=False,
+            detailed=False,
         ),
     )
     log_mock.assert_called_once_with(
