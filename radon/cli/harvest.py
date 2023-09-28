@@ -185,6 +185,8 @@ class CCHarvester(Harvester):
     def _to_dicts(self):
         '''Format the results as a dictionary of dictionaries.'''
         result = {}
+        average_cc = 0.0
+        analyzed = 0
         for key, data in self.results:
             if 'error' in data:
                 result[key] = data
@@ -196,6 +198,24 @@ class CCHarvester(Harvester):
             ]
             if values:
                 result[key] = values
+            _res, cc, n = cc_to_terminal(
+                data,
+                self.config.show_complexity,
+                self.config.min,
+                self.config.max,
+                self.config.total_average,
+            )
+            average_cc += cc
+            analyzed += n
+
+        if (self.config.average or self.config.total_average) and analyzed:
+            cc = average_cc / analyzed
+            ranked_cc = cc_rank(cc)
+            result['__radon_summary'] = {
+                'blocks': analyzed,
+                'rank': ranked_cc,
+                'cc': cc
+            }
         return result
 
     def as_json(self):
