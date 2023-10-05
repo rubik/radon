@@ -117,12 +117,13 @@ class RawVisitor(CodeVisitor):
     :param classname: Name of parent class.
     """
 
-    def __init__(self, to_method=False, classname=None):
+    def __init__(self, to_method=False, classname=None, atok=None):
         self.functions = []
         self.classes = []
         self.to_method = to_method
         self.classname = classname
         self._max_line = float("-inf")
+        self.atok = atok
 
     @classmethod
     def from_code(cls, code, **kwargs):
@@ -168,9 +169,10 @@ class RawVisitor(CodeVisitor):
         self.visit_FunctionDef(node)
 
     def get_raw_metrics(self, node, module=False):
-        atok = asttokens.ASTTokens(self.code, parse=True)
-        source_segment = atok.get_text(node, False)
-        source_segment += get_trailing_comments(atok, node, source_segment)
+        if self.atok is None:
+            self.atok = asttokens.ASTTokens(self.code, parse=True)
+        source_segment = self.atok.get_text(node, False)
+        source_segment += get_trailing_comments(self.atok, node, source_segment)
         # print(ast.dump(node))
         # print("Original:\n", self.code)
         # print("\nUnparsed:\n", source_segment, "\n")
@@ -190,12 +192,13 @@ class RawVisitor(CodeVisitor):
         """When visiting functions a new visitor is created to recursively
         analyze the function's body.
         """
+        print(node.name)
         closures = []
         visitor = None
 
         # Do we really need closures for Raw?
         for child in node.body:
-            visitor = RawVisitor()
+            visitor = RawVisitor(classname=self.classname, atok=self.atok)
             visitor.visit(child)
             closures.extend(visitor.functions)
 
@@ -229,9 +232,12 @@ class RawVisitor(CodeVisitor):
         visitors_max_lines = [node.lineno]
         inner_classes = []
         for child in node.body:
+            if not isinstance(child, (ast.ClassDef, ast.FunctionDef)):
+                continue
             visitor = RawVisitor(
                 True,
                 classname,
+                atok=self.atok,
             )
             visitor.visit(child)
             methods.extend(visitor.functions)
@@ -258,8 +264,11 @@ class RawVisitor(CodeVisitor):
         self.classes.append(cls_metrics)
 
     def visit_Module(self, node):
+        if self.atok is None:
+            self.atok = asttokens.ASTTokens(self.code, parse=True)
+
         for child in node.body:
-            visitor = RawVisitor()
+            visitor = RawVisitor(atok=self.atok)
             visitor.visit(child)
             self.classes.extend(visitor.classes)
             self.functions.extend(visitor.functions)
