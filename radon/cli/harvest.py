@@ -384,9 +384,7 @@ class HCHarvester(Harvester):
     def __init__(self, paths, config):
         super().__init__(paths, config)
         self.by_function = config.by_function
-        self.class_names = False
-        if hasattr(config, "class_names"):
-            self.class_names = config.class_names
+        self.class_names = getattr(config, "class_names", False)
 
     def gobble(self, fobj):
         """Analyze the content of the file object."""
