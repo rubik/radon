@@ -27,6 +27,9 @@ argparse = "*"
 nbformat = "*"
 tox = "^4.4.7"
 
+[tool.poetry.scripts]
+radon = "radon:main"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
