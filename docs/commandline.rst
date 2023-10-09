@@ -129,6 +129,10 @@ Options
    Exclude files only when their path matches one of these glob patterns.
    Usually needs quoting at the command line.
 
+   This is a comma-separated list. ``--exclude a.py,b.py`` will skip both
+   ``a.py`` and ``b.py``, but ``--exclude a.py --exclude b.py`` will
+   **NOT** exclude ``a.py``.
+
    Value can be set in a configuration file using the ``exclude`` property.
 
 .. option:: -i, --ignore
@@ -136,6 +140,9 @@ Options
    Ignore directories when their name matches one of these glob patterns: radon
    won't even descend into them. By default, hidden directories (starting with
    '.') are ignored.
+
+   This is a comma-separated list. ``--ignore a,b`` will ignore both ``a`` and
+   ``b``, but ``--ignore a --ignore b`` will **NOT** ignore ``a``.
 
    Value can be set in a configuration file using the ``ignore`` property.
 
