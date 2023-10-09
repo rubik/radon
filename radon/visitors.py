@@ -348,13 +348,15 @@ class HalsteadVisitor(CodeVisitor):
         "Constant": "value",
     }
 
-    def __init__(self, context=None):
+    def __init__(self, context=None, classname=None, class_names=False):
         '''*context* is a string used to keep track the analysis' context.'''
         self.operators_seen = set()
         self.operands_seen = set()
         self.operators = 0
         self.operands = 0
         self.context = context
+        self.classname = classname
+        self.class_names = class_names
 
         # A new visitor is spawned for every scanned function.
         self.function_visitors = []
@@ -436,10 +438,13 @@ class HalsteadVisitor(CodeVisitor):
         analyze the function's body. We also track information on the function
         itself.
         '''
-        func_visitor = HalsteadVisitor(context=node.name)
+        name = node.name
+        if self.classname and self.class_names:
+            name = '{0}.{1}'.format(self.classname, node.name)
+        func_visitor = HalsteadVisitor(context=name, class_names=self.class_names)
 
         for child in node.body:
-            visitor = HalsteadVisitor.from_ast(child, context=node.name)
+            visitor = HalsteadVisitor.from_ast(child, context=name)
             self.operators += visitor.operators
             self.operands += visitor.operands
             self.operators_seen.update(visitor.operators_seen)
@@ -458,3 +463,14 @@ class HalsteadVisitor(CodeVisitor):
         such.
         '''
         self.visit_FunctionDef(node)
+
+    def visit_ClassDef(self, node):
+        name = node.name if self.class_names else None
+        for child in node.body:
+            visitor = HalsteadVisitor(classname=name, class_names=self.class_names)
+            visitor.visit(child)
+            self.function_visitors.extend(visitor.function_visitors)
+            self.operators += visitor.operators
+            self.operands += visitor.operands
+            self.operators_seen.update(visitor.operators_seen)
+            self.operands_seen.update(visitor.operands_seen)

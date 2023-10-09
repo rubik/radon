@@ -22,14 +22,14 @@ HalsteadReport = collections.namedtuple(
 Halstead = collections.namedtuple("Halstead", "total functions")
 
 
-def h_visit(code):
+def h_visit(code, class_names=False):
     '''Compile the code into an AST tree and then pass it to
     :func:`~radon.metrics.h_visit_ast`.
     '''
-    return h_visit_ast(ast.parse(code))
+    return h_visit_ast(ast.parse(code), class_names)
 
 
-def h_visit_ast(ast_node):
+def h_visit_ast(ast_node, class_names=False):
     '''
     Visit the AST node using the :class:`~radon.visitors.HalsteadVisitor`
     visitor. The results are `HalsteadReport` namedtuples with the following
@@ -56,7 +56,7 @@ def h_visit_ast(ast_node):
 
     Nested functions are not tracked.
     '''
-    visitor = HalsteadVisitor.from_ast(ast_node)
+    visitor = HalsteadVisitor.from_ast(ast_node, class_names=class_names)
     total = halstead_visitor_report(visitor)
     functions = [
         (v.context, halstead_visitor_report(v))
