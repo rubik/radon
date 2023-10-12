@@ -78,12 +78,19 @@ class FileConfig(object):
     @staticmethod
     def file_config():
         '''Return any file configuration discovered'''
-        config = configparser.ConfigParser()
+        config = configparser.RawConfigParser()
         for path in (os.getenv('RADONCFG', None), 'radon.cfg'):
             if path is not None and os.path.exists(path):
                 config.read_file(open(path))
         config.read_dict(FileConfig.toml_config())
         config.read(['setup.cfg', os.path.expanduser('~/.radon.cfg')])
+
+        if config.has_section(CONFIG_SECTION_NAME):
+            section = dict(config.items(CONFIG_SECTION_NAME))
+            interpolated_config = configparser.ConfigParser()
+            interpolated_config.read_dict({CONFIG_SECTION_NAME: section})
+            config = interpolated_config
+
         return config
 
 
