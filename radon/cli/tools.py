@@ -265,8 +265,7 @@ def iter_filenames(paths, exclude=None, ignore=None):
         ):
             yield path
             continue
-        for filename in explore_directories(path, exclude, ignore):
-            yield filename
+        yield from explore_directories(path, exclude, ignore)
 
 
 def explore_directories(start, exclude, ignore):

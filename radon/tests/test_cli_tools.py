@@ -579,38 +579,28 @@ def test_cc_to_terminal():
     ]
     res_noshow = ['{0}__R__'.format(r[: r.index('(') - 1]) for r in res]
 
-    assert tools.cc_to_terminal(results, False, 'A', 'F', False) == (
-        res_noshow,
-        120,
-        6,
-    )
-    assert tools.cc_to_terminal(results, True, 'A', 'F', False) == (
+    for (
+        show_complexity,
+        minimum,
+        maximum,
+        total_average,
         res,
-        120,
-        6,
-    )
-    assert tools.cc_to_terminal(results, True, 'A', 'D', False) == (
-        res[:-2],
-        47,
-        4,
-    )
-    assert tools.cc_to_terminal(results, False, 'A', 'D', False) == (
-        res_noshow[:-2],
-        47,
-        4,
-    )
-    assert tools.cc_to_terminal(results, True, 'C', 'F', False) == (
-        res[2:],
-        109,
-        4,
-    )
-    assert tools.cc_to_terminal(results, True, 'B', 'E', False) == (
-        res[1:-1],
-        75,
-        4,
-    )
-    assert tools.cc_to_terminal(results, True, 'B', 'F', True) == (
-        res[1:],
-        120,
-        6,
-    )
+        total_cc,
+        counted,
+    ) in (
+        (False, 'A', 'F', False, res_noshow, 120, 6),
+        (True, 'A', 'F', False, res, 120, 6),
+        (True, 'A', 'D', False, res[:-2], 47, 4),
+        (False, 'A', 'D', False, res_noshow[:-2], 47, 4),
+        (True, 'C', 'F', False, res[2:], 109, 4),
+        (True, 'B', 'E', False, res[1:-1], 75, 4),
+        (True, 'B', 'F', True,  res[1:], 120, 6),
+    ):
+        test_result = tools.cc_to_terminal(
+            results,
+            show_complexity,
+            minimum,
+            maximum,
+            total_average,
+        )
+        assert test_result == (res, total_cc, counted)

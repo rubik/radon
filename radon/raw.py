@@ -119,6 +119,17 @@ def _get_all_tokens(line, lines):
         used_lines.append(next_line)
 
 
+def _get_all_tokens_secure(line, lines):
+    try:
+        # Get a syntactically complete set of tokens that spans a set of
+        # lines
+        tokens, parsed_lines = _get_all_tokens(line, lines)
+        return tokens, parsed_lines
+
+    except StopIteration:
+        return None, None
+
+
 def _logical(tokens):
     '''Find how many logical lines are there in the current line.
 
@@ -182,6 +193,10 @@ def is_single_token(token_number, tokens):
     )
 
 
+def _count_nonempty(values):
+    return sum([1 for value in values if value])
+
+
 def analyze(source):
     '''Analyze the source code and return a namedtuple with the following
     fields:
@@ -203,16 +218,14 @@ def analyze(source):
     lloc = comments = single_comments = multi = blank = sloc = 0
     lines = (l.strip() for l in source.splitlines())
     lineno = 1
+
     for line in lines:
-        try:
-            # Get a syntactically complete set of tokens that spans a set of
-            # lines
-            tokens, parsed_lines = _get_all_tokens(line, lines)
-        except StopIteration:
+        tokens, parsed_lines = _get_all_tokens_secure(line, lines)
+
+        if tokens is None and parsed_lines is None:
             raise SyntaxError('SyntaxError at line: {0}'.format(lineno))
 
         lineno += len(parsed_lines)
-
         comments += sum(
             1 for t in tokens if TOKEN_NUMBER(t) == tokenize.COMMENT
         )
@@ -229,14 +242,14 @@ def analyze(source):
                 # multiline docstrings
                 single_comments += 1
             else:
-                multi += sum(1 for l in parsed_lines if l)  # Skip empty lines
-                blank += sum(1 for l in parsed_lines if not l)
+                nonempty = _count_nonempty(parsed_lines)
+                multi += nonempty
+                blank += len(parsed_lines) - nonempty
+
         else:  # Everything else is either code or blank lines
-            for parsed_line in parsed_lines:
-                if parsed_line:
-                    sloc += 1
-                else:
-                    blank += 1
+            nonempty = _count_nonempty(parsed_lines)
+            sloc += nonempty
+            blank += len(parsed_lines) - nonempty
 
         # Process logical lines separately
         lloc += _logical(tokens)
