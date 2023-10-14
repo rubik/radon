@@ -708,7 +708,7 @@ CLOSURES_CASES = [
 def test_visitor_closures(code, closure_names, expected):
     visitor = ComplexityVisitor.from_code(dedent(code))
     func = visitor.functions[0]
-    closure_names = closure_names
+
     expected_cs_cc = expected[:-1]
     expected_total_cc = expected[-1]
 
@@ -722,8 +722,7 @@ def test_visitor_closures(code, closure_names, expected):
     assert func.complexity == expected_total_cc
 
     # There was a bug for which `blocks` increased while it got accessed
-    v = visitor
-    assert v.blocks == v.blocks == v.blocks
+    assert visitor.blocks == visitor.blocks == visitor.blocks
 
 
 CONTAINERS_CASES = [

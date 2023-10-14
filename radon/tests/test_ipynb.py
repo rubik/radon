@@ -111,15 +111,20 @@ def test_raw_ipynb(log_mock):
     target = os.path.join(DIRNAME, 'data', 'example.ipynb')
     harvester = RawHarvester([DIRNAME], raw_cfg)
     out = json.loads(harvester.as_json())
-    assert harvester.config.include_ipynb == True
+
+    assert harvester.config.include_ipynb is True
     assert target in out
-    assert out[target]['loc'] == 63
-    assert out[target]['lloc'] == 37
-    assert out[target]['sloc'] == 37
-    assert out[target]['comments'] == 3
-    assert out[target]['multi'] == 10
-    assert out[target]['blank'] == 14
-    assert out[target]['single_comments'] == 2
+
+    for key, value in (
+        ('loc', 63),
+        ('lloc', 37),
+        ('sloc', 37),
+        ('comments', 3),
+        ('multi', 10),
+        ('blank', 14),
+        ('single_comments', 2),
+    ):
+        assert out[target][key] == value
 
 
 @pytest.mark.skipif(not SUPPORTS_IPYNB, reason="nbformat not installed")
@@ -130,12 +135,17 @@ def test_raw_ipynb_cells(log_mock):
     harvester = RawHarvester([DIRNAME], raw_cfg)
     out = json.loads(harvester.as_json())
     cell_target = target + ":[3]"
+
     assert target in out
     assert cell_target in out
-    assert out[cell_target]['loc'] == 52
-    assert out[cell_target]['lloc'] == 27
-    assert out[cell_target]['sloc'] == 27
-    assert out[cell_target]['comments'] == 3
-    assert out[cell_target]['multi'] == 10
-    assert out[cell_target]['blank'] == 13
-    assert out[cell_target]['single_comments'] == 2
+
+    for key, value in (
+        ('loc', 52),
+        ('lloc', 27),
+        ('sloc', 27),
+        ('comments', 3),
+        ('multi', 10),
+        ('blank', 13),
+        ('single_comments', 2),
+    ):
+        assert out[cell_target][key] == value
