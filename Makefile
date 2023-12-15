@@ -15,12 +15,10 @@ lint:
 
 f: format lint
 
-tests:
-	python radon/tests/run.py
+tests: cov
 
 cov:
-	coverage erase && coverage run --branch --include "radon/*" --omit "radon/__init__.py,radon/cli.py,radon/tests/*" radon/tests/run.py
-	coverage report -m
+	py.test --cov radon --cov-report term-missing --cov-report xml .
 
 htmlcov: cov
 	coverage html
