@@ -25,6 +25,7 @@ pytest-mock = "*"
 argparse = "*"
 nbformat = "*"
 tox = "^4.4.7"
+pytest-cov = "^4.1.0"
 
 [tool.poetry.scripts]
 radon = "radon:main"

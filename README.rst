@@ -5,9 +5,9 @@ Radon
    :alt: Codacy badge
    :target: https://www.codacy.com/app/rubik/radon/dashboard
 
-.. image:: https://img.shields.io/travis/rubik/radon/master.svg?style=for-the-badge
-    :alt: Travis-CI badge
-    :target: https://travis-ci.org/rubik/radon
+.. image:: https://img.shields.io/github/actions/workflow/status/rubik/radon/ci.yml
+    :alt: GitHub Actions badge
+    :target: https://github.com/rubik/radon/actions
 
 .. image:: https://img.shields.io/coveralls/rubik/radon/master.svg?style=for-the-badge
     :alt: Coveralls badge

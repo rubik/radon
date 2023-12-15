@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: '${{ matrix.os }}'
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+        python-version:
+          - '3.12'
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'Set up Python ${{ matrix.python-version }}'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '${{ matrix.python-version }}'
+          cache: pip
+          cache-dependency-path: |
+            poetry.lock
+            pyproject.toml
+      - run: pip install poetry
+      - run: poetry config virtualenvs.create false
+      - run: poetry install --with dev
+      - run: make tests
+      # TODO: re-enabling `coveralls` requires a token in the repo secrets
+      # - run: coveralls
