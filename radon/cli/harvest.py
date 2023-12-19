@@ -198,9 +198,13 @@ class CCHarvester(Harvester):
                 result[key] = values
         return result
 
-    def as_json(self):
+    def as_json(self, _format: bool=False):
         '''Format the results as JSON.'''
-        return json.dumps(self._to_dicts())
+        if _format:
+            return json.dumps(self._to_dicts(), separators=[',', ':'], indent=2)
+        else:
+             return json.dumps(self._to_dicts())
+
 
     def as_xml(self):
         '''Format the results as XML. This is meant to be compatible with
