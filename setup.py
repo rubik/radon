@@ -25,6 +25,7 @@ setup(name='radon',
           'mando>=0.6,<0.8',
           'colorama==0.4.1;python_version<="3.4"',
           'colorama>=0.4.1;python_version>"3.4"',
+          "asttokens",
       ],
       extras_require={
           'toml': ["tomli>=2.0.1"]

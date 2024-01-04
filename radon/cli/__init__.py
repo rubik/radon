@@ -186,6 +186,7 @@ def raw(
     output_file=_cfg.get_value('output_file', str, None),
     include_ipynb=_cfg.get_value('include_ipynb', bool, False),
     ipynb_cells=_cfg.get_value('ipynb_cells', bool, False),
+    detailed=_cfg.get_value('detailed', bool, False),
 ):
     '''Analyze the given Python modules and compute raw metrics.
 
@@ -203,6 +204,7 @@ def raw(
     :param -O, --output-file <str>: The output file (default to stdout).
     :param --include-ipynb: Include IPython Notebook files
     :param --ipynb-cells: Include reports for individual IPYNB cells
+    :param -d, --detailed: Display metrics for functions, classes and methods.
     '''
     config = Config(
         exclude=exclude,
@@ -210,6 +212,7 @@ def raw(
         summary=summary,
         include_ipynb=include_ipynb,
         ipynb_cells=ipynb_cells,
+        detailed=detailed,
     )
     harvester = RawHarvester(paths, config)
     with outstream(output_file) as stream:
@@ -284,6 +287,7 @@ def hal(
     output_file=_cfg.get_value('output_file', str, None),
     include_ipynb=_cfg.get_value('include_ipynb', bool, False),
     ipynb_cells=_cfg.get_value('ipynb_cells', bool, False),
+    class_names=_cfg.get_value('class_names', bool, False),
 ):
     """
     Analyze the given Python modules and compute their Halstead metrics.
@@ -305,6 +309,8 @@ def hal(
     :param -O, --output-file <str>: The output file (default to stdout).
     :param --include-ipynb: Include IPython Notebook files
     :param --ipynb-cells: Include reports for individual IPYNB cells
+    :param -c, --class-names: Include class names before method names as
+        class.method.
     """
     config = Config(
         exclude=exclude,
@@ -312,6 +318,7 @@ def hal(
         by_function=functions,
         include_ipynb=include_ipynb,
         ipynb_cells=ipynb_cells,
+        class_names=class_names,
     )
 
     harvester = HCHarvester(paths, config)

@@ -8,6 +8,7 @@ import pytest
 import radon.cli.harvest as harvest
 import radon.complexity as cc_mod
 from radon.cli import Config
+from radon import raw_visitor
 
 BASE_CONFIG = Config(
     exclude=r'test_[^.]+\.py',
@@ -28,7 +29,7 @@ CC_CONFIG = Config(
     **BASE_CONFIG.config_values
 )
 
-RAW_CONFIG = Config(summary=True,)
+RAW_CONFIG = Config(summary=True, exclude='', ignore='', detailed=True)
 
 MI_CONFIG = Config(multi=True, min='B', max='C', show=True, sort=False,)
 
@@ -221,18 +222,18 @@ def test_cc_to_terminal(cc_config, mocker):
 
 
 def test_raw_gobble(raw_config, mocker):
-    r2d_mock = mocker.patch('radon.cli.harvest.raw_to_dict')
-    analyze_mock = mocker.patch('radon.cli.harvest.analyze')
+    analyze_mock = mocker.patch('radon.raw_visitor.analyze')
     fobj = mocker.MagicMock()
-    fobj.read.return_value = mocker.sentinel.one
-    analyze_mock.return_value = mocker.sentinel.two
+    fobj.read.return_value = "sentinel"
+    dict_mock = mocker.MagicMock()
+    dict_mock.__getitem__.return_value = ""
+    analyze_mock.return_value = dict_mock
 
     h = harvest.RawHarvester([], raw_config)
     h.gobble(fobj)
 
     assert fobj.read.call_count == 1
-    analyze_mock.assert_called_once_with(mocker.sentinel.one)
-    r2d_mock.assert_called_once_with(mocker.sentinel.two)
+    analyze_mock.assert_called_once_with("sentinel")
 
 
 def test_raw_as_xml(raw_config):
@@ -241,10 +242,21 @@ def test_raw_as_xml(raw_config):
         h.as_xml()
 
 
-def test_raw_to_terminal(raw_config):
+def test_raw_to_terminal_from_dict(raw_config):
     h = harvest.RawHarvester([], raw_config)
-    h._results = [
-        ('a', {'error': 'mystr'}),
+    h._results = (["path", [
+        (
+            '__ModuleMetrics__',
+            {
+                'loc': 48,
+                'lloc': 54,
+                'sloc': 30,
+                'comments': 6,
+                'multi': 6,
+                'single_comments': 28,
+                'blank': 18,
+            },
+        ),
         (
             'b',
             {
@@ -269,6 +281,7 @@ def test_raw_to_terminal(raw_config):
                 'blank': 9,
             },
         ),
+        ('d', {'error': 'mystr'}),
         (
             'e',
             {
@@ -281,11 +294,23 @@ def test_raw_to_terminal(raw_config):
                 'blank': 0,
             },
         ),
-    ]
+    ]],
+    )
 
     assert list(h.to_terminal()) == [
-        ('a', ('mystr',), {'error': True}),
-        ('b', (), {}),
+        ('path', (), {}),
+        ('{0}: {1}', ('LOC', 48), {'indent': 1}),
+        ('{0}: {1}', ('LLOC', 54), {'indent': 1}),
+        ('{0}: {1}', ('SLOC', 30), {'indent': 1}),
+        ('{0}: {1}', ('Comments', 6), {'indent': 1}),
+        ('{0}: {1}', ('Single comments', 28), {'indent': 1}),
+        ('{0}: {1}', ('Multi', 6), {'indent': 1}),
+        ('{0}: {1}', ('Blank', 18), {'indent': 1}),
+        ('- Comment Stats', (), {'indent': 1}),
+        ('(C % L): {0:.0%}', (0.125,), {'indent': 2}),
+        ('(C % S): {0:.0%}', (0.2,), {'indent': 2}),
+        ('(C + M % L): {0:.0%}', (0.25,), {'indent': 2}),
+        ('path:b', (), {}),
         ('{0}: {1}', ('LOC', 24), {'indent': 1}),
         ('{0}: {1}', ('LLOC', 27), {'indent': 1}),
         ('{0}: {1}', ('SLOC', 15), {'indent': 1}),
@@ -297,7 +322,7 @@ def test_raw_to_terminal(raw_config):
         ('(C % L): {0:.0%}', (0.125,), {'indent': 2}),
         ('(C % S): {0:.0%}', (0.2,), {'indent': 2}),
         ('(C + M % L): {0:.0%}', (0.25,), {'indent': 2}),
-        ('c', (), {}),
+        ('path:c', (), {}),
         ('{0}: {1}', ('LOC', 24), {'indent': 1}),
         ('{0}: {1}', ('LLOC', 27), {'indent': 1}),
         ('{0}: {1}', ('SLOC', 15), {'indent': 1}),
@@ -309,7 +334,189 @@ def test_raw_to_terminal(raw_config):
         ('(C % L): {0:.0%}', (0.125,), {'indent': 2}),
         ('(C % S): {0:.0%}', (0.2,), {'indent': 2}),
         ('(C + M % L): {0:.0%}', (0.25,), {'indent': 2}),
-        ('e', (), {}),
+        ('d', ('mystr',), {'error': True}),
+        ('path:e', (), {}),
+        ('{0}: {1}', ('LOC', 0), {'indent': 1}),
+        ('{0}: {1}', ('LLOC', 0), {'indent': 1}),
+        ('{0}: {1}', ('SLOC', 0), {'indent': 1}),
+        ('{0}: {1}', ('Comments', 0), {'indent': 1}),
+        ('{0}: {1}', ('Single comments', 12), {'indent': 1}),
+        ('{0}: {1}', ('Multi', 0), {'indent': 1}),
+        ('{0}: {1}', ('Blank', 0), {'indent': 1}),
+        ('- Comment Stats', (), {'indent': 1}),
+        ('(C % L): {0:.0%}', (0.0,), {'indent': 2}),
+        ('(C % S): {0:.0%}', (0.0,), {'indent': 2}),
+        ('(C + M % L): {0:.0%}', (0.0,), {'indent': 2}),
+        ('** Total **', (), {}),
+        ('{0}: {1}', ('LOC', 48), {'indent': 1}),
+        ('{0}: {1}', ('LLOC', 54), {'indent': 1}),
+        ('{0}: {1}', ('SLOC', 30), {'indent': 1}),
+        ('{0}: {1}', ('Comments', 6), {'indent': 1}),
+        ('{0}: {1}', ('Single comments', 28), {'indent': 1}),
+        ('{0}: {1}', ('Multi', 6), {'indent': 1}),
+        ('{0}: {1}', ('Blank', 18), {'indent': 1}),
+        ('- Comment Stats', (), {'indent': 1}),
+        ('(C % L): {0:.0%}', (0.125,), {'indent': 2}),
+        ('(C % S): {0:.0%}', (0.2,), {'indent': 2}),
+        ('(C + M % L): {0:.0%}', (0.25,), {'indent': 2}),
+    ]
+
+
+def test_raw_to_terminal_from_classes(raw_config):
+    h = harvest.RawHarvester([], raw_config)
+    h._results = (["path", [
+        (
+            '__ModuleMetrics__',
+            raw_visitor.Module(
+                48,
+                54,
+                30,
+                6,
+                6,
+                18,
+                28,
+            ),
+        ),
+        (
+            'b',
+            raw_visitor.Module(
+                24,
+                27,
+                15,
+                3,
+                3,
+                9,
+                3,
+            ),
+        ),
+        (
+            'c',
+            raw_visitor.Module(
+                24,
+                27,
+                15,
+                3,
+                3,
+                9,
+                13,
+            ),
+        ),
+        ('d', {'error': 'mystr'}),
+        (
+            'e',
+            raw_visitor.Module(
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                12,
+            ),
+        ),
+        (
+            'ClassName',
+            raw_visitor.RawClassMetrics(
+                "ClassName",
+                1,
+                0,
+                10,
+                [],
+                [],
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                12,
+            ),
+        ),
+        (
+            'function_name',
+            raw_visitor.RawFunctionMetrics(
+                "function_name",
+                1,
+                0,
+                10,
+                False,
+                "",
+                [],
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                12,
+            ),
+        ),
+    ]],
+    )
+
+    assert list(h.to_terminal()) == [
+        ('path', (), {}),
+        ('{0}: {1}', ('LOC', 48), {'indent': 1}),
+        ('{0}: {1}', ('LLOC', 54), {'indent': 1}),
+        ('{0}: {1}', ('SLOC', 30), {'indent': 1}),
+        ('{0}: {1}', ('Comments', 6), {'indent': 1}),
+        ('{0}: {1}', ('Single comments', 28), {'indent': 1}),
+        ('{0}: {1}', ('Multi', 6), {'indent': 1}),
+        ('{0}: {1}', ('Blank', 18), {'indent': 1}),
+        ('- Comment Stats', (), {'indent': 1}),
+        ('(C % L): {0:.0%}', (0.125,), {'indent': 2}),
+        ('(C % S): {0:.0%}', (0.2,), {'indent': 2}),
+        ('(C + M % L): {0:.0%}', (0.25,), {'indent': 2}),
+        ('path:b', (), {}),
+        ('{0}: {1}', ('LOC', 24), {'indent': 1}),
+        ('{0}: {1}', ('LLOC', 27), {'indent': 1}),
+        ('{0}: {1}', ('SLOC', 15), {'indent': 1}),
+        ('{0}: {1}', ('Comments', 3), {'indent': 1}),
+        ('{0}: {1}', ('Single comments', 3), {'indent': 1}),
+        ('{0}: {1}', ('Multi', 3), {'indent': 1}),
+        ('{0}: {1}', ('Blank', 9), {'indent': 1}),
+        ('- Comment Stats', (), {'indent': 1}),
+        ('(C % L): {0:.0%}', (0.125,), {'indent': 2}),
+        ('(C % S): {0:.0%}', (0.2,), {'indent': 2}),
+        ('(C + M % L): {0:.0%}', (0.25,), {'indent': 2}),
+        ('path:c', (), {}),
+        ('{0}: {1}', ('LOC', 24), {'indent': 1}),
+        ('{0}: {1}', ('LLOC', 27), {'indent': 1}),
+        ('{0}: {1}', ('SLOC', 15), {'indent': 1}),
+        ('{0}: {1}', ('Comments', 3), {'indent': 1}),
+        ('{0}: {1}', ('Single comments', 13), {'indent': 1}),
+        ('{0}: {1}', ('Multi', 3), {'indent': 1}),
+        ('{0}: {1}', ('Blank', 9), {'indent': 1}),
+        ('- Comment Stats', (), {'indent': 1}),
+        ('(C % L): {0:.0%}', (0.125,), {'indent': 2}),
+        ('(C % S): {0:.0%}', (0.2,), {'indent': 2}),
+        ('(C + M % L): {0:.0%}', (0.25,), {'indent': 2}),
+        ('d', ('mystr',), {'error': True}),
+        ('path:e', (), {}),
+        ('{0}: {1}', ('LOC', 0), {'indent': 1}),
+        ('{0}: {1}', ('LLOC', 0), {'indent': 1}),
+        ('{0}: {1}', ('SLOC', 0), {'indent': 1}),
+        ('{0}: {1}', ('Comments', 0), {'indent': 1}),
+        ('{0}: {1}', ('Single comments', 12), {'indent': 1}),
+        ('{0}: {1}', ('Multi', 0), {'indent': 1}),
+        ('{0}: {1}', ('Blank', 0), {'indent': 1}),
+        ('- Comment Stats', (), {'indent': 1}),
+        ('(C % L): {0:.0%}', (0.0,), {'indent': 2}),
+        ('(C % S): {0:.0%}', (0.0,), {'indent': 2}),
+        ('(C + M % L): {0:.0%}', (0.0,), {'indent': 2}),
+        ('path:ClassName', (), {}),
+        ('{0}: {1}', ('LOC', 0), {'indent': 1}),
+        ('{0}: {1}', ('LLOC', 0), {'indent': 1}),
+        ('{0}: {1}', ('SLOC', 0), {'indent': 1}),
+        ('{0}: {1}', ('Comments', 0), {'indent': 1}),
+        ('{0}: {1}', ('Single comments', 12), {'indent': 1}),
+        ('{0}: {1}', ('Multi', 0), {'indent': 1}),
+        ('{0}: {1}', ('Blank', 0), {'indent': 1}),
+        ('- Comment Stats', (), {'indent': 1}),
+        ('(C % L): {0:.0%}', (0.0,), {'indent': 2}),
+        ('(C % S): {0:.0%}', (0.0,), {'indent': 2}),
+        ('(C + M % L): {0:.0%}', (0.0,), {'indent': 2}),
+        ('path:function_name', (), {}),
         ('{0}: {1}', ('LOC', 0), {'indent': 1}),
         ('{0}: {1}', ('LLOC', 0), {'indent': 1}),
         ('{0}: {1}', ('SLOC', 0), {'indent': 1}),
