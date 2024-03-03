@@ -29,6 +29,22 @@ __all__ = [
     'analyze',
 ]
 
+COMPOUND_KEYWORDS = {
+    "if",
+    "while",
+    "for",
+    "try",
+    "with",
+    "match",
+    "def",
+    "class",
+    "else",
+    "elif",
+    "except",
+    "finally",
+    "case",
+}
+
 COMMENT = tokenize.COMMENT
 OP = tokenize.OP
 NL = tokenize.NL
@@ -160,7 +176,10 @@ def _logical(tokens):
             # ENDMARKER. There are two cases: if the colon is at the end, it
             # means that there is only one logical line; if it isn't then there
             # are two.
-            return 2 - (token_pos == len(processed) - 2)
+            # Only consider colons when a compound statement is found in the line
+            if any(token.string in COMPOUND_KEYWORDS for token in processed):
+                return 2 - (token_pos == len(processed) - 2)
+            return 1
         except ValueError:
             # The colon is not present
             # If the line is only composed by comments, newlines and endmarker
