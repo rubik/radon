@@ -180,6 +180,38 @@ LOGICAL_LINES_CASES = [
      ''',
         5,
     ),
+    (
+        '''
+     [].sort(key=lambda x: 1)
+     ''',
+        1,
+    ),
+    (
+        '''
+     [1][1:]
+     ''',
+        1,
+    ),
+    (
+        '''
+     a = {'user1': 'password1', 'user2': 'password2'}
+     ''',
+        1,
+    ),
+    (
+        '''
+     def a(b: str\n): pass
+     ''',
+        2,
+    ),
+    # "case" as a variable name with a colon on the same line
+    # (e.g. from a dict) causes a false positive
+    # (
+    #     '''
+    #  case = {'user1': 'password1', 'user2': 'password2'}
+    #  ''',
+    #     1,
+    # ),
 ]
 
 
