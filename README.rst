@@ -17,7 +17,9 @@ Radon
     :alt: Radon license
     :target: https://pypi.python.org/pypi/radon
 
-<a href="https://hellogithub.com/repository/bbca7606a6b1412da1312d68ae81d781" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=bbca7606a6b1412da1312d68ae81d781&claim_uid=pO5Q0JkFzC8IPr9&theme=dark" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+.. raw::  html
+
+    <a href="https://hellogithub.com/repository/bbca7606a6b1412da1312d68ae81d781" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=bbca7606a6b1412da1312d68ae81d781&claim_uid=pO5Q0JkFzC8IPr9&theme=dark" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 ----
 
