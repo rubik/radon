@@ -189,7 +189,7 @@ def test_logical(code, expected_number_of_lines):
     assert _logical(code) == expected_number_of_lines
 
 
-ANALYZE_CASES = [
+VISITOR_CASES = [
     (
         '''
      ''',
@@ -345,8 +345,9 @@ ANALYZE_CASES = [
                 """
         test = 0
         # Comment
+        # Comment 2
     ''',
-        (11, 6, 7, 2, 3, 0, 1),
+        (12, 6, 7, 3, 3, 0, 2),
     ),
     (
         r'''
@@ -443,10 +444,90 @@ ANALYZE_CASES = [
     ''',
         (2, 3, 2, 0, 0, 0, 0),
     ),
+    (
+        r'''
+    class Test:
+        """ doc string """; pass
+    ''',
+        (2, 3, 2, 0, 0, 0, 0),
+    ),
+    (
+        r'''
+    class Test:
+        """ doc string """
+        def something():
+            pass
+        #Comment
+    ''',
+        (5, 4, 3, 1, 0, 0, 2),
+    ),
+]
+
+MAIN_CASES = [
+    ('''
+     ''', (0, 0, 0, 0, 0, 0, 0)),
+
+    ('''
+     """
+     doc?
+     """
+     ''', (3, 1, 0, 0, 3, 0, 0)),
+
+    ('''
+     # just a comment
+     if a and b:
+         print('woah')
+     else:
+         # you'll never get here
+         print('ven')
+     ''', (6, 4, 4, 2, 0, 0, 2)),
+
+    ('''
+     #
+     #
+     #
+     ''', (3, 0, 0, 3, 0, 0, 3)),
+
+    ('''
+     if a:
+         print
+
+
+     else:
+         print
+     ''', (6, 4, 4, 0, 0, 2, 0)),
+
+    ('''
+     def hip(a, k):
+         if k == 1: return a
+         # getting high...
+         return a ** hip(a, k - 1)
+
+     def fib(n):
+         """Compute the n-th Fibonacci number.
+
+         Try it with n = 294942: it will take a fairly long time.
+         """
+         if n <= 1: return 1  # otherwise it will melt the cpu
+         return fib(n - 2) + fib(n - 1)
+     ''', (12, 9, 6, 2, 3, 2, 1)),
+
+    ('''
+     a = [1, 2, 3,
+     ''', SyntaxError),
+
+    # Test that handling of parameters with a value passed in.
+    ('''
+     def foo(n=1):
+        """
+        Try it with n = 294942: it will take a fairly long time.
+        """
+        if n <= 1: return 1  # otherwise it will melt the cpu
+    ''', (5, 4, 2, 1, 3, 0, 0)),
 ]
 
 
-@pytest.mark.parametrize('code,expected', ANALYZE_CASES)
+@pytest.mark.parametrize('code,expected', MAIN_CASES + VISITOR_CASES)
 def test_analyze(code, expected):
     code = dedent(code)
 
