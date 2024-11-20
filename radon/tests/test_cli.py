@@ -119,6 +119,32 @@ def test_cc(mocker, log_mock):
     )
 
 
+def test_hal(mocker, log_mock):
+    harv_mock = mocker.patch('radon.cli.HCHarvester')
+    harv_mock.return_value = mocker.sentinel.harvester
+
+    cli.hal(['-'], class_names=True)
+
+    harv_mock.assert_called_once_with(
+        ['-'],
+        cli.Config(
+            exclude=None,
+            ignore=None,
+            by_function=False,
+            include_ipynb=False,
+            ipynb_cells=False,
+            class_names=True,
+        ),
+    )
+    log_mock.assert_called_once_with(
+        mocker.sentinel.harvester,
+        json=False,
+        stream=sys.stdout,
+        xml=False,
+        md=False
+    )
+
+
 def test_raw(mocker, log_mock):
     harv_mock = mocker.patch('radon.cli.RawHarvester')
     harv_mock.return_value = mocker.sentinel.harvester
@@ -158,6 +184,7 @@ def test_mi(mocker, log_mock):
             sort=False,
             include_ipynb=False,
             ipynb_cells=False,
+            class_names=False,
         ),
     )
     log_mock.assert_called_once_with(
