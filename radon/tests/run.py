@@ -1,4 +1,5 @@
 if __name__ == '__main__':
+    import sys
     import pytest
 
     # see: https://docs.pytest.org/en/6.2.x/deprecations.html#the-strict-command-line-option
@@ -11,4 +12,4 @@ if __name__ == '__main__':
         pytest_args = ['--strict-markers']
 
     ret = pytest.main(pytest_args)
-    exit(ret)
+    sys.exit(ret)

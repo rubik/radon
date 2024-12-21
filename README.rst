@@ -1,14 +1,6 @@
 Radon
 =====
 
-.. image:: https://img.shields.io/codacy/grade/623b84f5f6e6708c486f371e10da3610.svg?style=for-the-badge
-   :alt: Codacy badge
-   :target: https://www.codacy.com/app/rubik/radon/dashboard
-
-.. image:: https://img.shields.io/travis/rubik/radon/master.svg?style=for-the-badge
-    :alt: Travis-CI badge
-    :target: https://travis-ci.org/rubik/radon
-
 .. image:: https://img.shields.io/coveralls/rubik/radon/master.svg?style=for-the-badge
     :alt: Coveralls badge
     :target: https://coveralls.io/r/rubik/radon?branch=master
@@ -21,6 +13,9 @@ Radon
     :alt: Radon license
     :target: https://pypi.python.org/pypi/radon
 
+.. raw::  html
+
+    <p><a href="https://hellogithub.com/repository/bbca7606a6b1412da1312d68ae81d781" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=bbca7606a6b1412da1312d68ae81d781&claim_uid=pO5Q0JkFzC8IPr9&theme=dark" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a></p>
 
 ----
 
@@ -35,7 +30,7 @@ Radon can compute:
 Requirements
 ------------
 
-Radon will run from **Python 2.7** to **Python 3.8** (except Python versions
+Radon will run from **Python 2.7** to **Python 3.12** (except Python versions
 from 3.0 to 3.3) with a single code base and without the need of tools like
 2to3 or six. It can also run on **PyPy** without any problems (currently PyPy
 3.5 v7.3.1 is used in tests).
