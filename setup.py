@@ -23,7 +23,7 @@ setup(name='radon',
       tests_require=['tox'],
       install_requires=[
           'mando>=0.6,<0.8',
-          'colorama==0.4.1;python_version<="3.4"',
+          'colorama==0.4.1;python_version=="3.4"',
           'colorama>=0.4.1;python_version>"3.4"',
       ],
       extras_require={
