@@ -331,11 +331,6 @@ SIMPLE_BLOCKS = [
         1,
         {'no_assert': True},
     ),
-]
-
-
-# These run only if Python version is >= 2.7
-ADDITIONAL_BLOCKS = [
     (
         '''
      {i for i in range(4)}
@@ -407,8 +402,6 @@ MATCH_STATEMENT_BLOCKS = [
 ]
 
 BLOCKS = SIMPLE_BLOCKS[:]
-if sys.version_info[:2] >= (2, 7):
-    BLOCKS.extend(ADDITIONAL_BLOCKS)
 if sys.version_info[:2] >= (3, 10):
     BLOCKS.extend(MATCH_STATEMENT_BLOCKS)
 

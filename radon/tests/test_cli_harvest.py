@@ -1,7 +1,4 @@
-try:
-    import collections.abc as collections_abc
-except ImportError:
-    import collections as collections_abc
+import collections
 
 import pytest
 
@@ -43,7 +40,7 @@ def fake_gobble_raising(fobj):
 
 def fake_run():
     for i in range(3):
-        yield {'file-{0}'.format(i): i ** 2}
+        yield {'file-{}'.format(i): i ** 2}
 
 
 @pytest.fixture
@@ -101,7 +98,7 @@ def test_base_to_terminal_not_implemented(base_config):
 def test_base_run(base_config):
     h = harvest.Harvester(['-'], base_config)
     h.gobble = fake_gobble
-    assert isinstance(h.run(), collections_abc.Iterator)
+    assert isinstance(h.run(), collections.abc.Iterator)
     assert list(h.run()) == [('-', 42)]
     h.gobble = fake_gobble_raising
     assert list(h.run()) == [('-', {'error': 'mystr'})]
@@ -111,10 +108,10 @@ def test_base_results(base_config):
     h = harvest.Harvester([], base_config)
     h.run = fake_run
     results = h.results
-    assert isinstance(results, collections_abc.Iterator)
+    assert isinstance(results, collections.abc.Iterator)
     assert list(results) == [{'file-0': 0}, {'file-1': 1}, {'file-2': 4}]
-    assert not isinstance(h.results, collections_abc.Iterator)
-    assert isinstance(h.results, collections_abc.Iterable)
+    assert not isinstance(h.results, collections.abc.Iterator)
+    assert isinstance(h.results, collections.abc.Iterable)
     assert isinstance(h.results, list)
 
 
@@ -374,7 +371,7 @@ def test_mi_as_xml(mi_config):
 def test_mi_to_terminal(mi_config, mocker):
     reset_mock = mocker.patch('radon.cli.harvest.RESET')
     ranks_mock = mocker.patch('radon.cli.harvest.MI_RANKS')
-    ranks_mock.__getitem__.side_effect = lambda j: '<|{0}|>'.format(j)
+    ranks_mock.__getitem__.side_effect = lambda j: '<|{}|>'.format(j)
     reset_mock.__eq__.side_effect = lambda o: o == '__R__'
 
     h = harvest.MIHarvester([], mi_config)

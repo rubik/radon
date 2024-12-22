@@ -452,17 +452,14 @@ test = ["ipykernel", "pre-commit", "pytest", "pytest-cov", "pytest-timeout"]
 
 [[package]]
 name = "mando"
-version = "0.7.1"
+version = "0.8.2"
 description = "Create Python CLI apps with little to no effort at all!"
 optional = false
 python-versions = "*"
 files = [
-    {file = "mando-0.7.1-py2.py3-none-any.whl", hash = "sha256:26ef1d70928b6057ee3ca12583d73c63e05c49de8972d620c278a7b206581a8a"},
-    {file = "mando-0.7.1.tar.gz", hash = "sha256:18baa999b4b613faefb00eac4efadcf14f510b59b924b66e08289aa1de8c3500"},
+    {file = "mando-0.8.2-py2.py3-none-any.whl", hash = "sha256:bad558078031366ee3bed2f290449be6788d8beaddcd20751105d30550534319"},
+    {file = "mando-0.8.2.tar.gz", hash = "sha256:539659d9a2fdc6c9a188211c58f381e0dafe9597085174c5472eb1ed0224b6b5"},
 ]
-
-[package.dependencies]
-six = "*"
 
 [package.extras]
 restructuredtext = ["rst2ansi"]
@@ -691,17 +688,6 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
-name = "six"
-version = "1.17.0"
-description = "Python 2 and 3 compatibility utilities"
-optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
-files = [
-    {file = "six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"},
-    {file = "six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"},
-]
-
-[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -823,4 +809,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7,<4.0"
-content-hash = "77f9464d1d3cbfa4c8eb6e3e58efa790972dc074f452e2d866f0e3f28e5968d2"
+content-hash = "5b4be22bd8f95aca6d5e73cbea202308c983455943f5bc9127346d778a046cc0"

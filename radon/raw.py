@@ -5,13 +5,9 @@ that is used.
 '''
 
 import collections
+import io
 import operator
 import tokenize
-
-try:
-    import StringIO as io
-except ImportError:  # pragma: no cover
-    import io
 
 
 __all__ = [
@@ -209,7 +205,7 @@ def analyze(source):
             # lines
             tokens, parsed_lines = _get_all_tokens(line, lines)
         except StopIteration:
-            raise SyntaxError('SyntaxError at line: {0}'.format(lineno))
+            raise SyntaxError('SyntaxError at line: {}'.format(lineno))
 
         lineno += len(parsed_lines)
 

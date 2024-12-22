@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Radon documentation build configuration file, created by
 # sphinx-quickstart on Thu Oct 11 16:08:21 2012.
 #
@@ -46,9 +44,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Radon'
+project = 'Radon'
 build_date = datetime.datetime.utcfromtimestamp(int(os.environ.get('SOURCE_DATE_EPOCH', time.time())))
-copyright = u'{0}, Michele Lacchia'.format('-'.join(map(str,
+copyright = '{0}, Michele Lacchia'.format('-'.join(map(str,
                                                         range(2012,
                                                               build_date.year + 1))))
 
@@ -193,8 +191,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Radon.tex', u'Radon Documentation',
-   u'Michele Lacchia', 'manual'),
+  ('index', 'Radon.tex', 'Radon Documentation',
+   'Michele Lacchia', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -223,8 +221,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'radon', u'Radon Documentation',
-     [u'Michele Lacchia'], 1)
+    ('index', 'radon', 'Radon Documentation',
+     ['Michele Lacchia'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -237,8 +235,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Radon', u'Radon Documentation',
-   u'Michele Lacchia', 'Radon', 'One line description of project.',
+  ('index', 'Radon', 'Radon Documentation',
+   'Michele Lacchia', 'Radon', 'One line description of project.',
    'Miscellaneous'),
 ]
 
