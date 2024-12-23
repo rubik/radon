@@ -51,7 +51,7 @@ With Pip:
     $ pip install radon
 
 If you want to configure Radon from `pyproject.toml` and you run Python <3.11,
-you'll need the extra `toml` dependency:
+you will need to install the extra `toml` dependency:
 
 .. code-block:: sh
 
@@ -159,9 +159,11 @@ Usage with Jupyter Notebooks
 
 Radon can be used with ``.ipynb`` files to inspect code metrics for Python cells. Any ``%`` macros will be ignored in the metrics.
 
-.. note::
+You will need to install the extra `notebook` dependency:
 
-   Jupyter Notebook support requires the optional ``nbformat`` package. To install, run ``pip install nbformat``.
+.. code-block:: sh
+
+   $ pip install radon[notebook]
 
 To enable scanning of Jupyter notebooks, add the ``--include-ipynb`` flag.
 
