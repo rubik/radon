@@ -69,7 +69,7 @@ def test_config_for():
 def test_config_converts_types(mocker):
     test_config = ConfigParser()
     test_config.read_string(
-        u'''
+        '''
         [radon]
         str_test = B
         int_test = 19
@@ -175,10 +175,7 @@ def test_encoding(mocker, log_mock):
         RawHarvester: raw_cfg,
         CCHarvester: CC_CONFIG,
     }
-    if sys.version_info[0] < 3:
-        target = 'data/__init__.py'
-    else:
-        target = 'data/py3unicode.py'
+    target = 'data/py3unicode.py'
     fnames = [
         os.path.join(DIRNAME, target),
         # This one will fail if detect_encoding() removes the first lines

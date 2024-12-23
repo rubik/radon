@@ -6,30 +6,21 @@
 Welcome to Radon's documentation!
 =================================
 
-.. image:: http://img.shields.io/travis/rubik/radon/master.svg?style=flat
-    :alt: Travis-CI badge
-    :target: https://travis-ci.org/rubik/radon
+.. image:: https://img.shields.io/pypi/v/radon
+    :alt: PyPI latest version badge
+    :target: https://pypi.python.org/pypi/radon
 
 .. image:: http://img.shields.io/coveralls/rubik/radon/master.svg?style=flat
     :alt: Coveralls badge
     :target: https://coveralls.io/r/rubik/radon?branch=master
 
-.. image:: https://pypip.in/v/radon/badge.png?style=flat
-    :alt: PyPI latest version badge
+.. image:: https://static.pepy.tech/personalized-badge/radon?units=abbreviation&period=total&left_color=grey&right_color=blue&left_text=downloads
+    :alt: PyPI downloads
     :target: https://pypi.python.org/pypi/radon
 
-.. image:: https://pypip.in/d/radon/badge.png?style=flat
-    :alt: PyPI downloads badge
-    :target: https://pypi.python.org/pypi/radon
-
-.. image:: https://pypip.in/format/radon/badge.svg?style=flat
-    :target: http://pythonwheels.com/
-    :alt: Download format
-
-.. image:: https://pypip.in/license/radon/badge.png?style=flat
+.. image:: https://img.shields.io/pypi/l/radon
     :alt: Radon license
     :target: https://pypi.python.org/pypi/radon
-
 
 ----
 

@@ -1,9 +1,8 @@
 '''This module holds the base Harvester class and all its subclassess.'''
 
 import collections
+import io
 import json
-import sys
-from builtins import super
 
 from radon.cli.colors import MI_RANKS, RANKS_COLORS, RESET
 from radon.cli.tools import (
@@ -26,11 +25,6 @@ from radon.complexity import (
 from radon.metrics import h_visit, mi_rank, mi_visit
 from radon.raw import analyze
 
-if sys.version_info[0] < 3:
-    from StringIO import StringIO
-else:
-    from io import StringIO
-
 try:
     import nbformat
 
@@ -39,7 +33,7 @@ except ImportError:
     SUPPORTS_IPYNB = False
 
 
-class Harvester(object):
+class Harvester:
     '''Base class defining the interface of a Harvester object.
 
     A Harvester has the following lifecycle:
@@ -108,7 +102,7 @@ class Harvester(object):
                             doc = "\n".join(cells)
                             yield (
                                 name,
-                                self.gobble(StringIO(strip_ipython(doc))),
+                                self.gobble(io.StringIO(strip_ipython(doc))),
                             )
 
                             if self.config.ipynb_cells:
@@ -116,9 +110,9 @@ class Harvester(object):
                                 cellid = 0
                                 for source in cells:
                                     yield (
-                                        "{0}:[{1}]".format(name, cellid),
+                                        "{}:[{}]".format(name, cellid),
                                         self.gobble(
-                                            StringIO(strip_ipython(source))
+                                            io.StringIO(strip_ipython(source))
                                         ),
                                     )
                                     cellid += 1
@@ -374,7 +368,7 @@ class MIHarvester(Harvester):
             color = MI_RANKS[rank]
             to_show = ''
             if self.config.show:
-                to_show = ' ({0:.2f})'.format(mi['mi'])
+                to_show = ' ({:.2f})'.format(mi['mi'])
             yield '{0} - {1}{2}{3}{4}', (name, color, rank, to_show, RESET), {}
 
 

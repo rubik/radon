@@ -1,5 +1,7 @@
 import os
+
 from setuptools import setup, find_packages
+
 import radon
 
 
@@ -22,12 +24,13 @@ setup(name='radon',
       packages=find_packages(),
       tests_require=['tox'],
       install_requires=[
-          'mando>=0.6,<0.8',
-          'colorama==0.4.1;python_version<="3.4"',
+          'mando>=0.6,<0.9',
+          'colorama==0.4.1;python_version=="3.4"',
           'colorama>=0.4.1;python_version>"3.4"',
       ],
       extras_require={
-          'toml': ["tomli>=2.0.1"]
+          'toml': ["tomli>=2.0.1"],
+          'notebook': ['nbformat'],
       },
       entry_points={
           'console_scripts': ['radon = radon:main'],
@@ -46,13 +49,18 @@ setup(name='radon',
           'License :: OSI Approved :: MIT License',
           'Operating System :: OS Independent',
           'Programming Language :: Python',
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.3',
+          'Programming Language :: Python :: 3.4',
+          'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',
           'Programming Language :: Python :: 3.9',
+          'Programming Language :: Python :: 3.10',
+          'Programming Language :: Python :: 3.11',
+          'Programming Language :: Python :: 3.12',
+          'Programming Language :: Python :: 3.13',
           'Topic :: Software Development',
           'Topic :: Software Development :: Libraries :: Python Modules',
           'Topic :: Software Development :: Quality Assurance',

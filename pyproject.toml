@@ -8,23 +8,30 @@ readme = "README.rst"
 
 [tool.poetry.dependencies]
 python = ">=3.7,<4.0"
-mando = ">=0.6,<0.8"
+mando = ">=0.6,<0.9"
 colorama = [
     {version = ">=0.4.1", markers = "python_version > \"3.4\""},
-    {version = "==0.4.1", markers = "python_version <= \"3.4\""}
+    {version = "==0.4.1", markers = "python_version == \"3.4\""}
 ]
+
+# A list of all of the optional dependencies, which are included in the
+# below `extras`. They can be opted into by apps.
+# https://python-poetry.org/docs/pyproject/#extras
+tomli = { version = ">=2.0.1", optional = true }
+nbformat = { version = "*",  optional = true }
 
 [tool.poetry.group.dev.dependencies]
 coverage = "*"
 coveralls = "*"
-pytest = [
-    {version = ">=2.7", markers = "python_version < \"3.0\""},
-    {version = ">5.0", markers = "python_version >= \"3.0\""}
-]
+pytest = ">5.0"
 pytest-mock = "*"
 argparse = "*"
 nbformat = "*"
 tox = "^4.4.7"
+
+[tool.poetry.extras]
+toml = ["tomli"]
+notebook = ["nbformat"]
 
 [tool.poetry.scripts]
 radon = "radon:main"

@@ -30,10 +30,8 @@ Radon can compute:
 Requirements
 ------------
 
-Radon will run from **Python 2.7** to **Python 3.12** (except Python versions
-from 3.0 to 3.3) with a single code base and without the need of tools like
-2to3 or six. It can also run on **PyPy** without any problems (currently PyPy
-3.5 v7.3.1 is used in tests).
+Radon will run with **Python versions 3.3 to 3.13**; and through
+**PyPy** (currently PyPy 3.5 v7.3.1 is used in tests).
 
 Radon depends on as few packages as possible. Currently only `mando` is
 strictly required (for the CLI interface). `colorama` is also listed as a
@@ -41,8 +39,7 @@ dependency but if Radon cannot import it, the output simply will not be
 colored.
 
 **Note**:
-**Python 2.6** was supported until version 1.5.0. Starting from version 2.0, it
-is not supported anymore.
+**Python 2** support was dropped in v6.0.0.
 
 Installation
 ------------
@@ -54,7 +51,7 @@ With Pip:
     $ pip install radon
 
 If you want to configure Radon from `pyproject.toml` and you run Python <3.11,
-you'll need the extra `toml` dependency:
+you will need to install the extra `toml` dependency:
 
 .. code-block:: sh
 
@@ -162,9 +159,11 @@ Usage with Jupyter Notebooks
 
 Radon can be used with ``.ipynb`` files to inspect code metrics for Python cells. Any ``%`` macros will be ignored in the metrics.
 
-.. note::
+You will need to install the extra `notebook` dependency:
 
-   Jupyter Notebook support requires the optional ``nbformat`` package. To install, run ``pip install nbformat``.
+.. code-block:: sh
+
+   $ pip install radon[notebook]
 
 To enable scanning of Jupyter notebooks, add the ``--include-ipynb`` flag.
 

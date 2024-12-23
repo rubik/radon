@@ -42,9 +42,11 @@ Usage with Jupyter Notebooks
 
 Radon can be used with ``.ipynb`` files to inspect code metrics for Python cells. Any ``%`` macros will be ignored in the metrics.
 
-.. note::
+You will need to install the extra `notebook` dependency:
 
-   Jupyter Notebook support requires the optional ``nbformat`` package. To install, run ``pip install nbformat``.
+.. code-block:: sh
+
+   $ pip install radon[notebook]
 
 To enable scanning of Jupyter notebooks, add the ``--include-ipynb`` flag with any of the commands.
 

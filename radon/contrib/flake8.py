@@ -2,7 +2,7 @@ from radon.complexity import add_inner_blocks
 from radon.visitors import ComplexityVisitor
 
 
-class Flake8Checker(object):
+class Flake8Checker:
     '''Entry point for the Flake8 tool.'''
 
     name = 'radon'

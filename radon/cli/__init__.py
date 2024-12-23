@@ -1,5 +1,6 @@
 '''In this module the CLI interface is created.'''
 
+import configparser
 import inspect
 import os
 import sys
@@ -27,16 +28,11 @@ from radon.cli.harvest import (
     RawHarvester,
 )
 
-if sys.version_info[0] == 2:
-    import ConfigParser as configparser
-else:
-    import configparser
-
 
 CONFIG_SECTION_NAME = 'radon'
 
 
-class FileConfig(object):
+class FileConfig:
     '''
     Yield default options by reading local configuration files.
     '''
@@ -319,7 +315,7 @@ def hal(
         log_result(harvester, json=json, xml=False, md=False, stream=stream)
 
 
-class Config(object):
+class Config:
     '''An object holding config values.'''
 
     def __init__(self, **kwargs):
@@ -347,12 +343,8 @@ class Config(object):
     @classmethod
     def from_function(cls, func):
         '''Construct a Config object from a function's defaults.'''
-        kwonlydefaults = {}
-        try:
-            argspec = inspect.getfullargspec(func)
-            kwonlydefaults = argspec.kwonlydefaults or {}
-        except AttributeError:  # pragma: no cover
-            argspec = inspect.getargspec(func)
+        argspec = inspect.getfullargspec(func)
+        kwonlydefaults = argspec.kwonlydefaults or {}
         args, _, _, defaults = argspec[:4]
         values = dict(zip(reversed(args), reversed(defaults or [])))
         values.update(kwonlydefaults)
@@ -420,7 +412,7 @@ def log_list(lst, *args, **kwargs):
 
 def log_error(msg, *args, **kwargs):
     '''Log an error message. Arguments are the same as log().'''
-    log('{0}{1}ERROR{2}: {3}'.format(BRIGHT, RED, RESET, msg), *args, **kwargs)
+    log('{}{}ERROR{}: {}'.format(BRIGHT, RED, RESET, msg), *args, **kwargs)
 
 
 @contextmanager

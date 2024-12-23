@@ -67,11 +67,11 @@ class Function(BaseFunc):
         '''
         if self.classname is None:
             return self.name
-        return '{0}.{1}'.format(self.classname, self.name)
+        return '{}.{}'.format(self.classname, self.name)
 
     def __str__(self):
         '''String representation of a function block.'''
-        return '{0} {1}:{2}->{3} {4} - {5}'.format(
+        return '{} {}:{}->{} {} - {}'.format(
             self.letter,
             self.lineno,
             self.col_offset,
@@ -105,7 +105,7 @@ class Class(BaseClass):
 
     def __str__(self):
         '''String representation of a class block.'''
-        return '{0} {1}:{2}->{3} {4} - {5}'.format(
+        return '{} {}:{}->{} {} - {}'.format(
             self.letter,
             self.lineno,
             self.col_offset,
@@ -251,7 +251,7 @@ class ComplexityVisitor(CodeVisitor):
         elif name == 'comprehension':
             self.complexity += len(node.ifs) + 1
 
-        super(ComplexityVisitor, self).generic_visit(node)
+        super().generic_visit(node)
 
     def visit_Assert(self, node):
         '''When visiting `assert` statements, the complexity is increased only
@@ -397,7 +397,7 @@ class HalsteadVisitor(CodeVisitor):
 
                 self.operands_seen.add((self.context, new_operand))
             # Now dispatch to children
-            super(HalsteadVisitor, self).generic_visit(node)
+            super().generic_visit(node)
 
         return aux
 

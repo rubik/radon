@@ -1,15 +1,11 @@
 FROM alpine:edge
-MAINTAINER rubik
+LABEL maintainer="rubik"
 
 WORKDIR /usr/src/app
 COPY . /usr/src/app
 
 RUN apk --update add \
-  python2 python3 py2-pip && \
-  pip2 install --upgrade pip && \
-  pip2 install --requirement requirements.txt && \
-  pip2 install . && \
-  mv /usr/bin/radon /usr/bin/radon2 && \
+  python3 py3-pip && \
   pip3 install --requirement requirements.txt && \
   pip3 install . && \
   mv /usr/bin/radon /usr/bin/radon3 && \
