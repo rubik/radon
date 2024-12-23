@@ -17,6 +17,7 @@ colorama = [
 # A list of all of the optional dependencies, which are included in the
 # below `extras`. They can be opted into by apps.
 # https://python-poetry.org/docs/pyproject/#extras
+tomli = { version = ">=2.0.1", optional = true }
 nbformat = { version = "*",  optional = true }
 
 [tool.poetry.group.dev.dependencies]
@@ -29,6 +30,7 @@ nbformat = "*"
 tox = "^4.4.7"
 
 [tool.poetry.extras]
+toml = ["tomli"]
 notebook = ["nbformat"]
 
 [tool.poetry.scripts]

@@ -808,8 +808,9 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 
 [extras]
 notebook = ["nbformat"]
+toml = ["tomli"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7,<4.0"
-content-hash = "4eb5cd71ada4e743bf51e23bba01d55143dfd3c8727c03dc7ee8f46c63215324"
+content-hash = "131a1e4dbcdc59b889ad9c54f5030ebc48f83949aaa9c401413e4ac61fd5da57"
