@@ -15,6 +15,7 @@ from radon.cli.tools import (
     dict_to_md,
     iter_filenames,
     raw_to_dict,
+    dict_to_reviewdog_diagnostic_format,
     strip_ipython,
 )
 from radon.complexity import (
@@ -163,6 +164,10 @@ class Harvester(object):
         '''Format the results as Code Climate issues.'''
         raise NotImplementedError
 
+    def as_reviewdog_diagnostic_format(self):
+        '''Format the results as ReviewDog Diagnostic Format (RDJSON).'''
+        raise NotImplementedError
+
     def to_terminal(self):
         '''Yields tuples representing lines to be printed to a terminal.
 
@@ -215,6 +220,14 @@ class CCHarvester(Harvester):
     def as_codeclimate_issues(self):
         '''Format the result as Code Climate issues.'''
         return dict_to_codeclimate_issues(self._to_dicts(), self.config.min)
+
+    def as_reviewdog_diagnostic_format(self):
+        '''Formatthe result as Reviewdog Diagnostic Format
+
+        See https://github.com/reviewdog/reviewdog/tree/master/proto/rdf#rdjson
+        for more information about the format.
+        '''''
+        return dict_to_reviewdog_diagnostic_format(self._to_dicts(), self.config.min)
 
     def to_terminal(self):
         '''Yield lines to be printed in a terminal.'''
