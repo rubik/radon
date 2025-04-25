@@ -446,6 +446,56 @@ def dict_to_codeclimate_issues(results, threshold='B'):
     return codeclimate_issues
 
 
+
+def dict_to_reviewdog_diagnostic_format(results, threshold='B'):
+    diagnostics = []
+
+    for path in results:
+        info = results[path]
+        for offender in info:
+            beginline = offender['lineno']
+            col_offset = offender['col_offset']
+            endline = offender['endline']
+            complexity = offender['complexity']
+            rank = offender['rank']
+            description = (
+                'Cyclomatic complexity is too high in {0} {1}. '
+                '({2})'.format(
+                    offender['type'], offender['name'], rank
+                )
+            )
+            remediation_points = get_remediation_points(
+                complexity, threshold
+            )
+
+            if remediation_points > 0:
+                diagnostics.append({
+                    "message": description,
+                    "location": {
+                        "path": path,
+                        "range": {
+                            "start": {
+                                "line": beginline,
+                                "column": col_offset
+                            },
+                            "end": {
+                                "line": endline,
+                                "column": None
+                            }
+                        }
+                    },
+                })
+
+    return json.dumps({
+        "source": {
+            "name": "radon cc",
+            "url": "https://radon.readthedocs.io/en/latest/commandline.html#the-cc-command"
+        },
+        "severity": "WARNING",
+        "diagnostics": diagnostics
+    })
+
+
 def cc_to_terminal(results, show_complexity, min, max, total_average):
     '''Transform Cyclomatic Complexity results into a 3-elements tuple:
 

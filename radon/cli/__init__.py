@@ -110,6 +110,7 @@ def cc(
     xml=False,
     md=False,
     codeclimate=False,
+    rdjson=False,
     output_file=_cfg.get_value('output_file', str, None),
     include_ipynb=_cfg.get_value('include_ipynb', bool, False),
     ipynb_cells=_cfg.get_value('ipynb_cells', bool, False),
@@ -142,6 +143,7 @@ def cc(
     :param --xml: Format results in XML (compatible with CCM).
     :param --md: Format results in Markdown.
     :param --codeclimate: Format results for Code Climate.
+    :param --rdjson: Format results for ReviewDog.
     :param --no-assert: Do not count `assert` statements when computing
         complexity.
     :param --show-closures: Add closures/inner classes to the output.
@@ -171,6 +173,7 @@ def cc(
             xml=xml,
             md=md,
             codeclimate=codeclimate,
+            rdjson=rdjson,
             stream=stream,
         )
 
@@ -377,6 +380,12 @@ def log_result(harvester, **kwargs):
         log_list(
             harvester.as_codeclimate_issues(),
             delimiter='\0',
+            noformat=True,
+            **kwargs
+        )
+    elif kwargs.get('rdjson'):
+        log(
+            harvester.as_reviewdog_diagnostic_format(),
             noformat=True,
             **kwargs
         )

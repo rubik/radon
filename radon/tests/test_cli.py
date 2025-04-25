@@ -112,6 +112,7 @@ def test_cc(mocker, log_mock):
     log_mock.assert_called_once_with(
         mocker.sentinel.harvester,
         codeclimate=False,
+        rdjson=False,
         json=True,
         stream=sys.stdout,
         xml=False,
