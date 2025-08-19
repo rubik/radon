@@ -12,6 +12,17 @@ GET_REAL_COMPLEXITY = operator.attrgetter('real_complexity')
 NAMES_GETTER = operator.attrgetter('name', 'asname')
 GET_ENDLINE = operator.attrgetter('endline')
 
+WHILE_COMPLEXITY = 1
+FOR_COMPLEXITY = 1
+ASYNC_FOR = 1
+FUNC_DEF_ARGS_THRESHOLD = 3
+IF_COMPLEXITY = 1
+IFEXP_COMPLEXITY = 1
+MAX_LINE_LENGTH = 120
+NESTING_DEPTH_THRESHOLD = 1
+NESTING_DEPTH_PENALTY = 1
+
+
 BaseFunc = collections.namedtuple(
     'Function',
     [
@@ -458,3 +469,155 @@ class HalsteadVisitor(CodeVisitor):
         such.
         '''
         self.visit_FunctionDef(node)
+
+
+class MultiFactorComplexityVisitor(ComplexityVisitor):
+    """An enhanced visitor that tracks cyclomatic complexity while accounting for nesting depth.
+
+    Deeply nested structures receive higher complexity weights and so do loops compared to if statements,
+    reflecting their increased cognitive load on developers.
+    """
+
+    def __init__(self, to_method=False, classname=None, off=True, no_assert=False, depth_factor=0):
+        super().__init__(to_method, classname, off, no_assert)
+        self.nesting_depth = 0
+        self.depth_factor = (
+            depth_factor if depth_factor > 0 else NESTING_DEPTH_PENALTY
+        )  # Controls how much nesting affects complexity
+
+    def generic_visit(self, node):
+        """Main entry point for the visitor."""
+        # Get the name of the class
+        name = self.get_name(node)
+        # Check for a lineno attribute
+        if hasattr(node, "lineno"):
+            self.max_line = node.lineno
+
+        # Track structures that introduce nesting
+        nesting_structures = ("If", "IfExp", "For", "While", "AsyncFor", "Try", "TryExcept", "Match")
+
+        # Increase nesting depth when entering a control structure
+        if name in nesting_structures:
+            self.nesting_depth += 1
+
+        # The Try/Except block is counted as the number of handlers
+        # plus the `else` block.
+        # In Python 3.3 the TryExcept and TryFinally nodes have been merged
+        # into a single node: Try
+        if name in ("Try", "TryExcept"):
+            self.complexity += len(node.handlers) + bool(node.orelse)
+        elif name == "BoolOp":
+            self.complexity += len(node.values) - 1
+        # Ifs, with and assert statements count all as 1.
+        # Note: Lambda functions are not counted anymore, see #68
+        elif name == "If":
+            self.complexity += IF_COMPLEXITY
+        elif name == "IfExp":
+            self.complexity += IFEXP_COMPLEXITY
+        # elif name in ("If", "IfExp"):
+        #     self.complexity += 1
+        elif name == "Match":
+            # check if _ (else) used
+            contain_underscore = any((case for case in node.cases if getattr(case.pattern, "pattern", False) is None))
+            # Max used for case when match contain only _ (else)
+            self.complexity += max(0, len(node.cases) - contain_underscore)
+        # The For and While blocks count as 1 plus the `else` block.
+        elif name == "While":
+            self.complexity += bool(node.orelse) + WHILE_COMPLEXITY
+        elif name == "For":
+            self.complexity += bool(node.orelse) + FOR_COMPLEXITY
+        elif name == "AsyncFor":
+            self.complexity += bool(node.orelse) + ASYNC_FOR
+        elif name == "comprehension":
+            self.complexity += len(node.ifs) + 1
+        # Check for defined line length/width
+        elif name == "Constant" and hasattr(node, "end_col_offset"):
+            if node.end_col_offset - MAX_LINE_LENGTH > 0:
+                print(node.end_col_offset, MAX_LINE_LENGTH)
+            self.complexity += max(0, node.end_col_offset - MAX_LINE_LENGTH)
+
+        super(ComplexityVisitor, self).generic_visit(node)
+
+        if name in nesting_structures:
+            if self.nesting_depth > NESTING_DEPTH_THRESHOLD:
+                self.complexity += self.nesting_depth * self.depth_factor
+
+            self.nesting_depth -= 1
+
+    def visit_FunctionDef(self, node):
+        """When visiting functions a new visitor is created to recursively
+        analyze the function's body.
+        """
+        # Save current nesting depth
+        original_depth = self.nesting_depth
+        self.nesting_depth = 0  # Reset nesting depth for new function scope
+
+        # The complexity of a function is computed taking into account
+        # the following factors: number of decorators, the complexity
+        # the function's body and the number of closures (which count
+        # double).
+        closures = []
+        body_complexity = 1
+        body_complexity += max(len(node.args.args) - FUNC_DEF_ARGS_THRESHOLD, 0)
+
+        for child in node.body:
+            visitor = MultiFactorComplexityVisitor(off=False, no_assert=self.no_assert)
+            visitor.visit(child)
+            closures.extend(visitor.functions)
+            # Add general complexity but not closures' complexity, see #68
+            body_complexity += visitor.complexity
+
+        func = Function(
+            node.name,
+            node.lineno,
+            node.col_offset,
+            max(node.lineno, visitor.max_line),
+            self.to_method,
+            self.classname,
+            closures,
+            body_complexity,
+        )
+        self.functions.append(func)
+
+        # Restore original nesting depth
+        self.nesting_depth = original_depth
+
+    def visit_ClassDef(self, node):
+        """When visiting classes a new visitor is created to recursively
+        analyze the class' body and methods.
+        """
+        # Save current nesting depth
+        original_depth = self.nesting_depth
+        self.nesting_depth = 0  # Reset nesting depth for new class scope
+
+        # The complexity of a class is computed taking into account
+        # the following factors: number of decorators and the complexity
+        # of the class' body (which is the sum of all the complexities).
+        methods = []
+        # According to Cyclomatic Complexity definition it has to start off
+        # from 1.
+        body_complexity = 1
+        classname = node.name
+        visitors_max_lines = [node.lineno]
+        inner_classes = []
+        for child in node.body:
+            visitor = MultiFactorComplexityVisitor(True, classname, off=False, no_assert=self.no_assert)
+            visitor.visit(child)
+            methods.extend(visitor.functions)
+            body_complexity += visitor.complexity + visitor.functions_complexity + len(visitor.functions)
+            visitors_max_lines.append(visitor.max_line)
+            inner_classes.extend(visitor.classes)
+
+        cls = Class(
+            classname,
+            node.lineno,
+            node.col_offset,
+            max(visitors_max_lines + list(map(GET_ENDLINE, methods))),
+            methods,
+            inner_classes,
+            body_complexity,
+        )
+        self.classes.append(cls)
+
+        # Restore original nesting depth
+        self.nesting_depth = original_depth
