@@ -2,8 +2,13 @@
 
 import inspect
 import os
+import signal
 import sys
 from contextlib import contextmanager
+
+# Handle broken pipe gracefully when output is piped to head, less, etc.
+# This prevents BrokenPipeError when radon output is truncated by pipe consumers
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 from mando import Program
 try:
