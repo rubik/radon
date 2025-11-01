@@ -3,7 +3,11 @@
 import collections
 import json
 import sys
-from builtins import super
+
+try:
+    from builtins import super
+except ImportError:
+    from __builtin__ import super
 
 from radon.cli.colors import MI_RANKS, RANKS_COLORS, RESET
 from radon.cli.tools import (

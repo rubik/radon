@@ -82,7 +82,8 @@ class FileConfig(object):
         for path in (os.getenv('RADONCFG', None), 'radon.cfg'):
             if path is not None and os.path.exists(path):
                 config.read_file(open(path))
-        config.read_dict(FileConfig.toml_config())
+        for key, value in FileConfig.toml_config().items():
+            config[key] = value
         config.read(['setup.cfg', os.path.expanduser('~/.radon.cfg')])
         return config
 
