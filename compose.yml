@@ -1,0 +1,11 @@
+services:
+  radon:
+    build:
+      context: .
+      dockerfile: Dockerfile.legacy
+      args:
+        TAG_DOCKER_IMAGE_PYTHON: ${TAG_DOCKER_IMAGE_PYTHON:?err}
+    image: futureys/radon:development
+    volumes:
+      - ./:/workspace:cached
+      - /workspace/.venv

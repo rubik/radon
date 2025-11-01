@@ -1,0 +1,48 @@
+name: Test
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.14', '3.13', '3.12', '3.11', '3.10', 'pypy3.10' ]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v5
+      - run: rm -f pyproject.toml
+      - run: mv pyproject-uv.toml pyproject.toml
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync
+      - run: uv run make tests
+  test_3_7:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: rm -f pyproject.toml
+      - run: mv pyproject-uv.toml pyproject.toml
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.7'
+      - run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - run: uv sync --python '3.7'
+      - run: uv run make tests
+  test_legacy:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        tag-docker-image-python: [ '3.6.15-slim-bullseye', '2.7.18-slim-buster' ]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build and start Docker Compose services
+        run: docker compose run --rm radon
+        env:
+          TAG_DOCKER_IMAGE_PYTHON: ${{ matrix.tag-docker-image-python }}

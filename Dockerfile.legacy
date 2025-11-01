@@ -1,0 +1,11 @@
+ARG TAG_DOCKER_IMAGE_PYTHON=latest
+FROM python:${TAG_DOCKER_IMAGE_PYTHON}
+WORKDIR /workspace
+COPY Pipfile README.rst /workspace/
+# COPY Pipfile Pipfile.lock README.rst /workspace/
+RUN pip install pipenv==11.10.4 \
+# RUN pip install pipenv==2020.5.28 \
+ && pipenv install --skip-lock --dev --system
+#  && pipenv install --deploy --system
+COPY . /workspace/
+CMD ["python", "radon/tests/run.py"]

@@ -1,0 +1,53 @@
+[dependency-groups]
+dev = [
+    "tox",
+    "pytest",
+    "coverage",
+    # 
+    "mando",
+    "mock",
+    "pytest-mock",
+    # Dependencies for productions
+    "mando>=0.6,<0.8",
+    "colorama>=0.4.1; python_version > '3.4'",
+    "colorama==0.4.1; python_version <= '3.4'",
+]
+
+[tool.poetry]
+name = "radon"
+version = "6.0.1"
+description = "Code Metrics in Python"
+authors = ["Michele Lacchia <michelelacchia@gmail.com>"]
+license = "MIT"
+readme = "README.rst"
+
+[tool.poetry.dependencies]
+python = ">=3.7,<4.0"
+mando = ">=0.6,<0.8"
+colorama = [
+    {version = ">=0.4.1", markers = "python_version > \"3.4\""},
+    {version = "==0.4.1", markers = "python_version <= \"3.4\""}
+]
+
+[tool.poetry.group.dev.dependencies]
+coverage = "*"
+coveralls = "*"
+pytest = [
+    {version = ">=2.7", markers = "python_version < \"3.0\""},
+    {version = ">5.0", markers = "python_version >= \"3.0\""}
+]
+pytest-mock = "*"
+argparse = "*"
+nbformat = "*"
+tox = "^4.4.7"
+
+[tool.poetry.scripts]
+radon = "radon:main"
+
+# [build-system]
+# requires = ["poetry-core"]
+# build-backend = "poetry.core.masonry.api"
+
+[build-system]
+requires = ["setuptools>=40.8.0", "wheel"]
+build-backend = "setuptools.build_meta:__legacy__"
