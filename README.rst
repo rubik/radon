@@ -121,6 +121,34 @@ using Unicode characters in your Python file and want to analyze it with Radon,
 you'll have to set the `RADONFILESENCODING` environment variable to `UTF-8`.
 
 
+Ignoring blocks
+---------------
+
+You can exclude specific functions, methods, or classes from the complexity
+analysis by adding a ``# radon: ignore`` comment on the definition line or
+on the line immediately before it:
+
+.. code-block:: python
+
+    def complex_but_ignored(x):  # radon: ignore
+        # This function will not be reported
+        if x > 0:
+            if x > 10:
+                return x * 2
+        return x
+
+    # radon: ignore
+    def also_ignored(data):
+        # Comment on line before also works
+        for item in data:
+            if item > 100:
+                return "large"
+        return "none"
+
+This is useful when you have intentionally complex code (e.g., state machines,
+parsers) that you want to exclude from complexity reports.
+
+
 On a Continuous Integration server
 ----------------------------------
 

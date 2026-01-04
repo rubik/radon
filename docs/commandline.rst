@@ -196,6 +196,44 @@ Options
 
    Value can be set in a configuration file using the ``output_file`` property.
 
+Ignoring blocks with comments
++++++++++++++++++++++++++++++
+
+You can exclude specific functions, methods, or classes from the complexity
+analysis by adding a ``# radon: ignore`` comment. The comment can be placed
+either on the definition line itself, or on the line immediately before it:
+
+.. code-block:: python
+
+    def complex_but_ignored(x):  # radon: ignore
+        # This function will not be reported
+        if x > 0:
+            if x > 10:
+                return x * 2
+        return x
+
+    # radon: ignore
+    def also_ignored(data):
+        # Comment on line before also works
+        for item in data:
+            if item > 100:
+                return "large"
+        return "none"
+
+    class IgnoredClass:  # radon: ignore
+        # This class and its methods will not be reported
+        def method(self):
+            pass
+
+The comment format is case-insensitive and allows for variations in spacing:
+
+* ``# radon: ignore``
+* ``# radon:ignore``
+* ``# RADON: IGNORE``
+
+This feature also works with the Flake8 plugin and when using radon
+programmatically via ``cc_visit()``.
+
 Examples
 ++++++++
 

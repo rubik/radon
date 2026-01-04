@@ -23,5 +23,25 @@ following options:
 
    Instruct radon to add closures/inner classes to the output.
 
+Ignoring blocks
+---------------
+
+You can exclude specific functions, methods, or classes from the complexity
+check by adding a ``# radon: ignore`` comment on the definition line or on
+the line immediately before it:
+
+.. code-block:: python
+
+    def complex_function(x):  # radon: ignore
+        # This function will not trigger R701
+        if x > 0:
+            if x > 10:
+                if x > 100:
+                    return x * 3
+                return x * 2
+        return x
+
+This works in addition to the standard ``# noqa`` comment that Flake8 supports.
+
 For more information visit the `Flake8 documentation
 <http://flake8.readthedocs.org/en/latest/>`_.
