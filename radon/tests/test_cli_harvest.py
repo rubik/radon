@@ -127,7 +127,9 @@ def test_base_as_json(base_config):
 def test_cc_gobble(cc_config, mocker):
     sr_mock = mocker.patch('radon.cli.harvest.sorted_results')
     cc_mock = mocker.patch('radon.cli.harvest.cc_visit')
+    gil_mock = mocker.patch('radon.cli.harvest.get_ignore_lines')
     cc_mock.return_value = []
+    gil_mock.return_value = set()
     fobj = mocker.MagicMock()
     fobj.read.return_value = mocker.sentinel.one
 
@@ -139,6 +141,7 @@ def test_cc_gobble(cc_config, mocker):
     cc_mock.assert_called_with(
         mocker.sentinel.one, no_assert=cc_config.no_assert
     )
+    gil_mock.assert_called_with(mocker.sentinel.one)
     sr_mock.assert_called_with([], order=cc_config.order)
 
 
