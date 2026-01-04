@@ -23,6 +23,7 @@ from radon.complexity import (
     cc_visit,
     sorted_results,
 )
+from radon.suppression import get_ignore_lines
 from radon.metrics import h_visit, mi_rank, mi_visit
 from radon.raw import analyze
 
@@ -177,9 +178,12 @@ class CCHarvester(Harvester):
 
     def gobble(self, fobj):
         '''Analyze the content of the file object.'''
-        r = cc_visit(fobj.read(), no_assert=self.config.no_assert)
+        code = fobj.read()
+        r = cc_visit(code, no_assert=self.config.no_assert)
         if self.config.show_closures:
-            r = add_inner_blocks(r)
+            # Get ignore lines to filter inner blocks as well
+            ignore_lines = get_ignore_lines(code)
+            r = add_inner_blocks(r, ignore_lines=ignore_lines)
         return sorted_results(r, order=self.config.order)
 
     def _to_dicts(self):

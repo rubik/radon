@@ -5,6 +5,7 @@ Cyclomatic Complexity
 import math
 
 from radon.visitors import GET_COMPLEXITY, ComplexityVisitor, code2ast
+from radon.suppression import filter_ignored_blocks, get_ignore_lines
 
 # sorted_block ordering functions
 SCORE = lambda block: -GET_COMPLEXITY(block)
@@ -75,9 +76,13 @@ def sorted_results(blocks, order=SCORE):
     return sorted(blocks, key=order)
 
 
-def add_inner_blocks(blocks):
+def add_inner_blocks(blocks, ignore_lines=None):
     '''Process a list of blocks by adding all closures and inner classes as
     top-level blocks.
+
+    :param blocks: List of Function or Class blocks.
+    :param ignore_lines: Optional set of line numbers to ignore. If provided,
+        inner blocks on those lines will be filtered out.
     '''
     new_blocks = []
     all_blocks = blocks[:]
@@ -91,14 +96,25 @@ def add_inner_blocks(blocks):
                 for meth in getattr(named, 'methods', ()):
                     m_named = meth._replace(classname=named.name)
                     all_blocks.append(m_named)
+    # Filter ignored blocks if ignore_lines is provided
+    if ignore_lines:
+        new_blocks = filter_ignored_blocks(new_blocks, ignore_lines)
     return new_blocks
 
 
 def cc_visit(code, **kwargs):
     '''Visit the given code with :class:`~radon.visitors.ComplexityVisitor`.
     All the keyword arguments are directly passed to the visitor.
+
+    If `ignore_suppression` is False (default), blocks marked with
+    "# radon: ignore" comments will be filtered out.
     '''
-    return cc_visit_ast(code2ast(code), **kwargs)
+    ignore_suppression = kwargs.pop('ignore_suppression', False)
+    blocks = cc_visit_ast(code2ast(code), **kwargs)
+    if not ignore_suppression:
+        ignore_lines = get_ignore_lines(code)
+        blocks = filter_ignored_blocks(blocks, ignore_lines)
+    return blocks
 
 
 def cc_visit_ast(ast_node, **kwargs):
