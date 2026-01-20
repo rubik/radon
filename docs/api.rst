@@ -97,11 +97,48 @@ Cyclomatic Complexity
 
 .. autofunction:: cc_visit
 
+.. note::
+
+   The ``cc_visit`` function supports an ``ignore_suppression`` keyword argument.
+   When set to ``False`` (the default), blocks marked with ``# radon: ignore``
+   comments will be filtered out. Set to ``True`` to include all blocks regardless
+   of ignore comments.
+
+   .. code-block:: python
+
+       >>> from radon.complexity import cc_visit
+       >>> code = '''
+       ... def ignored(x):  # radon: ignore
+       ...     if x > 0: return x
+       ...     return -x
+       ...
+       ... def normal(x):
+       ...     return x + 1
+       ... '''
+       >>> [b.name for b in cc_visit(code)]
+       ['normal']
+       >>> [b.name for b in cc_visit(code, ignore_suppression=True)]
+       ['ignored', 'normal']
+
 .. autofunction:: cc_visit_ast
 
 .. autofunction:: cc_rank
 
 .. autofunction:: sorted_results(blocks, order=SCORE)
+
+.. autofunction:: add_inner_blocks
+
+Suppression
+-----------
+
+.. py:module:: radon.suppression
+    :synopsis: Functions for suppressing complexity checks via comments.
+
+.. autofunction:: get_ignore_lines
+
+.. autofunction:: should_ignore_block
+
+.. autofunction:: filter_ignored_blocks
 
 Raw metrics
 -----------

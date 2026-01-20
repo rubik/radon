@@ -1,4 +1,5 @@
 from radon.complexity import add_inner_blocks
+from radon.suppression import filter_ignored_blocks, get_ignore_lines
 from radon.visitors import ComplexityVisitor
 
 
@@ -14,8 +15,9 @@ class Flake8Checker(object):
     max_cc = -1
 
     def __init__(self, tree, filename):
-        '''Accept the AST tree and a filename (unused).'''
+        '''Accept the AST tree and a filename.'''
         self.tree = tree
+        self.filename = filename
 
     @classmethod
     def add_options(cls, option_manager):  # pragma: no cover
@@ -52,6 +54,14 @@ class Flake8Checker(object):
         cls.no_assert = options.no_assert
         cls.show_closures = options.show_closures
 
+    def _get_ignore_lines(self):
+        '''Read the source file and extract lines with "# radon: ignore".'''
+        try:
+            with open(self.filename, 'r') as f:
+                return get_ignore_lines(f.read())
+        except (IOError, OSError):
+            return set()
+
     def run(self):
         '''Run the ComplexityVisitor over the AST tree.'''
         if self.max_cc < 0:
@@ -63,8 +73,12 @@ class Flake8Checker(object):
         )
 
         blocks = visitor.blocks
+        ignore_lines = self._get_ignore_lines()
+
         if self.show_closures:
-            blocks = add_inner_blocks(blocks)
+            blocks = add_inner_blocks(blocks, ignore_lines=ignore_lines)
+        else:
+            blocks = filter_ignored_blocks(blocks, ignore_lines)
 
         for block in blocks:
             if block.complexity > self.max_cc:
