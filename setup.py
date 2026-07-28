@@ -20,6 +20,7 @@ setup(name='radon',
       platforms='any',
       long_description=readme,
       packages=find_packages(),
+      package_data={'radon': ['*.pyi', 'py.typed']},
       tests_require=['tox'],
       install_requires=[
           'mando>=0.6,<0.8',
