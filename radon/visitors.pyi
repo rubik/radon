@@ -139,8 +139,8 @@ _DispatchParameters = _typing_extensions.ParamSpec("_DispatchParameters")
 _DispatchResult = _typing.Tuple[
     int,
     int,
-    _typing.Iterable[object],
-    _typing.Iterable[object],
+    _typing.Iterable[str],
+    _typing.Iterable[ast.AST],
 ]
 
 class _BoundDispatch(_typing_extensions.Protocol):
@@ -159,7 +159,7 @@ class _Dispatch(_typing_extensions.Protocol):
     def __get__(
         self,
         __instance: None,
-        __owner: _typing.Type[object],
+        __owner: _typing.Type["HalsteadVisitor"],
     ) -> _DispatchDecorator: ...
     @_typing.overload
     def __get__(
@@ -171,7 +171,9 @@ class _Dispatch(_typing_extensions.Protocol):
 class HalsteadVisitor(CodeVisitor):
     types: _typing.ClassVar[_typing.Dict[str, str]]
     operators_seen: _typing.Set[str]
-    operands_seen: _typing.Set[_typing.Tuple[_typing.Optional[str], object]]
+    operands_seen: _typing.Set[
+        _typing.Tuple[_typing.Optional[str], _typing.Hashable]
+    ]
     operators: int
     operands: int
     context: _typing.Optional[str]
