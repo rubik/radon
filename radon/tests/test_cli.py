@@ -276,7 +276,29 @@ def test_log_result(mocker, stdout_mock):
             mocker.call('a', error=True),
         ]
     )
-    le_mock.assert_called_once_with('mystr', indent=1)
+    le_mock.assert_called_once_with('mystr', indent=1, noformat=True)
     ll_mock.assert_has_calls(
         [mocker.call(['b']), mocker.call(('p1', 'p2'), indent=1)]
+    )
+
+
+@pytest.mark.parametrize('message', [
+    "unclosed '{'",
+    "unmatched '}'",
+    'missing {name}',
+    'missing {}',
+    'literal {{braces}}',
+])
+def test_log_result_preserves_error_braces(mocker, capsys, message):
+    harvester = mocker.Mock(spec=Harvester)
+    harvester.to_terminal.return_value = iter([
+        ('broken.py', (message,), {'error': True}),
+    ])
+
+    cli.log_result(harvester)
+
+    assert capsys.readouterr().out == (
+        'broken.py\n    {0}{1}ERROR{2}: {3}\n'.format(
+            cli.BRIGHT, cli.RED, cli.RESET, message,
+        )
     )
