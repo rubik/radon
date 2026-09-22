@@ -28,7 +28,7 @@ Complexity. Statements have the following effects on Cyclomatic Complexity:
  while              +1             There is a decision at the `while` statement.
  except             +1             Each `except` branch adds a new conditional path of execution.
  finally            +0             The finally block is unconditionally executed.
- with               +1             The `with` statement roughly corresponds to a try/except block (see PEP 343 for details).
+ with / async with  +0             The context manager statement itself does not add a decision.
  assert             +1             The `assert` statement internally roughly equals a conditional statement.
  Comprehension      +1             A list/set/dict comprehension of generator expression is equivalent to a for loop.
  Boolean Operator   +1             Every boolean operator (and, or) adds a decision point.

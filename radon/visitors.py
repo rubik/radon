@@ -232,7 +232,7 @@ class ComplexityVisitor(CodeVisitor):
             self.complexity += len(node.handlers) + bool(node.orelse)
         elif name == 'BoolOp':
             self.complexity += len(node.values) - 1
-        # Ifs, with and assert statements count all as 1.
+        # If statements and conditional expressions count as 1.
         # Note: Lambda functions are not counted anymore, see #68
         elif name in ('If', 'IfExp'):
             self.complexity += 1
