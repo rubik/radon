@@ -3,6 +3,7 @@ import textwrap
 
 import pytest
 
+from radon.complexity import cc_visit
 from radon.visitors import *
 
 dedent = lambda code: textwrap.dedent(code).strip()
@@ -595,6 +596,63 @@ def test_visitor_classes(code, expected):
     cls = visitor.classes[0]
     assert cls.real_complexity == total_class_complexity
     assert tuple(map(GET_COMPLEXITY, cls.methods)) == methods_complexity
+
+
+def test_nested_classes_contribute_recursively_and_keep_report_shape():
+    code = dedent(
+        '''
+        class Outer:
+            def direct(self):
+                if enabled:
+                    pass
+
+            if enabled:
+                class Middle:
+                    class Inner:
+                        def nested(self):
+                            assert ready
+        '''
+    )
+
+    visitor = ComplexityVisitor.from_code(code)
+    outer = visitor.classes[0]
+    middle = outer.inner_classes[0]
+    inner = middle.inner_classes[0]
+
+    # Outer: 1 base + 2 direct method + 2 nested method + 1 class-body if.
+    assert outer.real_complexity == 6
+    assert outer.complexity == 6
+    assert outer.endline == 9
+    assert middle.real_complexity == 3
+    assert middle.endline == 9
+    assert inner.real_complexity == 3
+    assert inner.methods[0].complexity == 2
+
+    # Public blocks retain the default omission of nested classes and methods.
+    blocks = cc_visit(code)
+    assert [block.name for block in blocks] == ['Outer', 'direct']
+    assert [block.complexity for block in blocks] == [6, 2]
+
+
+def test_nested_class_aggregation_preserves_no_assert_and_empty_classes():
+    code = dedent(
+        '''
+        class Outer:
+            class Empty:
+                pass
+            class WithAssert:
+                def check(self):
+                    assert ready
+        '''
+    )
+
+    normal = ComplexityVisitor.from_code(code)
+    without_asserts = ComplexityVisitor.from_code(code, no_assert=True)
+
+    assert normal.classes[0].real_complexity == 3
+    assert without_asserts.classes[0].real_complexity == 2
+    assert normal.classes[0].inner_classes[0].real_complexity == 1
+    assert without_asserts.classes[0].inner_classes[1].methods[0].complexity == 1
 
 
 GENERAL_CASES = [

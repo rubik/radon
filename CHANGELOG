@@ -1,3 +1,8 @@
+Unreleased
+----------
+
+- Include nested class complexity in enclosing class totals and end lines.
+
 6.0.1 (Mar 26, 2023)
 --------------------
 

@@ -317,9 +317,13 @@ class ComplexityVisitor(CodeVisitor):
             body_complexity += (
                 visitor.complexity
                 + visitor.functions_complexity
+                + visitor.classes_complexity
                 + len(visitor.functions)
             )
             visitors_max_lines.append(visitor.max_line)
+            visitors_max_lines.extend(
+                map(GET_ENDLINE, visitor.classes)
+            )
             inner_classes.extend(visitor.classes)
 
         cls = Class(
