@@ -2,6 +2,7 @@ import textwrap
 
 import pytest
 
+from radon import raw
 from radon.raw import *
 
 dedent = lambda code: textwrap.dedent(code).strip()
@@ -465,3 +466,36 @@ def test_analyze(code, expected):
             + result.single_comments
             + result.multi
         )
+
+
+@pytest.mark.parametrize(
+    'separator',
+    [u'\v', u'\f', u'\x1c', u'\x1d', u'\x1e', u'\x85',
+     u'\u2028', u'\u2029'],
+)
+@pytest.mark.parametrize('code,expected', [
+    (u'value = "before{}after"', raw.Module(1, 1, 1, 0, 0, 0, 0)),
+    (u'# before{}after', raw.Module(1, 0, 0, 1, 0, 0, 1)),
+    (u'"""before{}after"""', raw.Module(1, 1, 0, 0, 0, 0, 1)),
+])
+def test_analyze_non_newline_separators(separator, code, expected):
+    source = code.format(separator)
+    compile(source, '<raw-metrics>', 'exec')
+    assert raw.analyze(source) == expected
+
+
+@pytest.mark.parametrize('newline', ['\n', '\r\n', '\r'])
+@pytest.mark.parametrize('trailing_newline', [False, True])
+def test_analyze_physical_newlines(newline, trailing_newline):
+    source = newline.join(['value = 1', '', '# comment', 'value += 1'])
+    if trailing_newline:
+        source += newline
+    assert raw.analyze(source) == raw.Module(4, 2, 2, 1, 0, 1, 1)
+
+
+@pytest.mark.parametrize('source,lines', [
+    ('', 0), ('\n', 1), ('\r\n', 1), ('\r', 1),
+    ('\n\n', 2), ('\r\n\r\n', 2), ('\r\r', 2),
+])
+def test_analyze_empty_physical_lines(source, lines):
+    assert raw.analyze(source) == raw.Module(lines, 0, 0, 0, 0, lines, 0)

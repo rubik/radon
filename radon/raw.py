@@ -201,7 +201,10 @@ def analyze(source):
     Python interpreter, they are not comments but strings.
     '''
     lloc = comments = single_comments = multi = blank = sloc = 0
-    lines = (l.strip() for l in source.splitlines())
+    # Only CR, LF and CRLF end Python physical lines. Other separators
+    # recognized by str.splitlines() can occur inside strings and comments.
+    source = source.replace('\r\n', '\n').replace('\r', '\n')
+    lines = (line.strip() for line in io.StringIO(source))
     lineno = 1
     for line in lines:
         try:
