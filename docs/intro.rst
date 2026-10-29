@@ -26,7 +26,7 @@ Complexity. Statements have the following effects on Cyclomatic Complexity:
  case _             +0             The `case _` statement does not cause a new decision. The decision is at the `case pattern`.
  for                +1             There is a decision at the start of the loop.
  while              +1             There is a decision at the `while` statement.
- except             +1             Each `except` branch adds a new conditional path of execution.
+ except / except*   +1             Each exception handler adds a new conditional path of execution.
  finally            +0             The finally block is unconditionally executed.
  with               +1             The `with` statement roughly corresponds to a try/except block (see PEP 343 for details).
  assert             +1             The `assert` statement internally roughly equals a conditional statement.

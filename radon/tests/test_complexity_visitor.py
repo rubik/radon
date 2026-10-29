@@ -419,6 +419,28 @@ def test_visitor_simple(code, expected, kwargs):
     assert visitor.complexity == expected
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 11), reason='except* requires Python 3.11'
+)
+@pytest.mark.parametrize('suffix,expected', [
+    ('', 2),
+    ('except* TypeError: pass', 3),
+    ('else: pass', 3),
+    ('finally: pass', 2),
+    ('except* TypeError: pass\nelse: pass\nfinally: pass', 4),
+])
+def test_exception_group_handlers(suffix, expected):
+    from radon.visitors import ComplexityVisitor
+
+    code = 'try: pass\nexcept* ValueError: pass\n' + suffix
+    assert ComplexityVisitor.from_code(code).complexity == expected
+    function = 'def f():\n' + '\n'.join(
+        '    ' + line for line in code.splitlines()
+    )
+    visitor = ComplexityVisitor.from_code(function)
+    assert visitor.functions[0].complexity == expected
+
+
 SINGLE_FUNCTIONS_CASES = [
     (
         '''

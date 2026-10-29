@@ -228,7 +228,7 @@ class ComplexityVisitor(CodeVisitor):
         # plus the `else` block.
         # In Python 3.3 the TryExcept and TryFinally nodes have been merged
         # into a single node: Try
-        if name in ('Try', 'TryExcept'):
+        if name in ('Try', 'TryExcept', 'TryStar'):
             self.complexity += len(node.handlers) + bool(node.orelse)
         elif name == 'BoolOp':
             self.complexity += len(node.values) - 1
