@@ -371,6 +371,67 @@ MATCH_STATEMENT_BLOCKS = [
     (
         '''
      match a:
+         case _ if b: pass
+     ''',
+        2,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case captured if b: pass
+     ''',
+        2,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case 1 if b: pass
+     ''',
+        3,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case 1 if b: pass
+         case _: pass
+     ''',
+        3,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case 1 if b or c: pass
+         case _: pass
+     ''',
+        4,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case _ if b: pass
+         case _ if c: pass
+     ''',
+        3,
+        {},
+    ),
+    (
+        '''
+     match a:
+         case _ if b: pass
+         case _ if c: pass
+         case _: pass
+     ''',
+        3,
+        {},
+    ),
+    (
+        '''
+     match a:
          case 1: pass
      ''',
         2,

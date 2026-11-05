@@ -237,12 +237,13 @@ class ComplexityVisitor(CodeVisitor):
         elif name in ('If', 'IfExp'):
             self.complexity += 1
         elif name == 'Match':
-            # check if _ (else) used
-            contain_underscore = any(
-                (case for case in node.cases if
-                 getattr(case.pattern, "pattern", False) is None))
-            # Max used for case when match contain only _ (else)
-            self.complexity += max(0, len(node.cases) - contain_underscore)
+            # Patterns and guards each add a decision. Wildcard and capture
+            # patterns are unconditional, but their guards are not.
+            self.complexity += sum(
+                (getattr(case.pattern, 'pattern', False) is not None)
+                + (case.guard is not None)
+                for case in node.cases
+            )
         # The For and While blocks count as 1 plus the `else` block.
         elif name in ('For', 'While', 'AsyncFor'):
             self.complexity += bool(node.orelse) + 1

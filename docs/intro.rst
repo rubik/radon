@@ -24,6 +24,7 @@ Complexity. Statements have the following effects on Cyclomatic Complexity:
  else               +0             The `else` statement does not cause a new decision. The decision is at the `if`.
  case pattern       +1             The `case pattern` statement is a single decision.
  case _             +0             The `case _` statement does not cause a new decision. The decision is at the `case pattern`.
+ case guard         +1             A guard adds a decision even when the pattern is an unconditional wildcard or capture.
  for                +1             There is a decision at the start of the loop.
  while              +1             There is a decision at the `while` statement.
  except             +1             Each `except` branch adds a new conditional path of execution.
