@@ -1,3 +1,8 @@
+Unreleased
+----------
+
+- Avoid repeatedly tokenizing prefixes of multiline statements in raw analysis: #223
+
 6.0.1 (Mar 26, 2023)
 --------------------
 

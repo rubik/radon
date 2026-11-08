@@ -95,28 +95,55 @@ def _split_tokens(tokens, token, value):
 
 def _get_all_tokens(line, lines):
     '''Starting from *line*, generate the necessary tokens which represent the
-    shortest tokenization possible. This is done by catching
-    :exc:`tokenize.TokenError` when a multi-line string or statement is
-    encountered.
+    shortest tokenization possible, reading continuation lines on demand.
     :returns: tokens, lines
     '''
-    buffer = line
-    used_lines = [line]
-    while True:
-        try:
-            tokens = _generate(buffer)
-        except tokenize.TokenError:
-            # A multi-line string or statement has been encountered:
-            # start adding lines and stop when tokenize stops complaining
-            pass
-        else:
-            if not any(t[0] == tokenize.ERRORTOKEN for t in tokens):
-                return tokens, used_lines
+    used_lines = []
+    pending = [line]
 
-        # Add another line
-        next_line = next(lines)
-        buffer = buffer + '\n' + next_line
-        used_lines.append(next_line)
+    def readline():
+        if pending:
+            current = pending.pop()
+        else:
+            try:
+                current = next(lines)
+            except StopIteration:
+                return ''
+        used_lines.append(current)
+        return current + '\n'
+
+    tokens = []
+    nesting = 0
+    try:
+        for token in tokenize.generate_tokens(readline):
+            token_type, value = token[:2]
+            if token_type == tokenize.ERRORTOKEN:
+                raise StopIteration
+            tokens.append(token)
+            if token_type == OP:
+                if value in '([{':
+                    nesting += 1
+                elif value in ')]}':
+                    nesting -= 1
+            if token_type == NEWLINE or (token_type == NL and nesting == 0):
+                # An empty continuation line did not terminate the original
+                # newline-joined buffer until another line was appended.
+                if len(used_lines) > 1 and not used_lines[-1]:
+                    following = next(lines)
+                    if following:
+                        pending.append(following)
+                        continue
+                    used_lines.append(following)
+                break
+        else:
+            raise StopIteration
+    except tokenize.TokenError:
+        raise StopIteration
+
+    # End the group without asking the tokenizer to read the following line.
+    end = (len(used_lines) + 1, 0)
+    tokens.append((EM, '', end, end, ''))
+    return tokens, used_lines
 
 
 def _logical(tokens):

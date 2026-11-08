@@ -1,4 +1,5 @@
 import textwrap
+import tokenize
 
 import pytest
 
@@ -465,3 +466,46 @@ def test_analyze(code, expected):
             + result.single_comments
             + result.multi
         )
+
+
+@pytest.mark.parametrize('opening,line,closing', [
+    ('values = [', '1,', ']'),
+    ('values = {', '"key": 1,', '}'),
+    ('"""', 'docstring text', '"""'),
+])
+def test_analyze_multiline_tokenization_is_linear(monkeypatch,
+                                                opening, line, closing):
+    source = '\n'.join([opening] + [line] * 128 + [closing])
+    generate_tokens = tokenize.generate_tokens
+    consumed = []
+
+    def counted_tokens(readline):
+        def counted_readline():
+            text = readline()
+            consumed.append(len(text))
+            return text
+        return generate_tokens(counted_readline)
+
+    monkeypatch.setattr(tokenize, 'generate_tokens', counted_tokens)
+    result = analyze(source)
+
+    assert result.loc == 130
+    assert result.lloc == (2 if opening == 'values = {' else 1)
+    assert result.multi == (130 if opening == '"""' else 0)
+    # Count input consumed by the tokenizer rather than elapsed wall time.
+    assert sum(consumed) <= 2 * len(source)
+
+
+def test_analyze_multiline_groups_keep_following_lines_separate():
+    source = '\n'.join([
+        'values = [', '1,  # first', '', '2,', ']',
+        '# following comment', '"""following docstring"""', 'result = 3',
+    ])
+
+    assert analyze(source) == Module(8, 3, 5, 2, 0, 1, 2)
+
+
+@pytest.mark.parametrize('ending', ['[1,', '"""text', '"text', '\\'])
+def test_analyze_unfinished_group_reports_starting_line(ending):
+    with pytest.raises(SyntaxError, match='SyntaxError at line: 2'):
+        analyze('# first line\nvalue = ' + ending)
