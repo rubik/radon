@@ -388,7 +388,7 @@ def log_result(harvester, **kwargs):
             kw.update(h_kwargs)
             if h_kwargs.get('error', False):
                 log(msg, **kw)
-                log_error(h_args[0], indent=1)
+                log_error(h_args[0], indent=1, noformat=True)
                 continue
             msg = [msg] if not isinstance(msg, (list, tuple)) else msg
             log_list(msg, *h_args, **kw)
