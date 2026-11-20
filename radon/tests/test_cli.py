@@ -222,6 +222,52 @@ def test_log_list(stdout_mock):
     stdout_mock.assert_called_once_with('msg\n')
 
 
+@pytest.mark.parametrize(
+    'message',
+    [
+        "'{' was never closed",
+        "unexpected '}'",
+        '{name}',
+        '{0}',
+        '{{value}}',
+    ],
+)
+def test_log_result_preserves_error_text(mocker, capsys, message):
+    harvester = mocker.Mock(spec=Harvester)
+    harvester.to_terminal.return_value = [
+        ('source.py', (message,), {'error': True}),
+    ]
+
+    cli.log_result(harvester)
+
+    assert capsys.readouterr().out == (
+        'source.py\n    {0}{1}ERROR{2}: {3}\n'.format(
+            cli.BRIGHT,
+            cli.RED,
+            cli.RESET,
+            message,
+        )
+    )
+
+
+@pytest.mark.parametrize('command', [cli.cc, cli.mi])
+def test_cli_reports_syntax_errors_with_braces(tmpdir, capsys, command):
+    source = 'data = {\n'
+    filename = tmpdir.join('broken.py')
+    filename.write(source)
+    with pytest.raises(SyntaxError) as error:
+        compile(source, '<unknown>', 'exec')
+
+    command([str(filename)])
+
+    assert str(error.value) in capsys.readouterr().out
+
+
+def test_log_error_formats_explicit_arguments(capsys):
+    cli.log_error('missing {}', 'value')
+    assert capsys.readouterr().out.endswith(': missing value\n')
+
+
 def test_log_error(mocker, stdout_mock):
     reset_mock = mocker.patch('radon.cli.RESET')
     red_mock = mocker.patch('radon.cli.RED')
@@ -276,7 +322,7 @@ def test_log_result(mocker, stdout_mock):
             mocker.call('a', error=True),
         ]
     )
-    le_mock.assert_called_once_with('mystr', indent=1)
+    le_mock.assert_called_once_with('mystr', indent=1, noformat=True)
     ll_mock.assert_has_calls(
         [mocker.call(['b']), mocker.call(('p1', 'p2'), indent=1)]
     )
