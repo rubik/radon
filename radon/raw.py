@@ -190,15 +190,17 @@ def analyze(source):
         * **lloc**: The number of logical lines of code
         * **sloc**: The number of source lines of code (not necessarily
             corresponding to the LLOC)
-        * **comments**: The number of Python comment lines
+        * **comments**: The number of Python comment lines, including
+            standalone single-line strings
         * **multi**: The number of lines which represent multi-line strings
         * **single_comments**: The number of lines which are just comments with
             no code
         * **blank**: The number of blank lines (or whitespace-only ones)
 
     The equation :math:`sloc + blanks + multi + single_comments = loc` should
-    always hold.  Multiline strings are not counted as comments, since, to the
-    Python interpreter, they are not comments but strings.
+    always hold. Standalone single-line strings (including docstrings) count in
+    both ``comments`` and ``single_comments``. Multiline strings are counted
+    separately in ``multi``.
     '''
     lloc = comments = single_comments = multi = blank = sloc = 0
     lines = (l.strip() for l in source.splitlines())
@@ -228,6 +230,7 @@ def analyze(source):
                 # Consider single-line docstrings separately from other
                 # multiline docstrings
                 single_comments += 1
+                comments += 1
             else:
                 multi += sum(1 for l in parsed_lines if l)  # Skip empty lines
                 blank += sum(1 for l in parsed_lines if not l)
