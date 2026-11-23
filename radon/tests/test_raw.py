@@ -241,7 +241,7 @@ ANALYZE_CASES = [
          """here"""
          return n * f(n - 1)
      ''',
-        (3, 3, 2, 0, 0, 0, 1),
+        (3, 3, 2, 1, 0, 0, 1),
     ),
     (
         '''
@@ -388,7 +388,7 @@ ANALYZE_CASES = [
     def function():
         """ a docstring in a single line counts as a single-line comment """
     ''',
-        (2, 2, 1, 0, 0, 0, 1),
+        (2, 2, 1, 1, 0, 0, 1),
     ),
     (
         '''

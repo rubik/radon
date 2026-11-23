@@ -91,8 +91,11 @@ The following are the definitions employed by Radon:
       contains exactly one statement.
     * **SLOC**: The number of source lines of code - not necessarily
       corresponding to the **LLOC**.
-    * Comments: The number of comment lines. Multi-line strings are not counted
-      as comment since, to the Python interpreter, they are just strings.
+    * Comments: The number of Python comment lines, including standalone
+      single-line strings such as docstrings. Multi-line strings are counted
+      separately in **Multi**.
+    * Single comments: Lines containing only a Python comment or a standalone
+      single-line string, without any code. These also count in **Comments**.
     * Multi: The number of lines which represent multi-line strings.
     * Blanks: The number of blank lines (or whitespace-only ones).
 
