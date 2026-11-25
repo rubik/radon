@@ -2,6 +2,7 @@
 
 import collections
 import json
+import os
 import sys
 from builtins import super
 
@@ -91,6 +92,16 @@ class Harvester(object):
         :meth:`gobble` method. Results are yielded as tuple:
         ``(filename, analysis_results)``.
         '''
+        for path in self.paths:
+            if path != '-' and not os.path.exists(path):
+                yield (
+                    path,
+                    {
+                        'error': 'No such file or directory: {0!r}'.format(
+                            path
+                        )
+                    },
+                )
         for name in self._iter_filenames():
             with _open(name) as fobj:
                 try:
