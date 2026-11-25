@@ -107,6 +107,14 @@ def test_base_run(base_config):
     assert list(h.run()) == [('-', {'error': 'mystr'})]
 
 
+def test_base_run_missing_path(base_config):
+    h = harvest.Harvester(['/nope.py'], base_config)
+    h.gobble = fake_gobble
+    assert list(h.run()) == [
+        ('/nope.py', {'error': "No such file or directory: '/nope.py'"})
+    ]
+
+
 def test_base_results(base_config):
     h = harvest.Harvester([], base_config)
     h.run = fake_run
